@@ -4,6 +4,11 @@ pub(crate) enum Var {
 }
 
 #[derive(Debug, Clone)]
+pub(crate) enum Const {
+    Const(String),
+}
+
+#[derive(Debug, Clone)]
 pub(crate) enum Expr {
     FnCall(Const, Vec<Var>),
     PartialFnCall(Var, Var),
@@ -17,17 +22,12 @@ pub(crate) enum Expr {
 pub(crate) enum FnBody {
     Ret(Var),
     Let(Var, Expr, Box<FnBody>),
-    Case(Var, Box<Vec<FnBody>>),
+    Case(Var, Vec<FnBody>),
 }
 
 #[derive(Debug, Clone)]
 pub(crate) enum Fn {
-    Fn(Vec<Var>, FnBody),
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum Const {
-    Ident(String),
+    Fn(Const, Vec<Var>, FnBody),
 }
 
 #[derive(Debug, Clone)]
