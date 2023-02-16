@@ -1,10 +1,10 @@
 #[derive(Debug, Clone)]
-pub(crate) enum Var {
+pub enum Var {
     Var(String),
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum Expr {
+pub enum Expr {
     FnCall(Const, Vec<Var>),
     PartialFnCall(Var, Var),
     Pap(Const, Vec<Var>),
@@ -14,24 +14,24 @@ pub(crate) enum Expr {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum FnBody {
+pub enum FnBody {
     Ret(Var),
     Let(Var, Expr, Box<FnBody>),
     Case(Var, Box<Vec<FnBody>>),
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum Fn {
+pub enum Fn {
     Fn(Vec<Var>, FnBody),
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum Const {
+pub enum Const {
     Ident(String),
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum AST {
+pub enum AST {
     Const(Const),
     Var(Var),
     Expr(Expr),
@@ -41,7 +41,7 @@ pub(crate) enum AST {
 }
 
 
-pub(crate) const CONST_FALSE : i32 = 0;
-pub(crate) const CONST_TRUE : i32 = 1;
-pub(crate) const CONST_NIL : i32 = 2;
-pub(crate) const CONST_LIST : i32 = 3;
+pub const CONST_FALSE : i32 = 0;
+pub const CONST_TRUE : i32 = 1;
+pub const CONST_NIL : i32 = 2;
+pub const CONST_LIST : i32 = 3;

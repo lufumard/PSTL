@@ -3,25 +3,56 @@
 //use ast::Expr;
 //use ast::Expr::Ctor;
 //use ast::Expr::Num;
+/* */
 
-#[path = "interpreter.rs"]
-mod interpreter;
+//#[path = "./interpreter.rs"]
 use std::collections::HashMap;
 
-use interpreter::ast::Expr::Num;
-use interpreter::ast::Expr::Ctor;
-use interpreter::ast::Expr;
-use interpreter::ast::Fn;
-use interpreter::Heap;
-use interpreter::eval_expr;
-use interpreter::make_true;
-use interpreter::make_false;
+use crate::ast::Expr::Num;
+use crate::ast::Expr::Ctor;
+use crate::ast::Expr;
+use crate::ast::Fn;
+use crate::interpreter::Heap;
+use crate::interpreter::eval_expr;
+use crate::interpreter::make_true;
+use crate::interpreter::make_false;
+
 
 use crate::ast::CONST_FALSE;
 use crate::ast::CONST_TRUE;
 
 
+const PRIMITIVES: [&str; 12]  = [
+        "add", "sub", "mul", "div", "mod",
+        "and", "or", "not",
+        "sup", "inf", "sup_eq", "inf_eq"
+    ];
 
+pub(crate) fn is_primitive(nom: &String) -> bool {
+    PRIMITIVES.contains(&nom.as_str())
+}
+
+pub(crate) fn eval_fncall_primitive(nom: &String, vars:Vec<Expr>, h:Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap){
+    if (nom == "not" && vars.len() != 1) || vars.len() != 2 {
+        panic!("Pas le bon nombre d'arguments pour la primitive {}", nom);
+    };
+    
+    match nom.as_str() {
+        "add" => add_fn(vars, h, lfn),
+        "sub" => sub_fn(vars, h, lfn),
+        "mul" => mul_fn(vars, h, lfn),
+        "div" => div_fn(vars, h, lfn),
+        "mod" => mod_fn(vars, h, lfn),
+        "and" => and_fn(vars, h, lfn),
+        "or"  => or_fn (vars, h, lfn),
+        "not" => not_fn(vars[0].clone(), h, lfn),
+        "sup" => sup_fn(vars, h, lfn),
+        "inf" => inf_fn(vars, h, lfn),
+        "sup_eq" => sup_eq_fn(vars, h, lfn),
+        "inf_eq" => inf_eq_fn(vars, h, lfn),
+        _ => panic!("La primitive {} n'existe pas", nom)
+    }
+}
 
 fn is_bool(expr : &Expr) -> bool{
     match *expr {
