@@ -1,0 +1,5 @@
+fibo n = let m2 = 2; let m1 = 1; let a = inf n m2; case a of
+    (let x = sub n m1; let y = sub n m2; 
+    let n = fibo x; let m = fibo y;
+    let r = add x y; ret r)
+    (let r = 1; ret r)
