@@ -31,15 +31,14 @@ pub enum Heap{
     None,
 }
 
-pub fn start_interpreter (funs : Vec<AST>, exec: Expr) -> Expr {
+pub fn start_interpreter (funs : Vec<AST>, exec: Expr, heap: Heap) -> Expr {
     let mut liste_fun:HashMap<String, Fn> = HashMap::new();
-    let heap = empty_heap();
+    let h = empty_heap();
     let mut res = funs.iter().fold((Expr::Num(0), empty_heap()), |(e, h), f| {
-        eval_ast(f.clone(), h, &mut liste_fun)
+        eval_ast(f.clone(), h.clone(), &mut liste_fun)
     });
-    
+    //dbg!(&liste_fun);
     eval_expr(exec, heap, &mut liste_fun).0
-
 }
 
 impl Heap {
@@ -75,11 +74,11 @@ pub  fn empty_heap() -> Heap {
 }
 
 pub  fn make_false() -> Expr{
-    return Expr::Ctor(CONST_FALSE, todo!());
+    return Expr::Ctor(CONST_FALSE, vec![]);
 }
 
 pub  fn make_true() -> Expr{
-    return Expr::Ctor(CONST_TRUE, todo!());
+    return Expr::Ctor(CONST_TRUE, vec![]);
 }
 
 pub  fn throw() {
@@ -142,26 +141,28 @@ pub  fn eval_expr(expr: Expr, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, He
 }
 
 pub  fn eval_fun(fun:Fn, h:Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+    let Fn::Fn(cst, args, body) = fun.clone(); 
+    let Const::Const(name) = cst;
+    lfn.insert(name.clone(), fun);
     (make_false(), h) 
 }
 
 
 pub fn eval_fncall(ident: Const, vars: Vec<Var>, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
-    let Const::Const(nom) = &ident;
-    if is_primitive(nom) {
-        let exprs = vars.iter().map(|v| h.get(v.to_owned())).collect();
-        return eval_fncall_primitive(nom, exprs, h, lfn);
+    let Const::Const(nom) = ident;
+    if is_primitive(&nom) {
+        return eval_fncall_primitive(nom, vars, h, lfn);
     }
     unsafe {
-        match lfn.get(nom).cloned() {
+        match lfn.get(&nom).cloned() {
             Some(Fn::Fn(ident, args, body)) => {
                 if args.len() == vars.len() {
                     eval_cons_full_fn(args, body, vars, h, lfn)
                 } else {
-                    if args.len() < vars.len() {
+                    if args.len() > vars.len() {
                         eval_pap(ident, vars, h, lfn)
                     } else {
-                        panic!("{} n'a pas autant d'arguments", nom)
+                        panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", nom, args.len(), vars.len())
                     }
                 }
             }
@@ -247,7 +248,7 @@ pub  fn eval_let(var: Var, expr: Expr, fnbody: FnBody, h: Heap, lfn:&mut HashMap
     let (value, h) = eval_expr(expr, h, lfn);
     let new_heap = h.add(var, value);
     let (res, _) = eval_fnbody(fnbody, new_heap, lfn);
-    return (res, h);
+    (res, h)
 }
 
 pub  fn eval_case(var: Var, bodys: Vec<FnBody>, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {

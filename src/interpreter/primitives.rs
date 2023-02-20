@@ -11,6 +11,8 @@ use std::collections::HashMap;
 use crate::ast::Expr::Num;
 use crate::ast::Expr::Ctor;
 use crate::ast::Expr;
+use crate::ast::Var;
+use crate::ast::Const;
 use crate::ast::Fn;
 use crate::interpreter::Heap;
 use crate::interpreter::eval_expr;
@@ -22,20 +24,28 @@ use crate::ast::CONST_FALSE;
 use crate::ast::CONST_TRUE;
 
 
-const PRIMITIVES: [&str; 12]  = [
+const PRIMITIVES: [&str; 13]  = [
         "add", "sub", "mul", "div", "mod",
         "and", "or", "not",
-        "sup", "inf", "sup_eq", "inf_eq"
+        "eq", "sup", "inf", "sup_eq", "inf_eq"
     ];
 
 pub fn is_primitive(nom: &String) -> bool {
     PRIMITIVES.contains(&nom.as_str())
 }
 
-pub fn eval_fncall_primitive(nom: &String, vars:Vec<Expr>, h:Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap){
-    if (nom == "not" && vars.len() != 1) || vars.len() != 2 {
-        panic!("Pas le bon nombre d'arguments pour la primitive {}", nom);
+
+
+pub fn eval_fncall_primitive(nom: String, vars:Vec<Var>, h:Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap){
+    if (nom.clone().eq("not") && vars.len() != 1)||(!nom.clone().eq("not") && vars.len() != 2) {
+        if (nom.clone().eq("not") && vars.len() > 1)||(!nom.clone().eq("not") && vars.len() > 2){
+            panic!("Pas le bon nombre d'arguments pour la primitive {}, reçois {}", nom, vars.len() );
+        };
+
+        return (Expr::Pap(Const::Const(nom), vars), h);
     };
+
+    let vars = vars.iter().map(|v| h.get(v.to_owned())).collect();
     
     match nom.as_str() {
         "add" => add_fn(vars, h, lfn),
@@ -46,6 +56,7 @@ pub fn eval_fncall_primitive(nom: &String, vars:Vec<Expr>, h:Heap, lfn:&mut Hash
         "and" => and_fn(vars, h, lfn),
         "or"  => or_fn (vars, h, lfn),
         "not" => not_fn(vars[0].clone(), h, lfn),
+        "eq"  => eq_fn (vars, h, lfn),
         "sup" => sup_fn(vars, h, lfn),
         "inf" => inf_fn(vars, h, lfn),
         "sup_eq" => sup_eq_fn(vars, h, lfn),
