@@ -32,7 +32,7 @@ fn main() {
         .add(ast::Var::Var("n".to_string()), ast::Expr::Num(n))
         .add(ast::Var::Var("m1".to_string()), ast::Expr::Num(1));   
     let call = ast::Expr::FnCall(ast::Const::Const("fibo".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m1".to_string())]);
-    let res = start_interpreter(vec![parsed], call, heap);
+    let res = start_interpreter(vec![parsed], call, &heap);
     println!("fibo {} =", n);
     dbg!(res);
 
@@ -47,7 +47,7 @@ fn main() {
         .add(ast::Var::Var("n".to_string()), ast::Expr::Num(10))
         .add(ast::Var::Var("m".to_string()), ast::Expr::Num(6));   
     let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m".to_string())]);
-    let res = start_interpreter(vec![parsed], call, heap);
+    let res = start_interpreter(vec![parsed], call, &heap);
     println!("pap 10 6 = 4");
     dbg!(res);
 
@@ -60,7 +60,7 @@ fn main() {
         .add(ast::Var::Var("n".to_string()), ast::Expr::Num(10))
         .add(ast::Var::Var("f".to_string()), ast::Expr::Pap(ast::Const::Const("mod".to_string()), vec![]));   
     let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("f".to_string()), ast::Var::Var("n".to_string())]);
-    let res = start_interpreter(vec![parsed], call, heap.clone());
-    println!("pap mod 10 = pap(\"mod\", [10])");
+    let res = start_interpreter(vec![parsed], call, &heap);
+    println!("pap mod 10 = pap(\"mod\", [\"n\"])");
     dbg!(&res);
 }
