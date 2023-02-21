@@ -14,9 +14,11 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
+use crate::reader::var;
 
 
 pub mod primitives;
+use chumsky::primitive::todo;
 use primitives::is_primitive;
 use primitives::eval_fncall_primitive;
 
@@ -165,8 +167,14 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, h: Heap, lfn:&mut HashMap<Strin
                         panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", nom, args.len(), vars.len())
                     }
                 }
+            },
+            //None => panic!("{} n'est pas une fonction", nom),
+            None => if vars.len() == 1 {
+                let x = Var::Var(nom);
+                eval_pap_fncall(x, vars[0].to_owned(), h, lfn)
+            } else {
+                todo!()
             }
-            None => panic!("{} n'est pas une fonction", nom),
         }
     }
 }

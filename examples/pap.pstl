@@ -1,3 +1,4 @@
-pap n m = let pa = sub n;
+pap n m = let pa = sub;
+    let pa = pa n;
     let pa = pa m;
     ret pa
