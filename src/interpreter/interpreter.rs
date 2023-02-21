@@ -1,7 +1,8 @@
+#![allow(dead_code)]
+
 #[path = "../ast.rs"]
 pub mod ast;
 
-use std::collections;
 use std::collections::HashMap;
 pub use std::primitive;
 pub use crate::ast::Var;
@@ -14,11 +15,9 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
-use crate::reader::var;
 
 
 pub mod primitives;
-use chumsky::primitive::todo;
 use primitives::is_primitive;
 use primitives::eval_fncall_primitive;
 
@@ -35,8 +34,7 @@ pub enum Heap{
 
 pub fn start_interpreter (funs : Vec<AST>, exec: Expr, heap: Heap) -> Expr {
     let mut liste_fun:HashMap<String, Fn> = HashMap::new();
-    let h = empty_heap();
-    let mut res = funs.iter().fold((Expr::Num(0), empty_heap()), |(e, h), f| {
+    funs.iter().fold((Expr::Num(0), empty_heap()), |(_, h), f| {
         eval_ast(f.clone(), h.clone(), &mut liste_fun)
     });
     //dbg!(&liste_fun);
@@ -83,6 +81,14 @@ pub  fn make_true() -> Expr{
     return Expr::Ctor(CONST_TRUE, vec![]);
 }
 
+pub  fn make_nil() -> Expr{
+    return Expr::Ctor(CONST_NIL, vec![]);
+}
+
+pub  fn make_list(args : Vec<Var>) -> Expr{
+    return Expr::Ctor(CONST_LIST, args);
+}
+
 pub  fn throw() {
     panic!("Evaluation non défini pour ce type");
 }
@@ -91,19 +97,19 @@ pub  fn get_nb_args_ctor(n: i32) -> i32 {
     match n {
         CONST_FALSE => 0,
         CONST_TRUE => 0,
-        //CONST_NIL => 0,
-        //CONST_LIST => 2,
+        CONST_NIL => 0,
+        CONST_LIST => 2,
         _ => panic!("Ctor {} non existant", n),
     }
 }
 
-pub  fn create_ctor(n: i32, args: Vec<Expr>) -> Expr {
+pub  fn create_ctor(n: i32, args: Vec<Var>) -> Expr {
 
     match n {
         CONST_FALSE => make_false(),
         CONST_TRUE => make_true(),
-        //CONST_NIL => ,
-        //CONST_LIST => ,
+        CONST_NIL => make_nil(),
+        CONST_LIST => make_list(args),
         _ => panic!("Contructeur non connu"),
     }
 }
@@ -123,7 +129,7 @@ pub  fn eval_ast(ast: AST, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap)
 /*
 * Var evaluation section
 */
-pub fn eval_var(var: Var, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+pub fn eval_var(var: Var, h: Heap, _:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     (h.get(var), h)
 }
 
@@ -143,7 +149,7 @@ pub  fn eval_expr(expr: Expr, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, He
 }
 
 pub  fn eval_fun(fun:Fn, h:Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
-    let Fn::Fn(cst, args, body) = fun.clone(); 
+    let Fn::Fn(cst, _, _) = fun.clone(); 
     let Const::Const(name) = cst;
     lfn.insert(name.clone(), fun);
     (make_false(), h) 
@@ -155,26 +161,25 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, h: Heap, lfn:&mut HashMap<Strin
     if is_primitive(&nom) {
         return eval_fncall_primitive(nom, vars, h, lfn);
     }
-    unsafe {
-        match lfn.get(&nom).cloned() {
-            Some(Fn::Fn(ident, args, body)) => {
-                if args.len() == vars.len() {
-                    eval_cons_full_fn(args, body, vars, h, lfn)
-                } else {
-                    if args.len() > vars.len() {
-                        eval_pap(ident, vars, h, lfn)
-                    } else {
-                        panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", nom, args.len(), vars.len())
-                    }
-                }
-            },
-            //None => panic!("{} n'est pas une fonction", nom),
-            None => if vars.len() == 1 {
-                let x = Var::Var(nom);
-                eval_pap_fncall(x, vars[0].to_owned(), h, lfn)
+
+    match lfn.get(&nom).cloned() {
+        Some(Fn::Fn(ident, args, body)) => {
+            if args.len() == vars.len() {
+                eval_cons_full_fn(args, body, vars, h, lfn)
             } else {
-                todo!()
+                if args.len() > vars.len() {
+                    eval_pap(ident, vars, h, lfn)
+                } else {
+                    panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", nom, args.len(), vars.len())
+                }
             }
+        },
+        //None => panic!("{} n'est pas une fonction", nom),
+        None => if vars.len() == 1 {
+            let x = Var::Var(nom);
+            eval_pap_fncall(x, vars[0].to_owned(), h, lfn)
+        } else {
+            todo!()
         }
     }
 }
@@ -199,26 +204,19 @@ pub fn eval_pap_fncall(x: Var, y: Var, h: Heap, lfn:&mut HashMap<String,Fn>) -> 
     }
 }
 
-pub  fn eval_pap(ident: Const, vars: Vec<Var>, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+pub  fn eval_pap(ident: Const, vars: Vec<Var>, h: Heap, _:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     (Expr::Pap(ident, vars), h)
 }
 
 
 
-pub fn eval_ctor(n: i32, vars: Vec<Var>, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+pub fn eval_ctor(n: i32, vars: Vec<Var>, h: Heap, _:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     let len:i32 = match vars.len().try_into() {
         Ok(v) => v,
         Err(_) => panic!("couldn't fit in i32"),
     };
     assert!(get_nb_args_ctor(n) == len);
-    let args = vars
-        .into_iter()
-        .map(|a| {
-            let (v, _) = eval_var(a, h.clone(), lfn);
-            v
-        })
-        .collect();
-    return (create_ctor(n, args), h);
+    return (create_ctor(n, vars), h);
 }
 
 pub  fn eval_proj(n: i32, var: Var, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
@@ -233,7 +231,7 @@ pub  fn eval_proj(n: i32, var: Var, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Ex
     }
 }
 
-pub  fn eval_value(n: i32, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+pub  fn eval_value(n: i32, h: Heap, _:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     (Expr::Num(n), h)
 }
 
@@ -276,15 +274,13 @@ pub  fn eval_case(var: Var, bodys: Vec<FnBody>, h: Heap, lfn:&mut HashMap<String
  * Eval Const
  */
 
-pub fn eval_const(c: Const, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
+pub fn eval_const(_: Const, _: Heap, _:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     panic!("Const ??")
 }
 
 
 pub fn eval_program(c: Const, fun:Fn, h: Heap, lfn:&mut HashMap<String,Fn>) -> (Expr, Heap) {
     let Const::Const(nom) = c;
-    unsafe {
-        lfn.insert(nom, fun)
-    };
+    lfn.insert(nom, fun);
     (make_false(), h)
 }

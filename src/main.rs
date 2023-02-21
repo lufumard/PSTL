@@ -1,8 +1,10 @@
+#![allow(dead_code)]
+
 mod ast;
 use chumsky::Parser;
 use std::fs;
 
-use crate::interpreter::{start_interpreter, empty_heap, eval_expr};
+use crate::interpreter::{start_interpreter, empty_heap};
 
 pub mod reader;
 
@@ -17,6 +19,7 @@ fn main() {
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
     let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    drop(parsed);
     //dbg!(parsed);
 
 
@@ -45,7 +48,8 @@ fn main() {
         .add(ast::Var::Var("m".to_string()), ast::Expr::Num(6));   
     let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m".to_string())]);
     let res = start_interpreter(vec![parsed], call, heap);
-    dbg!("pap 10 6 = 4", res);
+    println!("pap 10 6 = 4");
+    dbg!(res);
 
 
     let file_path = "./examples/pap2.pstl";
@@ -57,5 +61,6 @@ fn main() {
         .add(ast::Var::Var("f".to_string()), ast::Expr::Pap(ast::Const::Const("mod".to_string()), vec![]));   
     let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("f".to_string()), ast::Var::Var("n".to_string())]);
     let res = start_interpreter(vec![parsed], call, heap.clone());
-    dbg!("pap mod 10 = pap(\"mod\", [10])", &res);
+    println!("pap mod 10 = pap(\"mod\", [10])");
+    dbg!(&res);
 }

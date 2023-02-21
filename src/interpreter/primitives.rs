@@ -23,7 +23,7 @@ use crate::interpreter::make_false;
 use crate::ast::CONST_FALSE;
 use crate::ast::CONST_TRUE;
 
-
+#[allow(dead_code)]
 const PRIMITIVES: [&str; 13]  = [
         "add", "sub", "mul", "div", "mod",
         "and", "or", "not",
