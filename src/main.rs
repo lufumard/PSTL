@@ -2,7 +2,7 @@ mod ast;
 use chumsky::Parser;
 use std::fs;
 
-use crate::interpreter::{start_interpreter, empty_heap};
+use crate::interpreter::{start_interpreter, empty_heap, eval_expr};
 
 pub mod reader;
 
@@ -46,4 +46,16 @@ fn main() {
     let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m".to_string())]);
     let res = start_interpreter(vec![parsed], call, heap);
     dbg!("pap 10 6 = 4", res);
+
+
+    let file_path = "./examples/pap2.pstl";
+    let file_contents = fs::read_to_string(file_path)
+        .expect(format!("unable to read file + {}", file_path).as_str());
+    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let heap = empty_heap()
+        .add(ast::Var::Var("n".to_string()), ast::Expr::Num(10))
+        .add(ast::Var::Var("f".to_string()), ast::Expr::Pap(ast::Const::Const("mod".to_string()), vec![]));   
+    let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("f".to_string()), ast::Var::Var("n".to_string())]);
+    let res = start_interpreter(vec![parsed], call, heap.clone());
+    dbg!("pap mod 10 = pap(\"mod\", [10])", &res);
 }

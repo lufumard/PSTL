@@ -194,7 +194,7 @@ pub fn eval_pap_fncall(x: Var, y: Var, h: Heap, lfn:&mut HashMap<String,Fn>) -> 
             vars.push(y);
             let (res, _) = eval_fncall(c, vars, h.clone(), lfn);
             (res, h)
-        }
+        },
         _ => panic!("Pas un pap"),
     }
 }
