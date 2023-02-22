@@ -140,7 +140,6 @@ pub fn eval_var(var: Var, h: &Heap, _:&mut HashMap<String,Fn>) -> Expr {
 pub  fn eval_expr(expr: Expr, h: &Heap, lfn:&mut HashMap<String,Fn>) -> Expr {
     match expr {
         Expr::FnCall(ident, vars) => eval_fncall(ident, vars, h, lfn),
-        Expr::PartialFnCall(x, y) => eval_pap_fncall(x, y, h, lfn),
         Expr::Pap(ident, vars) => eval_pap(ident, vars, h, lfn),
         Expr::Ctor(n, vars) => eval_ctor(n, vars, h, lfn),
         Expr::Proj(n, var) => eval_proj(n, var, h, lfn),

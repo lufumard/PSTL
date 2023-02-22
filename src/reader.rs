@@ -28,11 +28,6 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Proj(i, _var)
         });
 
-    let partial_fn_call = var()
-        .padded()
-        .then(var().padded())
-        .map(|(_x, _y)| Expr::PartialFnCall(_x, _y));
-
     let ctor = keyword("ctor")
         .ignore_then(int(10))
         .padded()
@@ -51,7 +46,7 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Proj(i, _var)
         });
 
-    fncall.or(pap).or(partial_fn_call).or(ctor).or(proj)
+    fncall.or(pap).or(ctor).or(proj)
 }
 
 pub(crate) fn fnbody() -> impl Parser<char, FnBody, Error = Simple<char>> {
