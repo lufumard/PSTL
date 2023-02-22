@@ -1,1 +1,0 @@
-pap f n = let r = f n; ret r
