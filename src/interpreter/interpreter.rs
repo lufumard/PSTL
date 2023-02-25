@@ -15,6 +15,7 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
+use crate::primitives::has_args;
 
 
 pub mod primitives;
@@ -256,7 +257,16 @@ pub fn eval_pap_fncall(x: Var, ys: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mut Ha
             let Const::Const(name) = &c;
             vars.push(l);
             if is_primitive(&name) {
-                eval_fncall_primitive(name.to_owned(), vars, ct, h, lfn)
+                let s = has_args(name, vars.len());
+                if s == 0 {
+                    return eval_fncall_primitive(name.to_owned(), vars, ct, h, lfn);
+                } else if s < 1 {
+                    let v = Value::Pap(Const::Const(name.to_string()), vars);
+                    return h.add((v, 1));
+                } else {
+                    panic!("Pas le bon nombre d'arguments pour la primitive {}, reçois {}", name, vars.len() );
+                }
+                
             }else {  
                 match lfn.get(name).cloned() {
                     Some(Fn::Fn(_, args, body)) => {

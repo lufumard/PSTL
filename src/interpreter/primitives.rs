@@ -8,14 +8,12 @@
 //#[path = "./interpreter.rs"]
 use std::collections::HashMap;
 
-use crate::ast::Const;
 use crate::ast::Fn;
 use crate::interpreter::Ctxt;
 use crate::interpreter::Loc;
 use crate::interpreter::Heap;
 use crate::interpreter::Value::Ctor;
 use crate::interpreter::Value::Num;
-use crate::interpreter::Value::Pap;
 use crate::interpreter::make_true;
 use crate::interpreter::make_false;
 
@@ -34,17 +32,14 @@ pub fn is_primitive(nom: &String) -> bool {
     PRIMITIVES.contains(&nom.as_str())
 }
 
+pub fn has_args(nom : &String, length:usize) -> usize {
+    if nom.clone().eq("not") {
+        return length - 1;
+    }
+    return length - 2;
+}
 
-
-pub fn eval_fncall_primitive(nom: String, vars:Vec<Loc>, c: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String,Fn>) -> Loc{
-    if (nom.clone().eq("not") && vars.len() != 1)||(!nom.clone().eq("not") && vars.len() != 2) {
-        if (nom.clone().eq("not") && vars.len() > 1)||(!nom.clone().eq("not") && vars.len() > 2){
-            panic!("Pas le bon nombre d'arguments pour la primitive {}, reçois {}", nom, vars.len() );
-        };
-        let v = Pap(Const::Const(nom), vars);
-        return h.add((v, 1));
-    };
-    
+pub fn eval_fncall_primitive(nom: String, vars:Vec<Loc>, c: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String,Fn>) -> Loc{  
     match nom.as_str() {
         "add" => add_fn(vars, c, h, lfn),
         "sub" => sub_fn(vars, c, h, lfn),
