@@ -44,7 +44,7 @@ pub struct Heap{
     loc : i32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value{
     Ctor (i32, Vec<Loc>),
     Pap (Const, Vec<Loc>),
@@ -106,7 +106,7 @@ pub  fn empty_ctxt() -> Ctxt {
 }
 
 pub fn empty_heap() -> Heap {
-    return Heap {map : HashMap::new(), loc : 0};
+    return Heap {map : HashMap::new(), loc : 1};
 }
 
 
@@ -324,7 +324,9 @@ pub fn eval_ctor(n: i32, vars: Vec<Var>, c: &Ctxt, h:&mut Heap, _:&mut HashMap<S
     return h.add((v, 1));
 }
 
+// On commence à 1
 pub  fn eval_proj(n: i32, var: Var, ct: &Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
+    assert!(n>0);
     let (v, _) = h.get(ct.get(var));
 
     if let Value::Ctor(_, locs) = v {
@@ -332,7 +334,7 @@ pub  fn eval_proj(n: i32, var: Var, ct: &Ctxt, h:&mut Heap, _:&mut HashMap<Strin
             Ok(v) => v,
             Err(_) => panic!("couldn't fit in usize"),
         };
-        return locs[i].to_owned();
+        return locs[i-1].to_owned();
     } else {
         panic!("Proj sur autre qu'un constructeur")
     }

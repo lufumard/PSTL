@@ -63,3 +63,140 @@ fn main() {
     dbg!(heap.get(res));
 
 }
+
+
+
+#[cfg(test)]
+mod tests_interpreter{
+    use std::collections::HashMap;
+
+    use crate::ast::{CONST_LIST, FnBody};
+
+    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE};
+
+
+    fn get_num(l:Loc, h:&Heap) -> i32 {
+        if let (Value::Num(n), _) = h.get(l){
+            return n;
+        } else {
+            panic!("Pas un num");
+        }
+    }
+
+    fn get_ctor(l:Loc, h:&Heap) -> (i32, Vec<Loc>) {
+        if let (Value::Ctor(v, a), _) = h.get(l){
+            return (v, a);
+        }else {
+            panic!("Pas un ctor");
+        }
+    }
+
+    fn get_bool(l:Loc, h:&Heap) -> bool {
+        if let (Value::Ctor(n, _), _) = h.get(l){
+            match n {
+                CONST_FALSE => false,
+                CONST_TRUE => true,
+                _ => panic!("{} pas constructeur de bool", n)
+            }
+        }else{
+            panic!("Pas un bool");
+        }
+    }
+
+    fn add_value(var:Var, val:Value, c:Ctxt, h:&mut Heap) -> Ctxt {
+        c.add(var, h.add((val, 1)))
+    }
+
+    #[test]
+    fn test_ret() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let value = Value::Num(0);
+
+        let l = heap.add((value, 1));
+        ctxt = ctxt.add(var.clone(), l.clone());
+ 
+        let res = eval_ret(var, &ctxt, &mut heap, &mut lfn);
+        assert_eq!(l, res);
+    }
+
+    #[test]
+    fn test_let() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let expected = 5;
+        let value = Expr::Num(expected.clone());
+        let fnbody = FnBody::Ret(var.clone());
+
+        let res = eval_let(var, value, fnbody, &mut ctxt, &mut heap, &mut lfn);
+        let n = get_num(res, &heap);
+        assert_eq!(expected, n);
+    }
+
+    #[test]
+    fn test_ctor() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let l1 = heap.add((Value::Num(1), 1));
+        let l2 = heap.add((Value::Num(2), 1));
+        ctxt = ctxt.add(Var::Var("a".to_string()), l1.clone());
+        ctxt = ctxt.add(Var::Var("b".to_string()), l2.clone());
+        let expected_args = vec![Var::Var("a".to_string()), Var::Var("b".to_string())];
+
+        let res = eval_ctor(CONST_LIST, expected_args.clone(), &ctxt, &mut heap, &mut lfn);
+        let (n, a) = get_ctor(res, &heap);
+        
+        assert_eq!(CONST_LIST, n);
+        
+        assert_eq!(l1, a[0]);
+        assert_eq!(l2, a[1]);
+    }
+    
+    #[test]
+    fn test_proj1() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let l1 = heap.add((Value::Num(1), 1));
+        let l2 = heap.add((Value::Num(2), 1));
+
+        let args = vec![l1.clone(), l2.clone()];
+        let ctor = Value::Ctor(CONST_LIST, args);
+        
+        let l = heap.add((ctor, 1));
+        ctxt = ctxt.add(var.clone(), l.clone());
+
+        let res = eval_proj(1, var, &ctxt, &mut heap, &mut lfn);
+        assert_eq!(l1, res);
+    }
+
+    #[test]
+    fn test_proj2() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let l1 = heap.add((Value::Num(1), 1));
+        let l2 = heap.add((Value::Num(2), 1));
+
+        let args = vec![l1.clone(), l2.clone()];
+        let ctor = Value::Ctor(CONST_LIST, args);
+        
+        let l = heap.add((ctor, 1));
+        ctxt = ctxt.add(var.clone(), l.clone());
+
+        let res = eval_proj(2, var, &ctxt, &mut heap, &mut lfn);
+        assert_eq!(l2, res);
+    }
+}

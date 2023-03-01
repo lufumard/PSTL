@@ -83,6 +83,8 @@ fn extract_bool(l: Loc, h:&mut Heap) -> bool {
 
 
 // Définition des primitives
+// TODO : rendre plus concis
+
 pub fn add_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
