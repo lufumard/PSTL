@@ -203,10 +203,18 @@ pub  fn eval_fun(fun:Fn, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) ->
 
 
 pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Const::Const(nom) = ident;
+    let Const::Const(nom) = ident.clone();
     if is_primitive(&nom) {
-        let vars = vars.iter().map(|v| ct.get(v.to_owned())).collect();
-        return eval_fncall_primitive(nom, vars, ct, h, lfn);
+        let r = has_args(&nom, vars.len() as i32);
+        if r == 0{
+            let vars = vars.iter().map(|v| ct.get(v.to_owned())).collect();
+            return eval_fncall_primitive(nom, vars, ct, h, lfn);
+        } else if r < 0 {
+            return eval_pap(ident, vars, ct, h, lfn);
+        } else {
+            panic!("Trop d'arguments");
+        }
+        
     }
 
     match lfn.get(&nom).cloned() {
@@ -257,7 +265,7 @@ pub fn eval_pap_fncall(x: Var, ys: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mut Ha
             let Const::Const(name) = &c;
             vars.push(l);
             if is_primitive(&name) {
-                let s = has_args(name, vars.len());
+                let s = has_args(name, vars.len() as i32);
                 if s == 0 {
                     return eval_fncall_primitive(name.to_owned(), vars, ct, h, lfn);
                 } else if s < 1 {

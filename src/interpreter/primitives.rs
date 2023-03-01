@@ -32,7 +32,7 @@ pub fn is_primitive(nom: &String) -> bool {
     PRIMITIVES.contains(&nom.as_str())
 }
 
-pub fn has_args(nom : &String, length:usize) -> usize {
+pub fn has_args(nom : &String, length:i32) -> i32 {
     if nom.clone().eq("not") {
         return length - 1;
     }

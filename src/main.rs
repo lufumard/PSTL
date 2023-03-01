@@ -8,7 +8,7 @@ use interpreter::Ctxt;
 use interpreter::Var;
 use std::fs;
 
-use crate::interpreter::{start_interpreter, empty_heap, empty_ctxt};
+//use crate::interpreter::{start_interpreter, empty_heap, empty_ctxt};
 
 pub mod reader;
 
@@ -30,38 +30,6 @@ fn main() {
     drop(parsed);
     //dbg!(parsed);
 
-
-    let file_path = "./examples/fibo.pstl";
-    let file_contents = fs::read_to_string(file_path)
-        .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
-    let n = 7;
-    let mut heap = empty_heap();
-    let ctxt = add_value(Var::Var("n".to_string()), Value::Num(n), 
-        add_value(Var::Var("m1".to_string()), Value::Num(1), empty_ctxt(), &mut heap), &mut heap);
- 
-    let call = ast::Expr::FnCall(ast::Const::Const("fibo".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m1".to_string())]);
-    let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
-    println!("fibo {} =", n);
-    dbg!(heap.get(res));
-
-    // fibo 7  = 21
-    // fibo 10 = 89
-    
-    let file_path = "./examples/pap.pstl";
-    let file_contents = fs::read_to_string(file_path)
-        .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
-    let mut heap = empty_heap();
-    let ctxt = add_value(Var::Var("n".to_string()), Value::Num(10), 
-                add_value(Var::Var("m".to_string()), Value::Num(6), empty_ctxt(), &mut heap)
-            , &mut heap);
- 
-    let call = ast::Expr::FnCall(ast::Const::Const("pap".to_string()), vec![ast::Var::Var("n".to_string()), ast::Var::Var("m".to_string())]);
-    let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
-    println!("pap 10 6 = 4");
-    dbg!(heap.get(res));
-
 }
 
 
@@ -69,10 +37,14 @@ fn main() {
 #[cfg(test)]
 mod tests_interpreter{
     use std::collections::HashMap;
+    use std::fs;
+
+    use chumsky::Parser;
 
     use crate::ast::{CONST_LIST, FnBody};
 
-    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE};
+    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE, start_interpreter, Const};
+    use crate::reader;
 
 
     fn get_num(l:Loc, h:&Heap) -> i32 {
@@ -198,5 +170,71 @@ mod tests_interpreter{
 
         let res = eval_proj(2, var, &ctxt, &mut heap, &mut lfn);
         assert_eq!(l2, res);
+    }
+
+    #[test]
+    fn test_fibo_of_7(){
+        let file_path = "./examples/fibo.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        
+        // fibo 7  = 21
+        // fibo 10 = 89
+
+        let n = 7;
+        let expected = 21;
+        
+        let mut heap = empty_heap();
+        let ctxt = add_value(Var::Var("n".to_string()), Value::Num(n), 
+            add_value(Var::Var("m1".to_string()), Value::Num(1), empty_ctxt(), &mut heap), &mut heap);
+    
+        let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string()), Var::Var("m1".to_string())]);
+        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        println!("fibo {} =", n);
+        assert_eq!(expected, get_num(res, &heap));
+    }
+
+    #[test]
+    fn test_fibo_of_10(){
+        let file_path = "./examples/fibo.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        
+        // fibo 7  = 21
+        // fibo 10 = 89
+
+        let n = 10;
+        let expected = 89;
+        
+        let mut heap = empty_heap();
+        let ctxt = add_value(Var::Var("n".to_string()), Value::Num(n), 
+            add_value(Var::Var("m1".to_string()), Value::Num(1), empty_ctxt(), &mut heap), &mut heap);
+    
+        let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string()), Var::Var("m1".to_string())]);
+        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        println!("fibo {} =", n);
+        assert_eq!(expected, get_num(res, &heap));
+    }
+    
+
+    #[test]
+    fn test_pap(){
+        let file_path = "./examples/pap.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        let mut heap = empty_heap();
+        let ctxt = add_value(Var::Var("n".to_string()), Value::Num(10), 
+                    add_value(Var::Var("m".to_string()), Value::Num(6), empty_ctxt(), &mut heap)
+                , &mut heap);
+    
+        let call = Expr::FnCall(Const::Const("pap".to_string()), vec![Var::Var("n".to_string()), Var::Var("m".to_string())]);
+        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        //println!("pap 10 6 = 4");
+        let expected = 4;
+        //dbg!(res);
+        assert_eq!(expected, get_num(res, &heap));
     }
 }
