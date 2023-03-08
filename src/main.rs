@@ -320,6 +320,49 @@ mod tests_interpreter{
         assert_eq!(expected, get_num(res, &heap));
     }
     
+    #[test]
+    fn test_fibo_num_of_10(){
+        let file_path = "./examples/fibo_num.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        
+        // fibo 7  = 21
+        // fibo 10 = 89
+
+        let n = 10;
+        let expected = 89;
+        
+        let mut heap = empty_heap();
+        let ctxt = add_value(Var::Var("n".to_string()), Value::Num(n), empty_ctxt(), &mut heap);
+    
+        let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string())]);
+        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        println!("fibo {} =", n);
+        assert_eq!(expected, get_num(res, &heap));
+    }
+
+    #[test]
+    fn test_fibo_num_of_7(){
+        let file_path = "./examples/fibo_num.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        
+        // fibo 7  = 21
+        // fibo 10 = 89
+
+        let n = 7;
+        let expected = 21;
+        
+        let mut heap = empty_heap();
+        let ctxt = add_value(Var::Var("n".to_string()), Value::Num(n), empty_ctxt(), &mut heap);
+    
+        let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string())]);
+        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        println!("fibo {} =", n);
+        assert_eq!(expected, get_num(res, &heap));
+    }
 
     #[test]
     fn test_pap(){
