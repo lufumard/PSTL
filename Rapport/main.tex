@@ -1,5 +1,7 @@
 \documentclass{rapportECL}
 \usepackage{lipsum}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{bibliotheque.bib}
 
 \title{Rapport ECL - Template} %Titre du fichier
 
@@ -7,24 +9,52 @@
 
 %----------- Informations du rapport ---------
 
-\titre{titre} %Titre du fichier .pdf
+\titre{Un Langage "Pur" pour Web Assembly} %Titre du fichier .pdf
 \UE{PSTL} %Nom de la UE
 
 \enseignant{Frédéric \textsc{Peschanski}} %Nom de l'enseignant
 
 \eleves{Lucas \textssc{Fumard} \\
-Lauryn \textsc{Pierre} \\		
-Saïd Mohammad \textsc{ArouiZUHAIR } } %Nom des élèves
+	Lauryn \textsc{Pierre} \\
+	Saïd Mohammad \textsc{ZUHAIR} } %Nom des élèves
 
 %----------- Initialisation -------------------
-        
+
 \fairemarges %Afficher les marges
 \fairepagedegarde %Créer la page de garde
 \tabledematieres %Créer la table de matières
 
 %------------ Corps du rapport ----------------
 \section{Introduction}
+WebAssembly, en abrégé Wasm est une petite machine portable qui fonctionne dans les navigateurs et serveurs web modernes et sur une vaste gamme de matériel divers
+\cite{jesuisundev_comprendre_2020}\cite{noauthor_webassembly_2023}.
+\section{Cahier des charges}
+Les tâches que nous avons identifié sont les suivantes :
 
+- Analyser le fonctionnement de WASM
 
+- Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
 
+- Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
+
+- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article\cite{ullrich_counting_2020}
+
+- Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
+
+- Programmer un compilateur du langage agrandi vers WASM
+
+\section{Tâches Réalisées}
+
+Afin de créer le langage pur pour WASM, nous avons tout d'abord lu l'article\cite{ullrich_counting_2020} et analysé la structure du langage pur à implémenter telle que définie dans la section 3 de l'article\cite{ullrich_counting_2020}.
+Cette structure nous a permis d'écrire un parseur en Rust capable de créer un AST du langage.
+
+Par la suite, nous avons implémenté les sémantiques définies dans la section 4 sur la figure 1 en programmant un interpréteur. Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantique mais aussi quelques programmes simples, tel que le calcul de fibonacci.
+
+\section{Tâches Restantes}
+
+Il nous faut choisir un schéma de mémoire pour les objets dans la mémoire.
+Il nous faut implémenter \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
+Il nous faut faire le compilateur en WASM
+
+\printbibliography
 \end{document}

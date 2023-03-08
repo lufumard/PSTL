@@ -1,0 +1,148 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{jesuisundev_comprendre_2020}{online}{}
+      \name{author}{1}{}{%
+        {{hash=e71eafaac847d2379fa2043aec35d6f2}{%
+           family={jesuisundev},
+           familyi={j\bibinitperiod}}}%
+      }
+      \strng{namehash}{e71eafaac847d2379fa2043aec35d6f2}
+      \strng{fullhash}{e71eafaac847d2379fa2043aec35d6f2}
+      \strng{bibnamehash}{e71eafaac847d2379fa2043aec35d6f2}
+      \strng{authorbibnamehash}{e71eafaac847d2379fa2043aec35d6f2}
+      \strng{authornamehash}{e71eafaac847d2379fa2043aec35d6f2}
+      \strng{authorfullhash}{e71eafaac847d2379fa2043aec35d6f2}
+      \field{sortinit}{j}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{{WebAssembly} a rejoint le {HTML}, {CSS} et Javascript en tant que standard du web le 5 décembre 2019. Ça va être utile pour beaucoup de choses.}
+      \field{day}{3}
+      \field{langid}{french}
+      \field{month}{2}
+      \field{title}{Comprendre {WebAssembly} en 5 minutes}
+      \field{titleaddon}{Je suis un dev}
+      \field{urlday}{12}
+      \field{urlmonth}{2}
+      \field{urlyear}{2023}
+      \field{year}{2020}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:/home/kira/Zotero/storage/7F23EEU5/comprendre-webassembly-en-5-minutes.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.jesuisundev.com/comprendre-webassembly-en-5-minutes/
+      \endverb
+      \verb{url}
+      \verb https://www.jesuisundev.com/comprendre-webassembly-en-5-minutes/
+      \endverb
+    \endentry
+    \entry{ullrich_counting_2020}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=f0eef0e3dc5cf232456ab1f5460e2ef4}{%
+           family={Ullrich},
+           familyi={U\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=04ffe79f369bf9f16e299fcf4f98e780}{%
+           family={Moura},
+           familyi={M\bibinitperiod},
+           given={Leonardo},
+           giveni={L\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{824b5789574f2f83dc0e6567acddc1be}
+      \strng{fullhash}{824b5789574f2f83dc0e6567acddc1be}
+      \strng{bibnamehash}{824b5789574f2f83dc0e6567acddc1be}
+      \strng{authorbibnamehash}{824b5789574f2f83dc0e6567acddc1be}
+      \strng{authornamehash}{824b5789574f2f83dc0e6567acddc1be}
+      \strng{authorfullhash}{824b5789574f2f83dc0e6567acddc1be}
+      \field{sortinit}{U}
+      \field{sortinithash}{6901a00e45705986ee5e7ca9fd39adca}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Most functional languages rely on some garbage collection for automatic memory management. They usually eschew reference counting in favor of a tracing garbage collector, which has less bookkeeping overhead at runtime. On the other hand, having an exact reference count of each value can enable optimizations, such as destructive updates. We explore these optimization opportunities in the context of an eager, purely functional programming language. We propose a new mechanism for efficiently reclaiming memory used by nonshared values, reducing stress on the global memory allocator. We describe an approach for minimizing the number of reference counts updates using borrowed references and a heuristic for automatically inferring borrow annotations. We implemented all these techniques in a new compiler for an eager and purely functional programming language with support for multi-threading. Our preliminary experimental results demonstrate our approach is competitive and often outperforms state-of-the-art compilers.}
+      \field{day}{5}
+      \field{eprinttype}{arxiv}
+      \field{month}{3}
+      \field{number}{{arXiv}:1908.05647}
+      \field{shorttitle}{Counting Immutable Beans}
+      \field{title}{Counting Immutable Beans: Reference Counting Optimized for Purely Functional Programming}
+      \field{urlday}{8}
+      \field{urlmonth}{3}
+      \field{urlyear}{2023}
+      \field{year}{2020}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.1908.05647
+      \endverb
+      \verb{eprint}
+      \verb 1908.05647 [cs]
+      \endverb
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kira/Zotero/storage/RK8782EQ/Ullrich et de Moura - 2020 - Counting Immutable Beans Reference Counting Optim.pdf:application/pdf;arXiv.org Snapshot:/home/kira/Zotero/storage/QYXW9H7K/1908.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1908.05647
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1908.05647
+      \endverb
+      \keyw{Computer Science - Programming Languages}
+    \endentry
+    \entry{noauthor_webassembly_2023}{inreference}{}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labeltitlesource}{title}
+      \field{abstract}{{WebAssembly} (sometimes abbreviated Wasm) defines a portable binary-code format and a corresponding text format for executable programs as well as software interfaces for facilitating interactions between such programs and their host environment.The main goal of {WebAssembly} is to enable high-performance applications on web pages, "but it does not make any Web-specific assumptions or provide Web-specific features, so it can be employed in other environments as well." It is an open standard and aims to support any language on any operating system, and in practice all of the most popular languages already have at least some level of support. Announced in 2015 (2015) and first released in March 2017 (2017-03), {WebAssembly} became a World Wide Web Consortium recommendation on 5 December 2019 and it received the Programming Languages Software Award from {ACM} {SIGPLAN} in 2021. The World Wide Web Consortium (W3C) maintains the standard with contributions from Mozilla, Microsoft, Google, Apple, Fastly, Intel, and Red Hat.}
+      \field{booktitle}{Wikipedia}
+      \field{day}{15}
+      \field{langid}{english}
+      \field{month}{1}
+      \field{note}{Page Version {ID}: 1133857733}
+      \field{title}{{WebAssembly}}
+      \field{urlday}{12}
+      \field{urlmonth}{2}
+      \field{urlyear}{2023}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:/home/kira/Zotero/storage/QGSJMJCQ/WebAssembly.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://en.wikipedia.org/w/index.php?title=WebAssembly&oldid=1133857733
+      \endverb
+      \verb{url}
+      \verb https://en.wikipedia.org/w/index.php?title=WebAssembly&oldid=1133857733
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
