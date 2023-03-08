@@ -14,6 +14,10 @@ pub(crate) fn const_() -> impl Parser<char, Const, Error = Simple<char>> {
 }
 
 pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
+    let num = text::int::<char, Simple<char>>(10)
+        .map(|s| Expr::Num(s.parse().expect("can't parse int")))
+        .padded();
+
     let fncall = const_()
         .padded()
         .then(var().repeated())
@@ -46,7 +50,7 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Proj(i, _var)
         });
 
-    fncall.or(pap).or(ctor).or(proj)
+    fncall.or(pap).or(ctor).or(proj).or(num)
 }
 
 pub(crate) fn fnbody() -> impl Parser<char, FnBody, Error = Simple<char>> {

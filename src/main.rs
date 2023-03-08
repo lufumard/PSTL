@@ -43,7 +43,7 @@ mod tests_interpreter{
 
     use crate::ast::{CONST_LIST, FnBody};
 
-    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE, start_interpreter, Const};
+    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE, start_interpreter, Const, eval_case, make_false, make_true, eval_fncall};
     use crate::reader;
 
 
@@ -58,6 +58,14 @@ mod tests_interpreter{
     fn get_ctor(l:Loc, h:&Heap) -> (i32, Vec<Loc>) {
         if let (Value::Ctor(v, a), _) = h.get(l){
             return (v, a);
+        }else {
+            panic!("Pas un ctor");
+        }
+    }
+
+    fn get_pap(l:Loc, h:&Heap) -> (Const, Vec<Loc>) {
+        if let (Value::Pap(c, a), _) = h.get(l){
+            return (c, a);
         }else {
             panic!("Pas un ctor");
         }
@@ -150,6 +158,100 @@ mod tests_interpreter{
 
         let res = eval_proj(1, var, &ctxt, &mut heap, &mut lfn);
         assert_eq!(l1, res);
+    }
+
+    #[test]
+    fn test_case_false() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let v1 = Var::Var("v1".to_string());
+        let l1 = heap.add((Value::Num(1), 1));
+        let v2 = Var::Var("v2".to_string());
+        let l2 = heap.add((Value::Num(2), 1));
+
+        let cases = vec![FnBody::Ret(v1.clone()), FnBody::Ret(v2.clone())];
+        ctxt = ctxt.add(v1.clone(), l1.clone());
+        ctxt = ctxt.add(v2.clone(), l2.clone());
+
+        let var =  Var::Var("var".to_string());
+        let l_var = heap.add((make_false(), 1));
+        ctxt = ctxt.add(var.clone(), l_var.clone());
+
+        let res = eval_case(var.clone(), cases, &ctxt, &mut heap, &mut lfn);
+        assert_eq!(l1, res);
+    }
+
+    #[test]
+    fn test_case_true() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let v1 = Var::Var("v1".to_string());
+        let l1 = heap.add((Value::Num(1), 1));
+        let v2 = Var::Var("v2".to_string());
+        let l2 = heap.add((Value::Num(2), 1));
+
+        let cases = vec![FnBody::Ret(v1.clone()), FnBody::Ret(v2.clone())];
+        ctxt = ctxt.add(v1.clone(), l1.clone());
+        ctxt = ctxt.add(v2.clone(), l2.clone());
+
+        let var =  Var::Var("var".to_string());
+        let l_var = heap.add((make_true(), 1));
+        ctxt = ctxt.add(var.clone(), l_var.clone());
+
+        let res = eval_case(var.clone(), cases, &ctxt, &mut heap, &mut lfn);
+        assert_eq!(l2, res);
+    }
+
+
+    #[test]
+    fn test_const_app_full() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let v1 = Var::Var("v1".to_string());
+        let l1 = heap.add((Value::Num(3), 1));
+        let v2 = Var::Var("v2".to_string());
+        let l2 = heap.add((Value::Num(2), 1));
+
+        let expected = 1;
+
+        ctxt = ctxt.add(v1.clone(), l1.clone());
+        ctxt = ctxt.add(v2.clone(), l2.clone());
+
+        let c = Const::Const("mod".to_string());
+        let vars = vec![v1.clone(), v2.clone()];
+
+        let res = eval_fncall(c, vars, &ctxt, &mut heap, &mut lfn);
+        let n = get_num(res, &heap);
+        assert_eq!(expected, n);
+    }
+
+    #[test]
+    fn test_const_app_part() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let v1 = Var::Var("v1".to_string());
+        let l1 = heap.add((Value::Num(1), 1));
+
+        ctxt = ctxt.add(v1.clone(), l1.clone());
+
+        let c = Const::Const("div".to_string());
+        let vars = vec![v1.clone()];
+
+        let res = eval_fncall(c, vars, &ctxt, &mut heap, &mut lfn);
+        let (c, ls) = get_pap(res, &heap);
+        let Const::Const(nom) = c;
+        assert_eq!("div".to_string(), nom);
+        assert_eq!(1, ls.len());
+        let n = get_num(ls[0], &heap);
+        assert_eq!(1, n);
     }
 
     #[test]
