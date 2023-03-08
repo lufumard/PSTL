@@ -97,6 +97,40 @@ impl Heap {
         self.map.insert(n.clone(), v);
         return l;
     }
+
+    pub fn inc(&mut self, l:Loc) -> Loc {
+        let Loc::Loc(n) = &l;
+        let (v,i) = self.get(l.clone());
+        self.map.insert(n.clone(), (v, i+1));
+        return l;
+    }
+
+    pub fn dec(&mut self, l:Loc) -> Loc {
+        let Loc::Loc(n) = &l;
+        let (v,i) = self.get(l.clone());
+        if i > 1 {
+            self.map.insert(n.clone(), (v, i-1));
+            return l;
+        } else {
+            self.map.insert(n.clone(), (v.clone(), 0));
+            match v {
+                Value::Pap(_, ls) => {
+                    for l in ls {
+                        self.dec(l);
+                    }
+                    return Loc::Loc(0);
+                },
+                Value::Ctor(_, ls) => {
+                    for l in ls {
+                        self.dec(l);
+                    }
+                    return Loc::Loc(0);
+                },
+                Value::Num(_) => return Loc::Loc(0),
+            };
+            
+        }
+    }
 }
 
 
@@ -395,4 +429,13 @@ pub fn eval_program(c: Const, fun:Fn, _: &Ctxt, h:&mut Heap, lfn:&mut HashMap<St
     lfn.insert(nom, fun);
     let pap = Value::Pap(c_, vec![]);
     h.add((pap, 0))
+}
+
+
+pub fn inc(l:Loc, h:&mut Heap) -> Loc {
+    return h.inc(l);
+}
+
+pub fn dec(l:Loc, h:&mut Heap) -> Loc {
+    return h.dec(l);
 }
