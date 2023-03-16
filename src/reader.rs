@@ -96,12 +96,14 @@ pub(crate) fn fun() -> impl Parser<char, Fn, Error = Simple<char>> {
         .map(|((_const, _args), _fnbody)| Fn::Fn(_const, _args, _fnbody))
 }
 
-pub(crate) fn ast() -> impl Parser<char, AST, Error = Simple<char>> {
+pub(crate) fn ast() -> impl Parser<char, Vec<AST>, Error = Simple<char>> {
     fun()
         .padded()
         .map(AST::Fn)
         .or(fnbody().padded().map(AST::FnBody))
         .or(expr().padded().map(AST::Expr))
         .or(var().padded().map(AST::Var))
+        .padded()
+        .repeated()
         .then_ignore(end())
 }

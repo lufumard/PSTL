@@ -44,7 +44,7 @@ mod tests_interpreter{
 
     use crate::ast::{CONST_LIST, FnBody};
 
-    use crate::interpreter::{Value, Loc, Heap, Ctxt, Var, empty_heap, empty_ctxt, eval_ret, Expr, eval_let, eval_ctor, eval_proj, CONST_FALSE, CONST_TRUE, start_interpreter, Const, eval_case, make_false, make_true, eval_fncall, make_num, make_list};
+    use crate::interpreter::*;
     use crate::reader;
 
     use crate::primitives::extract_int;
@@ -290,7 +290,7 @@ mod tests_interpreter{
             add_value(Var::Var("m1".to_string()), make_num(1), empty_ctxt(), &mut heap), &mut heap);
     
         let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string()), Var::Var("m1".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         println!("fibo {} =", n);
         assert_eq!(expected, get_num(res, &heap));
     }
@@ -313,7 +313,7 @@ mod tests_interpreter{
             add_value(Var::Var("m1".to_string()), make_num(1), empty_ctxt(), &mut heap), &mut heap);
     
         let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string()), Var::Var("m1".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         println!("fibo {} =", n);
         assert_eq!(expected, get_num(res, &heap));
     }
@@ -335,7 +335,7 @@ mod tests_interpreter{
         let ctxt = add_value(Var::Var("n".to_string()), make_num(n), empty_ctxt(), &mut heap);
     
         let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         println!("fibo {} =", n);
         assert_eq!(expected, get_num(res, &heap));
     }
@@ -357,7 +357,7 @@ mod tests_interpreter{
         let ctxt = add_value(Var::Var("n".to_string()), make_num(n), empty_ctxt(), &mut heap);
     
         let call = Expr::FnCall(Const::Const("fibo".to_string()), vec![Var::Var("n".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         println!("fibo {} =", n);
         assert_eq!(expected, get_num(res, &heap));
     }
@@ -374,7 +374,7 @@ mod tests_interpreter{
                 , &mut heap);
     
         let call = Expr::FnCall(Const::Const("pap".to_string()), vec![Var::Var("n".to_string()), Var::Var("m".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         //println!("pap 10 6 = 4");
         let expected = 4;
         //dbg!(res);
@@ -400,7 +400,7 @@ mod tests_interpreter{
         dbg!(parsed.clone());
 
         let call = Expr::FnCall(Const::Const("swap".to_string()), vec![Var::Var("l".to_string())]);
-        let res = start_interpreter(vec![parsed], call, &ctxt, &mut heap);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
         let (_, list) = get_ctor(res, &heap);
         
         let n2 = get_num(list[0], &heap);
@@ -415,5 +415,77 @@ mod tests_interpreter{
         dbg!(n3);
         
         //assert_eq!(expected, get_num(res, &heap));
+    }
+
+    #[test]
+    fn test_swap_pstl_2fun(){
+        let file_path = "./examples/swap_pstl_2fun.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let parsed = reader::ast().parse(file_contents).expect("can't parse");
+        let mut heap = empty_heap();
+    
+        let l22 = heap.add((make_num(3), 1));
+        let l21 = heap.add((make_num(2), 1));
+        let l2 = heap.add((make_list(vec![l21, l22]), 1));
+        let l11 = heap.add((make_num(1), 1));
+        let l1 = heap.add((make_list(vec![l11, l2]), 1));
+
+        let ctxt = empty_ctxt().add(Var::Var("l".to_string()), l1);
+
+        dbg!(parsed.clone());
+
+        let call = Expr::FnCall(Const::Const("swap".to_string()), vec![Var::Var("l".to_string())]);
+        let res = start_interpreter(parsed, call, &ctxt, &mut heap);
+        let (_, list) = get_ctor(res, &heap);
+        
+        let n2 = get_num(list[0], &heap);
+        
+        let (_, next_list) = get_ctor(list[1], &heap);
+
+        let n1 = get_num(next_list[0], &heap);
+        let n3 = get_num(next_list[1], &heap);
+        
+        assert_eq!(1, n1);
+        assert_eq!(2, n2);
+        assert_eq!(3, n3);
+    }
+
+    #[test]
+    fn test_inc() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let l = heap.add((make_num(1), 1));
+        let fnbody = FnBody::Ret(var.clone());
+
+        ctxt = ctxt.add(var.clone(), l.clone());
+
+        let res = eval_inc(var, fnbody, &ctxt, &mut heap, &mut lfn);
+        let (v, n) = heap.get(res.clone());
+        assert_eq!(l, res);
+        assert_eq!(2, n);
+        assert_eq!(make_num(1), v);
+    }
+
+    #[test]
+    fn test_dec() {
+        let mut heap = empty_heap();
+        let mut ctxt = empty_ctxt();
+        let mut lfn = HashMap::new();
+
+        let var = Var::Var("var".to_string());
+        let l = heap.add((make_num(1), 2));
+        let fnbody = FnBody::Ret(var.clone());
+
+        ctxt = ctxt.add(var.clone(), l.clone());
+
+        let res = eval_dec(var, fnbody, &ctxt, &mut heap, &mut lfn);
+        let (v, n) = heap.get(res.clone());
+        assert_eq!(l, res);
+        assert_eq!(1, n);
+        assert_eq!(make_num(1), v);
     }
 }

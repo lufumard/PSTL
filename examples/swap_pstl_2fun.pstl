@@ -1,0 +1,14 @@
+exec xs t1 = let h1 = proj 1 xs ;
+    let h2 = proj 1 t1 ; let t2 = proj 2 t1 ;
+    let r1 = ctor 3 h1 t2 ; let r2 = ctor 3 h2 r1 ; ret r2
+
+swap xs = case xs of
+    (ret xs)
+    (ret xs)
+    (ret xs)
+    (let t1 = proj 2 xs ; case t1 of
+        (let r = exec xs t1; ret r)
+        (let r = exec xs t1; ret r)
+        (ret xs)
+        (let r = exec xs t1; ret r)
+        (let r = exec xs t1; ret r))

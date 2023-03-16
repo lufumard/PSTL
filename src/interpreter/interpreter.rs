@@ -166,6 +166,11 @@ pub  fn make_num(num : i32) -> Value {
     return Value::Ctor(CONST_NUM, vec![Loc::Loc(num)]);
 }
 
+pub fn get_nb_ref(l:Loc, h:&Heap) -> i32 {
+    let (_, n) = h.get(l);
+    return n;
+}
+
 pub  fn throw() {
     panic!("Evaluation non défini pour ce type");
 }
@@ -231,6 +236,8 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
         Expr::Ctor(n, vars) => eval_ctor(n, vars, ct, h, lfn),
         Expr::Proj(n, var) => eval_proj(n, var, ct, h, lfn),
         Expr::Num(n) => eval_value(n, ct, h, lfn),
+        Expr::Reset(_) => todo!(),
+        Expr::Reuse(_, _, _) => todo!(),
     }
 }
 
@@ -254,31 +261,21 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mu
         } else {
             panic!("Trop d'arguments");
         }
-        
     }
 
     match lfn.get(&nom).cloned() {
-        Some(Fn::Fn(_, args, body)) => {
-            eval_cons_fn(nom, args, body, vars, ct, h, lfn)
-        },
-
-        None =>  {
-            let x = Var::Var(nom);
-            eval_pap_fncall(x, vars, ct, h, lfn)
-        } 
+        Some(Fn::Fn(_, args, body)) => eval_cons_fn(nom, args, body, vars, ct, h, lfn),
+        None => eval_pap_fncall(Var::Var(nom), vars, ct, h, lfn) 
     }
 }
 
 pub fn eval_cons_fn(name:String, args:Vec<Var>, body:FnBody, vars:Vec<Var>, ct: & Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
     if args.len() == vars.len() {
-        eval_cons_full(args, body, vars, ct, h, lfn)
-    } else {
-        if args.len() > vars.len() {
-            eval_cons_part(Const::Const(name), vars, ct, h, lfn)
-        } else {
-            panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", name, args.len(), vars.len())
-        }
+        return eval_cons_full(args, body, vars, ct, h, lfn);
+    } if args.len() > vars.len() {
+        return eval_cons_part(Const::Const(name), vars, ct, h, lfn);
     }
+    panic!("{} n'a pas autant d'arguments : attend {} args, en reçoit {}", name, args.len(), vars.len());
 }
 
 pub fn eval_cons_full(args_fun:Vec<Var>, body_fun:FnBody, args:Vec<Var>, ct: & Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
@@ -286,7 +283,7 @@ pub fn eval_cons_full(args_fun:Vec<Var>, body_fun:FnBody, args:Vec<Var>, ct: & C
     for i in 0..args.len() {
         ctxt = ctxt.add(args_fun[i].to_owned(), ct.get(args[i].to_owned()));
     }
-    eval_fnbody(body_fun, &ctxt, h, lfn)
+    return eval_fnbody(body_fun, &ctxt, h, lfn);
 }
 
 pub fn eval_cons_part(ident:Const, vars:Vec<Var>, ct: & Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
@@ -401,6 +398,8 @@ pub  fn eval_fnbody(body: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<Strin
         FnBody::Ret(var) => eval_ret(var, ct, h, lfn),
         FnBody::Let(var, expr, fnbody) => eval_let(var, expr, *fnbody, ct, h, lfn),
         FnBody::Case(var, bodys) => eval_case(var, bodys, ct, h, lfn),
+        FnBody::Inc(var, fnbody) => eval_inc(var, *fnbody, ct, h, lfn),
+        FnBody::Dec(var, fnbody) => eval_dec(var, *fnbody, ct, h, lfn),
     }
 }
 
@@ -438,10 +437,12 @@ pub fn eval_program(c: Const, fun:Fn, _: &Ctxt, h:&mut Heap, lfn:&mut HashMap<St
 }
 
 
-pub fn inc(l:Loc, h:&mut Heap) -> Loc {
-    return h.inc(l);
+pub fn eval_inc(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
+    h.inc(ct.get(var));
+    return eval_fnbody(fnbody, ct, h, lfn);
 }
 
-pub fn dec(l:Loc, h:&mut Heap) -> Loc {
-    return h.dec(l);
+pub fn eval_dec(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
+    h.dec(ct.get(var));
+    return eval_fnbody(fnbody, ct, h, lfn);
 }

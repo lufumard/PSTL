@@ -1,5 +1,5 @@
 map f xs = case xs of
    (let w = reset xs ;
    let y = f x ; let ys = map f s ;
-   let r = (reuse w in ctor2 y ys) ; ret r)
+   let r = (reuse w in ctor 2 y ys) ; ret r)
   (ret xs)

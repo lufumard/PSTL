@@ -18,6 +18,8 @@ pub enum Expr {
     Ctor(i32, Vec<Var>),
     Proj(i32, Var),
     Num(i32),
+    Reset(Var),
+    Reuse(Var, i32, Vec<Var>),
 }
 
 #[allow(dead_code)]
@@ -26,6 +28,8 @@ pub enum FnBody {
     Ret(Var),
     Let(Var, Expr, Box<FnBody>),
     Case(Var, Vec<FnBody>),
+    Inc(Var, Box<FnBody>),
+    Dec(Var, Box<FnBody>),
 }
 
 #[allow(dead_code)]
