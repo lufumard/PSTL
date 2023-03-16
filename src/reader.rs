@@ -23,15 +23,14 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
         .then(var().repeated())
         .map(|(_fn_name, _args)| Expr::FnCall(_fn_name, _args));
 
-    let pap = keyword("pap").padded()
+    let pap = keyword("pap")
+        .padded()
         .ignore_then(const_())
         .padded()
         .then(var().repeated())
-        .map(|(_const, _vars)| {
-            Expr::Pap(_const, _vars)
-        });
+        .map(|(_const, _vars)| Expr::Pap(_const, _vars));
 
-    let ctor = keyword("ctor").padded()
+    let ctor = just("ctor")
         .ignore_then(int(10))
         .padded()
         .then(var().repeated())
@@ -40,12 +39,12 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Ctor(i, _vars)
         });
 
-    let proj = keyword("proj").padded()
+    let proj = just("proj")
         .ignore_then(int(10))
         .padded()
         .then(var().padded())
-        .map(|(_int, _var)| {
-            let i = _int.parse().expect("not an int in proj");
+        .map(|(_i, _var)| {
+            let i = _i.parse().expect("not an int in proj");
             Expr::Proj(i, _var)
         });
 

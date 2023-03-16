@@ -1,7 +1,7 @@
 swap xs = case xs of
     (ret xs)
-    (let t1 = proj 2 xs ; case t1 of
+    (let t1 = proj2 xs ; case t1 of
         (ret xs)
-        (let h1 = proj 1 xs ;
-        let h2 = proj 1 t1 ; let t2 = proj 2 t1 ;
-        let r1 = ctor 2 h1 t2 ; let r2 = ctor 2 h2 r1 ; ret r2))
+        (let h1 = proj1 xs ;
+        let h2 = proj1 t1 ; let t2 = proj2 t1 ;
+        let r1 = ctor2 h1 t2 ; let r2 = ctor2 h2 r1 ; ret r2))
