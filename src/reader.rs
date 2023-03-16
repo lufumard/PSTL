@@ -23,16 +23,15 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
         .then(var().repeated())
         .map(|(_fn_name, _args)| Expr::FnCall(_fn_name, _args));
 
-    let pap = keyword("proj")
-        .ignore_then(int(10))
+    let pap = keyword("pap").padded()
+        .ignore_then(const_())
         .padded()
-        .then(var().padded())
-        .map(|(_int, _var)| {
-            let i = _int.parse().expect("can't parse int in proj");
-            Expr::Proj(i, _var)
+        .then(var().repeated())
+        .map(|(_const, _vars)| {
+            Expr::Pap(_const, _vars)
         });
 
-    let ctor = keyword("ctor")
+    let ctor = keyword("ctor").padded()
         .ignore_then(int(10))
         .padded()
         .then(var().repeated())
@@ -41,7 +40,7 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Ctor(i, _vars)
         });
 
-    let proj = keyword("proj")
+    let proj = keyword("proj").padded()
         .ignore_then(int(10))
         .padded()
         .then(var().padded())
@@ -50,7 +49,7 @@ pub(crate) fn expr() -> impl Parser<char, Expr, Error = Simple<char>> {
             Expr::Proj(i, _var)
         });
 
-    fncall.or(pap).or(ctor).or(proj).or(num)
+    pap.or(ctor).or(proj).or(fncall).or(num)
 }
 
 pub(crate) fn fnbody() -> impl Parser<char, FnBody, Error = Simple<char>> {
