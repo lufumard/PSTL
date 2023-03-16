@@ -5,6 +5,7 @@ pub mod ast;
 
 use std::collections::HashMap;
 pub use std::primitive;
+use crate::ast::CONST_NUM;
 pub use crate::ast::Var;
 pub use crate::ast::Expr;
 pub use crate::ast::FnBody;
@@ -47,8 +48,7 @@ pub struct Heap{
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value{
     Ctor (i32, Vec<Loc>),
-    Pap (Const, Vec<Loc>),
-    Num (i32),
+    Pap (Const, Vec<Loc>)
 }
 
 impl Ctxt {
@@ -120,13 +120,14 @@ impl Heap {
                     }
                     return Loc::Loc(0);
                 },
-                Value::Ctor(_, ls) => {
-                    for l in ls {
-                        self.dec(l);
+                Value::Ctor(t, ls) => {
+                    if t != CONST_NUM {
+                        for l in ls {
+                            self.dec(l);
+                        }
                     }
                     return Loc::Loc(0);
-                },
-                Value::Num(_) => return Loc::Loc(0),
+                }
             };
             
         }
@@ -157,7 +158,12 @@ pub  fn make_nil() -> Value {
 }
 
 pub  fn make_list(args : Vec<Loc>) -> Value {
+    assert!(args.len() == 2);
     return Value::Ctor(CONST_LIST, args);
+}
+
+pub  fn make_num(num : i32) -> Value {
+    return Value::Ctor(CONST_NUM, vec![Loc::Loc(num)]);
 }
 
 pub  fn throw() {
@@ -383,7 +389,7 @@ pub  fn eval_proj(n: i32, var: Var, ct: &Ctxt, h:&mut Heap, _:&mut HashMap<Strin
 }
 
 pub  fn eval_value(n: i32, _: &Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
-    let num = Value::Num(n);
+    let num = make_num(n);
     return h.add((num, 1));
 }
 

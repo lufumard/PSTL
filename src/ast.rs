@@ -53,3 +53,5 @@ pub const CONST_TRUE : i32 = 1;
 pub const CONST_NIL : i32 = 2;
 #[allow(dead_code)]
 pub const CONST_LIST : i32 = 3;
+#[allow(dead_code)]
+pub const CONST_NUM : i32 = 4;

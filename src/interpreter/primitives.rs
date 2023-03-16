@@ -13,13 +13,14 @@ use crate::interpreter::Ctxt;
 use crate::interpreter::Loc;
 use crate::interpreter::Heap;
 use crate::interpreter::Value::Ctor;
-use crate::interpreter::Value::Num;
+use crate::interpreter::make_num;
 use crate::interpreter::make_true;
 use crate::interpreter::make_false;
 
 
 use crate::ast::CONST_FALSE;
 use crate::ast::CONST_TRUE;
+use crate::ast::CONST_NUM;
 
 #[allow(dead_code)]
 const PRIMITIVES: [&str; 13]  = [
@@ -58,7 +59,7 @@ pub fn eval_fncall_primitive(nom: String, vars:Vec<Loc>, c: &Ctxt, h:&mut Heap, 
     }
 }
 
-fn is_bool(l : &Loc, h:&mut Heap) -> bool{
+pub fn is_bool(l : &Loc, h:&Heap) -> bool{
     match h.get(l.clone()) {
         (Ctor(CONST_FALSE, _), _) => true,
         (Ctor(CONST_TRUE, _), _) => true,
@@ -66,14 +67,17 @@ fn is_bool(l : &Loc, h:&mut Heap) -> bool{
     }
 }
 
-fn extract_int(l: Loc, h:&mut Heap) -> i32 {
+pub fn extract_int(l: Loc, h:&Heap) -> i32 {
     match h.get(l) {
-        (Num(n), _) => n,
+        (Ctor(CONST_NUM, ls), _) => {
+            let Loc::Loc(n) = ls[0];
+            n
+        },
         _ => panic!("Opération non défini pour ce type"),
     }
 }
 
-fn extract_bool(l: Loc, h:&mut Heap) -> bool {
+pub fn extract_bool(l: Loc, h:&Heap) -> bool {
     match h.get(l) {
         (Ctor(CONST_FALSE, _), _) => false,
         (Ctor(CONST_TRUE, _), _) => true,
@@ -89,35 +93,35 @@ pub fn add_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, 
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((Num(n + m), 1));
+    return heap.add((make_num(n + m), 1));
 }
 
 pub fn sub_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((Num(n - m), 1));
+    return heap.add((make_num(n - m), 1));
 }
 
 pub fn mul_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((Num(n * m), 1));
+    return heap.add((make_num(n * m), 1));
 }
 
 pub fn div_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((Num(n / m), 1));
+    return heap.add((make_num(n / m), 1));
 }
 
 pub fn mod_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((Num(n % m), 1));
+    return heap.add((make_num(n % m), 1));
 }
 
 pub fn eq_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
