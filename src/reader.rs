@@ -102,7 +102,7 @@ pub(crate) fn ast() -> impl Parser<char, Vec<AST>, Error = Simple<char>> {
         .or(fnbody().padded().map(AST::FnBody))
         .or(expr().padded().map(AST::Expr))
         .or(var().padded().map(AST::Var))
-        .padded()
         .repeated()
+        .padded()
         .then_ignore(end())
 }
