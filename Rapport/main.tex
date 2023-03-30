@@ -26,8 +26,19 @@
 
 %------------ Corps du rapport ----------------
 \section{Introduction}
-WebAssembly, en abrégé Wasm est une petite machine portable qui fonctionne dans les navigateurs et serveurs web modernes et sur une vaste gamme de matériel divers
-\cite{jesuisundev_comprendre_2020}\cite{noauthor_webassembly_2023}.
+WebAssembly ou Wasm \cite{noauthor_webassembly_nodate} est un nouveau langage bytecode pris en charge par les principaux navigateurs Web, 
+conçu principalement pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust\cite{haas_bringing_2017}.
+WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
+Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js \cite{noauthor_nodejs_nodate}.
+Le but de notre projet est de concevoir un langage 100 $\%$ fonctionnel et “pur” pour WebAssembly en se basant sur le langage défini dans 
+cet article\cite{ullrich_counting_2020}. L'article défini un langage fonctionnel dont la gestion de la mémoire se fait par 
+un mécanisme de comptage de références.
+
+\section{Concepts fondamentaux}
+Dans cette partie, nous allons présentons les différentes notions nécessaire à la compréhension du projet.
+\subsection{WebAsssembly}
+\subsection{Présentation de l'article}
+
 \section{Cahier des charges}
 Les tâches que nous avons identifié sont les suivantes :
 
@@ -37,7 +48,7 @@ Les tâches que nous avons identifié sont les suivantes :
 
 - Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
 
-- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article\cite{ullrich_counting_2020}
+- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
 
 - Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
 
@@ -45,16 +56,29 @@ Les tâches que nous avons identifié sont les suivantes :
 
 \section{Tâches Réalisées}
 
-Afin de créer le langage pur pour WASM, nous avons tout d'abord lu l'article\cite{ullrich_counting_2020} et analysé la structure du langage pur à implémenter telle que définie dans la section 3 de l'article\cite{ullrich_counting_2020}.
+Afin de créer le langage pur pour WASM, nous avons tout d'abord lu l'article\cite{ullrich_counting_2020} 
+et analysé la structure du langage pur à implémenter telle que définie dans la section 3 de l'article.
 Cette structure nous a permis d'écrire un parseur en Rust capable de créer un AST du langage.
 
-Par la suite, nous avons implémenté les sémantiques définies dans la section 4 sur la figure 1 en programmant un interpréteur. Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantique mais aussi quelques programmes simples, tel que le calcul de fibonacci.
+Par la suite, nous avons implémenté les sémantiques définies dans la section 4 sur la figure 1 en programmant un interpréteur. 
+Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantique mais aussi quelques programmes simples, 
+tel que le calcul de fibonacci.
 
 \section{Tâches Restantes}
 
 Il nous faut choisir un schéma de mémoire pour les objets dans la mémoire.
 Il nous faut implémenter \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
 Il nous faut faire le compilateur en WASM
+
+WASM n'a qu'un seul type de variable : les nombres (entiers ou flottant, 32 bit ou 64 bit). 
+Ainsi, il faut que l'on interprète différement ces nombres selon le contexte dans lequel on les prend. 
+Dans la mémoire, nos constructeurs et applications partielles seront stoqués sous la forme \verb|<type> <nombre de références> <arguments>|. 
+Par exemple, une application partielle est sous la forme \verb|6 1 7 2 12 13| où 6 est le type "application partielle", 
+1 est le nombre de références à cette application partielle, 
+7 est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
+2 est le nombre d'arguments fixés et 12 et 13 sont les arguments fixés.
+
+Dû à la difficulté d'une telle tâche, nous laissons l'implémentation des applications partielles pour plus tard.
 
 \printbibliography
 \end{document}
