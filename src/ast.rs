@@ -14,6 +14,7 @@ pub enum Const {
 #[derive(Debug, Clone)]
 pub enum Expr {
     FnCall(Const, Vec<Var>),
+    PapCall(Var, Var),
     Pap(Const, Vec<Var>),
     Ctor(i32, Vec<Var>),
     Proj(i32, Var),

@@ -29,7 +29,7 @@
 WebAssembly ou Wasm \cite{noauthor_webassembly_nodate} est un nouveau langage bytecode pris en charge par les principaux navigateurs Web, 
 conçu principalement pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust\cite{haas_bringing_2017}.
 WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
-Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js \cite{noauthor_nodejs_nodate}.
+Dans le cas de notre projet nous utilisons wabt\cite{noauthor_wabt_2023} pour compiler et nous exécutons le code compilé à l’aide de Node.js \cite{noauthor_nodejs_nodate}.
 Le but de notre projet est de concevoir un langage 100 $\%$ fonctionnel et “pur” pour WebAssembly en se basant sur le langage défini dans 
 cet article\cite{ullrich_counting_2020}. L'article défini un langage fonctionnel dont la gestion de la mémoire se fait par 
 un mécanisme de comptage de références.
@@ -56,13 +56,43 @@ Les tâches que nous avons identifié sont les suivantes :
 
 \section{Tâches Réalisées}
 
-Afin de créer le langage pur pour WASM, nous avons tout d'abord lu l'article\cite{ullrich_counting_2020} 
-et analysé la structure du langage pur à implémenter telle que définie dans la section 3 de l'article.
-Cette structure nous a permis d'écrire un parseur en Rust capable de créer un AST du langage.
+\subsection{Lecture de l'article}
+Le langage fonctionnel décrit dans l'article\cite{ullrich_counting_2020} alloue ses constructeurs dans la pile et manipule des 
+adresses vers ces emplacements mémoire alloués. Il est donc primordial d'avoir un système d'allocation et réutilisation de 
+mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution faible.
 
-Par la suite, nous avons implémenté les sémantiques définies dans la section 4 sur la figure 1 en programmant un interpréteur. 
-Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantique mais aussi quelques programmes simples, 
-tel que le calcul de fibonacci.
+Le système de la gestion de la mémoire par comptage de référence est bien plus vieux que des systèmes par garbage collector, 
+mais aussi plus efficaces\cite{ullrich_counting_2020}. Cependant, la gestion de mémoire comptage de références ne fonctionne que si 
+il n'est pas possible de créer de cycle de référence. 
+C'est pourquoi les garbage collector sont plus utilisés de nos jours.
+
+Les auteurs de l'article\cite{ullrich_counting_2020} ont créé un langage fonctionnel dans lequel les cycles de références 
+sont impossibles afin d'implémenter un système de gestion de mémoire par comptage de référence et d'obtenir un langage fonctionnel 
+dont l'exécution est optimisée. C'est ce langage que nous allons implémenter.
+
+\subsection{Parser/reader}
+Concernant la grammaire du langage, nous avons décidé de garder celle définie à la section 3 de l'article que voici.
+\begin{center}
+	\includegraphics[scale=0.65]{logos/grammaire.png}	
+\end{center}
+Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi nous ne pouvons pas stoquer les noms définis 
+variable ce qui nous empêche de distinguer directement les constantes des variables.
+
+\subsection{Interpréteur}
+
+Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire.
+
+\begin{center}
+	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}	
+\end{center}
+
+\verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans la pile. C'est la valeur de retour de toutes les sémantiques 
+du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
+Contrairement à l'article, nous avons choisi de ne pas retourner une nouvelle pile à chaque fois, mais de garder une même pile que 
+l'on modifie par effet de bord. 
+
+Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantiques mais aussi quelques programmes simples, 
+tel que le calcul de fibonacci, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
 
 \section{Tâches Restantes}
 

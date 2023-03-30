@@ -48,7 +48,8 @@ pub struct Heap{
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value{
     Ctor (i32, Vec<Loc>),
-    Pap (Const, Vec<Loc>)
+    Pap (Const, Vec<Loc>),
+    Null
 }
 
 impl Ctxt {
@@ -112,7 +113,7 @@ impl Heap {
             self.map.insert(n.clone(), (v, i-1));
             return l;
         } else {
-            self.map.insert(n.clone(), (v.clone(), 0));
+            self.map.insert(n.clone(), (Value::Null, 0));
             match v {
                 Value::Pap(_, ls) => {
                     for l in ls {
@@ -127,7 +128,8 @@ impl Heap {
                         }
                     }
                     return Loc::Loc(0);
-                }
+                },
+                Value::Null => return Loc::Loc(0)
             };
             
         }
@@ -236,6 +238,7 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
         Expr::Ctor(n, vars) => eval_ctor(n, vars, ct, h, lfn),
         Expr::Proj(n, var) => eval_proj(n, var, ct, h, lfn),
         Expr::Num(n) => eval_value(n, ct, h, lfn),
+        Expr::PapCall(ident, var) => eval_pap_fncall(ident, var, ct, h, lfn),
         Expr::Reset(_) => todo!(),
         Expr::Reuse(_, _, _) => todo!(),
     }
@@ -265,7 +268,11 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mu
 
     match lfn.get(&nom).cloned() {
         Some(Fn::Fn(_, args, body)) => eval_cons_fn(nom, args, body, vars, ct, h, lfn),
-        None => eval_pap_fncall(Var::Var(nom), vars, ct, h, lfn) 
+        None => {
+            // Les appels partiels de variable de ne sont que sur un argument
+            assert_eq!(vars.len(), 1);
+            eval_pap_fncall(Var::Var(nom), vars[0].to_owned(), ct, h, lfn)
+        }
     }
 }
 
@@ -292,11 +299,9 @@ pub fn eval_cons_part(ident:Const, vars:Vec<Var>, ct: & Ctxt, h:&mut Heap, _:&mu
     return h.add((pap, 1));
 }
 
-pub fn eval_pap_fncall(x: Var, ys: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    // Les appels partiels de variable de ne sont que sur un argument
-    assert_eq!(ys.len(), 1);
+pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
     let (v, _) = h.get(ct.get(x));
-    let l = ct.get(ys[0].to_owned());
+    let l = ct.get(y.to_owned());
     match v {
         Value::Pap(c, mut vars) => {
             let Const::Const(name) = &c;
