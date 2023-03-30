@@ -26,18 +26,20 @@
 
 %------------ Corps du rapport ----------------
 \section{Introduction}
-WebAssembly ou Wasm \cite{noauthor_webassembly_nodate} est un nouveau langage bytecode pris en charge par les principaux navigateurs Web, 
-conçu principalement pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust\cite{haas_bringing_2017}.
-WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
-Dans le cas de notre projet nous utilisons wabt\cite{noauthor_wabt_2023} pour compiler et nous exécutons le code compilé à l’aide de Node.js \cite{noauthor_nodejs_nodate}.
-Le but de notre projet est de concevoir un langage 100 $\%$ fonctionnel et “pur” pour WebAssembly en se basant sur le langage défini dans 
-cet article\cite{ullrich_counting_2020}. L'article défini un langage fonctionnel dont la gestion de la mémoire se fait par 
+Le but de notre projet est de concevoir un langage 100 $\%$ fonctionnel et “pur” pour WebAssembly en 
+se basant sur cet article\cite{ullrich_counting_2020}(fourni). L'article défini un langage fonctionnel dont la gestion de la mémoire se fait par 
 un mécanisme de comptage de références.
+WebAssembly\cite{noauthor_webassembly_nodate} ou Wasm définit un format de code binaire portable
+et un langage de type assembleur\cite{noauthor_webassembly_2023}. Tous les principaux navigateurs peuvent exécuter des programmes WebAssembly. 
+Des langages comme C, C++, Rust, Go et bien d'autres peuvent être compilés en WebAssembly.
+Plusieurs compilateurs ont été développés pour WebAssembly\cite{noauthor_wabt_2023,noauthor_wasm3_2023,noauthor_wasmer_nodate,noauthor_wasmtime_nodate}. 
 
-\section{Concepts fondamentaux}
-Dans cette partie, nous allons présentons les différentes notions nécessaire à la compréhension du projet.
-\subsection{WebAsssembly}
-\subsection{Présentation de l'article}
+\section{WebAsssembly}
+WebAssembly\cite{noauthor_webassembly_nodate} est un langage bytecode pris en charge par les principaux navigateurs
+Web, conçu principalement pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust.
+Les applications de WebAssembly ne se limite pas qu'au Web,il y a également un intérêt pour l'Internet des Objets, les serveurs.
+WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
+Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js\cite{noauthor_nodejs_nodate}
 
 \section{Cahier des charges}
 Les tâches que nous avons identifié sont les suivantes :
