@@ -80,19 +80,31 @@ variable ce qui nous empêche de distinguer directement les constantes des varia
 
 \subsection{Interpréteur}
 
-Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire.
+Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire, 
+dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|)
 
 \begin{center}
 	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}	
 \end{center}
 
-\verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans la pile. C'est la valeur de retour de toutes les sémantiques 
+\verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans le tas. C'est la valeur de retour de toutes les sémantiques 
 du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
-Contrairement à l'article, nous avons choisi de ne pas retourner une nouvelle pile à chaque fois, mais de garder une même pile que 
+Contrairement à l'article, nous avons choisi de ne pas retourner un nouveau tas à chaque fois, mais de garder un même tas que 
 l'on modifie par effet de bord. 
 
 Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantiques mais aussi quelques programmes simples, 
 tel que le calcul de fibonacci, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
+
+WebAssembly ne possède que des types numériques (i32, f32, ...) ainsi il est compliqué d'implémenter les applications partielles. 
+Ainsi, nous nous réservons le droit de ne pas les implémenter.
+
+Afin d'implémenter le tas en WebAssembly, nous utilisons une \verb|Table| qui nous permet de définir une table dans la mémoire que 
+nous pouvons manipuler de WebAssembly ainsi que de JavaScript. Cette table nous permettra de réaliser des diagnostiques ainsi que 
+des évaluations de l'empreinte mémoire.
+Nous avons commencé à définir le schéma du tas du code compilé :
+La case mémoire 0 est réservée pour indiquer le prochain espace mémoire libre.
+Ensuite, chaque constructeur suit le format suivant : \verb|<type> <nb_ref> <args>|. Ainsi, un constructeur \verb|FALSE| référencé 
+deux fois est représenté sous la forme "0 2" dans la mémoire. Un entier 10 référencé 3 fois sous la forme "4 3 10".
 
 \section{Tâches Restantes}
 

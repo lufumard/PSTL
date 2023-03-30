@@ -1,0 +1,20 @@
+Table mémoire :
+
+Indice 0 réservé au prochain indice disponible dans la table (initialisé à 1)
+
+Deux types différents stockés dans la table :
+
+Constructeur :
+    Format : <type> <nb_ref> <args>
+    - FALSE = "0 n"   (pas d'args)
+    - TRUE = "1 n"
+    - NIL = "2 n"
+    - LISTE = "3 n loc_arg_1 loc_arg_2"
+    - NUM = "4 n num"
+
+    exemples :
+        - "4 3 10" représente l'entier 10 référencé 3 fois
+        - "0 2" représente la valeur FALSE référencée 2 fois
+        - "3 2 56 84" représente la liste dont le premier élément est à la position 56 dans la table et l'élément à la position 84 dans la table représente la suite de cette liste
+
+Nous ne faisons pas les applications partielles pour le moment.
