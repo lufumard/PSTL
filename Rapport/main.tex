@@ -35,9 +35,13 @@ Des langages comme C, C++, Rust, Go et bien d'autres peuvent être compilés en 
 Plusieurs compilateurs ont été développés pour WebAssembly\cite{noauthor_wabt_2023,noauthor_wasm3_2023,noauthor_wasmer_nodate,noauthor_wasmtime_nodate}. 
 
 \section{WebAsssembly}
-WebAssembly\cite{noauthor_webassembly_nodate} est un langage bytecode pris en charge par les principaux navigateurs
-Web, conçu principalement pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust.
+JavaScript est le seul langage de programmation native au Web. 
+Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
+WebAssembly a donc été conçu principalement pour répondre ce problème. 
+WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
 Les applications de WebAssembly ne se limite pas qu'au Web,il y a également un intérêt pour l'Internet des Objets, les serveurs.
+La mémoire d’un programme Wasm est linear memory.\cite{haas_bringing_2017}
+Linear memory est un tampon continu d'octets non signés  que Javascript et Wasm peuvent lire et modifier de manière synchrone. 
 WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
 Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js\cite{noauthor_nodejs_nodate}
 
