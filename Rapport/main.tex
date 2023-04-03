@@ -31,20 +31,37 @@ se basant sur cet article\cite{ullrich_counting_2020}(fourni). L'article défini
 un mécanisme de comptage de références.
 WebAssembly\cite{noauthor_webassembly_nodate} ou Wasm définit un format de code binaire portable
 et un langage de type assembleur\cite{noauthor_webassembly_2023}. Tous les principaux navigateurs peuvent exécuter des programmes WebAssembly. 
-Des langages comme C, C++, Rust, Go et bien d'autres peuvent être compilés en WebAssembly.
-Plusieurs compilateurs ont été développés pour WebAssembly\cite{noauthor_wabt_2023,noauthor_wasm3_2023,noauthor_wasmer_nodate,noauthor_wasmtime_nodate}. 
+Des langages comme C, C++, Rust, Go et bien d'autres peuvent être compilés en WebAssembly. 
 
 \section{WebAsssembly}
+
 JavaScript est le seul langage de programmation native au Web. 
 Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
 WebAssembly a donc été conçu principalement pour répondre ce problème. 
+Il a également pour objectif d’être sûre et de ne pas être lié à aucun runtime et langages de programmation.
 WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
-Les applications de WebAssembly ne se limite pas qu'au Web,il y a également un intérêt pour l'Internet des Objets, les serveurs.
-La mémoire d’un programme Wasm est linear memory.\cite{haas_bringing_2017}
-Linear memory est un tampon continu d'octets non signés  que Javascript et Wasm peuvent lire et modifier de manière synchrone. 
-WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
-Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js\cite{noauthor_nodejs_nodate}
+Les utilisations de WebAssembly ne se limite pas qu'au Web,il y a aussi un intérêt pour l'Internet des Objets, les serveurs, les systèmes embarquées.
+\par WebAssembly a un format texte(.wat) et un format binaire(.wasm). 
+Plusieurs compilateurs ont été développés pour WebAssembly\cite{noauthor_wabt_2023,noauthor_wasm3_2023,noauthor_wasmer_nodate,noauthor_wasmtime_nodate}. 
+Wasmer\cite{noauthor_wasmer_nodate} et wasmtime\cite{noauthor_wasmtime_nodate} sont les plus connue. 
+Ils utilisent tous les deux la technique de la compilation à la volée. Wasmtime est développé en collaboration surpervisé par la fondation Mozilla. 
+Alors que wasmer est développé par une entreprise privée. 
+Dans le cas de notre projet on utilise wabt\cite{noauthor_wabt_2023} pour compiler et on exécute le compilé à l’aide de Node.js\cite{noauthor_nodejs_nodate}. 
+\par Les programmes WebAssembly sont isolées de leur environnement hôte. Ils sont composés de un ou plusieurs modules. 
+Ils interagissent avec l’environnement à l’aide d’import et d’export explicites. 
+Un module doit être validé avant l’exécution pour s’assurer qu’il sont bien typés et sûre d’exécuter. 
+WebAssembly possède un système de type statique centrée autour de quatre valeurs:  i32, i64, f32 et f64. 
+Qui désignent les nombres entiers de 32 bits et 64 bits et les flottants de 32 et 64 bits.  
+La spécification officielle de Wasm comprend une sémantique formelle pour le langage, 
+avec une déclaration précise de la propriété de solidité des types prévue. 
+Elle a d'abord été publiée dans un premier projet en 2017, puis dans la norme officielle, appelée WebAssembly 1.0 (Wasm 1.0), en 2019 .
+La mémoire d’un programme Wasm repose sur le modèle de mémoire linéaire. 
+La mémoire linéaire est un tampon continu d'octets non signés  que Javascript et Wasm peuvent lire et modifier de manière synchrone. 
+Au cours de l’exécution l’espace mémoire peut grandir. 
 
+\begin{center}
+	\includegraphics[scale=0.65]{logos/model_memory_wasm.png}	
+\end{center}
 \section{Cahier des charges}
 Les tâches que nous avons identifié sont les suivantes :
 
