@@ -55,17 +55,19 @@ Qui désignent les nombres entiers de 32 bits et 64 bits et les flottants de 32 
 La spécification officielle de Wasm comprend une sémantique formelle pour le langage, 
 avec une déclaration précise de la propriété de solidité des types prévue. 
 Elle a d'abord été publiée dans un premier projet en 2017, puis dans la norme officielle, appelée WebAssembly 1.0 (Wasm 1.0), en 2019 .
-La mémoire d’un programme Wasm repose sur le modèle de mémoire linéaire. 
+\par La mémoire d’un programme Wasm repose sur le modèle de mémoire linéaire\cite{haas_bringing_2017}. 
 La mémoire linéaire est un tampon continu d'octets non signés  que Javascript et Wasm peuvent lire et modifier de manière synchrone. 
 Au cours de l’exécution l’espace mémoire peut grandir. 
 
-\begin{center}
+\begin{figure}[ht]
+	\centering
 	\includegraphics[scale=0.65]{logos/model_memory_wasm.png}	
-\end{center}
+	\caption{WebAssembly Architecture \cite{noauthor_wasmati_nodate}}
+\end{figure}
 \section{Cahier des charges}
 Les tâches que nous avons identifié sont les suivantes :
 
-- Analyser le fonctionnement de WASM
+- Analyser le fonctionnement de WASM et étudier son écosystème.
 
 - Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
 
@@ -87,28 +89,49 @@ mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution
 Le système de la gestion de la mémoire par comptage de référence est bien plus vieux que des systèmes par garbage collector, 
 mais aussi plus efficaces\cite{ullrich_counting_2020}. Cependant, la gestion de mémoire comptage de références ne fonctionne que si 
 il n'est pas possible de créer de cycle de référence. 
-C'est pourquoi les garbage collector sont plus utilisés de nos jours.
+C'est pourquoi les garbage collector ne sont plus utilisés de nos jours.
 
 Les auteurs de l'article\cite{ullrich_counting_2020} ont créé un langage fonctionnel dans lequel les cycles de références 
 sont impossibles afin d'implémenter un système de gestion de mémoire par comptage de référence et d'obtenir un langage fonctionnel 
-dont l'exécution est optimisée. C'est ce langage que nous allons implémenter.
+dont l'exécution est optimisée. Ils définissent un langage source $\lambda_{pure}$. 
+Qui après une étape de compilation deviendra $\lambda_{RC}$, notre langage de destionation.
+$\lambda_{RC}$ est une extension de $\lambda_{pure}$ auquel on a ajouté les instructions de gestion de la mémoire: 
+\verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
+Notre interpréteur implémentera $\lambda_{pure}$.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.65]{logos/grammaire.png}
+	\caption{Grammaire du langage source $\lambda_{pure}$}
+	\label{fig:grammaire pure}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.40]{logos/grammaire_RC.png}
+	\caption{Grammaire du langage $\lambda_{RC}$}
+	\label{fig:grammaire RC}
+\end{figure}
 
 \subsection{Parser/reader}
-Concernant la grammaire du langage, nous avons décidé de garder celle définie à la section 3 de l'article que voici.
-\begin{center}
-	\includegraphics[scale=0.65]{logos/grammaire.png}	
-\end{center}
+Concernant la grammaire du langage, nous reprenons celle qui est définie dans la section 3 de l'article et retranscrit dans la Figure ~\ref{fig:grammaire pure}.
+
+
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi nous ne pouvons pas stoquer les noms définis 
 variable ce qui nous empêche de distinguer directement les constantes des variables.
 
 \subsection{Interpréteur}
 
 Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire, 
-dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|)
+dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|).
 
-\begin{center}
-	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}	
-\end{center}
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}
+	\caption{Structures de gestion de la mémoire}
+\end{figure}
+\FloatBarrier 
+
 
 \verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans le tas. C'est la valeur de retour de toutes les sémantiques 
 du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
@@ -118,7 +141,7 @@ l'on modifie par effet de bord.
 Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantiques mais aussi quelques programmes simples, 
 tel que le calcul de fibonacci, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
 
-WebAssembly ne possède que des types numériques (i32, f32, ...) ainsi il est compliqué d'implémenter les applications partielles. 
+WebAssembly ne possède que des types numériques (i32, f32, i64, f64) ainsi il est compliqué d'implémenter les applications partielles. 
 Ainsi, nous nous réservons le droit de ne pas les implémenter.
 
 Afin d'implémenter le tas en WebAssembly, nous utilisons une \verb|Table| qui nous permet de définir une table dans la mémoire que 
