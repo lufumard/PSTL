@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs::File;
 
 use crate::ast::Fn;
 use crate::ast::Var;
@@ -50,8 +51,8 @@ pub fn eval_fncall_primitive(nom: String, vars:Vec<Var>, lfn:&mut HashMap<String
     }
 }
 
-pub fn write_ln(s : str){
-    write("{}\n", s);
+pub fn write_ln(s : &str, out : &File){
+    write(out, "{s}\n");
 }
 
 

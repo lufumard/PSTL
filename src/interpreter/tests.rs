@@ -9,7 +9,7 @@ use crate::ast::{CONST_LIST, FnBody};
 use crate::interpreter::*;
 use crate::reader;
 
-use crate::primitives::extract_int;
+use primitives::extract_int;
 
 fn get_num(l:Loc, h:&Heap) -> i32 {
     return extract_int(l, h);
@@ -335,7 +335,7 @@ fn test_pap(){
                 add_value(Var::Var("m".to_string()), make_num(6), empty_ctxt(), &mut heap)
             , &mut heap);
 
-    let call = Expr::FnCall(Const::Const("pap".to_string()), vec![Var::Var("n".to_string()), Var::Var("m".to_string())]);
+    let call = Expr::FnCall(Const::Const("papcall".to_string()), vec![Var::Var("n".to_string()), Var::Var("m".to_string())]);
     let res = start_interpreter(parsed, call, &ctxt, &mut heap);
     //println!("pap 10 6 = 4");
     let expected = 4;

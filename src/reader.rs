@@ -1,4 +1,4 @@
-use crate::ast::{Const, Expr, Fn, FnBody, Var, AST};
+use crate::ast::{Const, Expr, Fn, FnBody, Var, AST, Program};
 use chumsky::{
     prelude::*,
     text::{ident, int, keyword},
@@ -88,17 +88,23 @@ pub(crate) fn fnbody() -> impl Parser<char, FnBody, Error = Simple<char>> {
 }
 
 pub(crate) fn fun() -> impl Parser<char, Fn, Error = Simple<char>> {
-    const_()
-        .then(var().repeated())
+    var().repeated()
         .then_ignore(just('=').padded())
         .then(fnbody())
-        .map(|((_const, _args), _fnbody)| Fn::Fn(_const, _args, _fnbody))
+        .map(|(_args, _fnbody)| Fn::Fn(_args, _fnbody))
+}
+
+pub(crate) fn program() -> impl Parser<char, Program, Error = Simple<char>> {
+    const_()
+        .then(fun())
+        .map(|(_const, _fn)| Program::Program(_const, _fn))
 }
 
 pub(crate) fn ast() -> impl Parser<char, Vec<AST>, Error = Simple<char>> {
-    fun()
+    program()
         .padded()
-        .map(AST::Fn)
+        .map(AST::Program)
+        .or(fun().padded().map(AST::Fn))
         .or(fnbody().padded().map(AST::FnBody))
         .or(expr().padded().map(AST::Expr))
         .or(var().padded().map(AST::Var))
