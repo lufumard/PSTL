@@ -4,8 +4,8 @@
 pub mod ast;
 
 use std::collections::HashMap;
-pub use std::primitive;
-use crate::ast::CONST_NUM;
+pub use crate::ast::CONST_NUM;
+use crate::ast::Program;
 pub use crate::ast::Var;
 pub use crate::ast::Expr;
 pub use crate::ast::FnBody;
@@ -16,7 +16,7 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
-use crate::primitives::has_args;
+use primitives::has_args;
 
 
 pub mod primitives;
@@ -187,6 +187,13 @@ pub fn start_interpreter (funs : Vec<AST>, exec: Expr, ctxt: &Ctxt, heap: &mut H
     eval_expr(exec, ctxt, heap, &mut liste_fun)
 }
 
+pub fn interpreter (funs : Vec<AST>, call : &String) {
+    let mut heap = empty_heap();
+    let ctxt = empty_ctxt();
+    let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
+    let res = start_interpreter (funs, exec, &ctxt, &mut heap);
+}
+
 pub  fn get_nb_args_ctor(n: i32) -> i32 {
     match n {
         CONST_FALSE => 0,
@@ -216,7 +223,7 @@ pub  fn eval_ast(ast: AST, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>)
         AST::Expr(expr) => eval_expr(expr, ct, h, lfn),
         AST::FnBody(body) => eval_fnbody(body, ct, h, lfn),
         AST::Const(_) => panic!("Impossible d'évaluer un Const"),
-        AST::Program(c, fun) => eval_program(c, fun, ct, h, lfn),
+        AST::Program(prog) => eval_program(prog, ct, h, lfn),
     }
 }
 
@@ -244,11 +251,8 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
     }
 }
 
-pub  fn eval_fun(fun:Fn, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Fn::Fn(cst, _, _) = fun.clone(); 
-    let Const::Const(name) = cst;
-    lfn.insert(name.clone(), fun);
-    Loc::Loc(0)
+pub  fn eval_fun(_:Fn, _: &Ctxt, _:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
+    panic!("Pas possible d'évaluer une fonction")
 }
 
 
@@ -267,7 +271,7 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mu
     }
 
     match lfn.get(&nom).cloned() {
-        Some(Fn::Fn(_, args, body)) => eval_cons_fn(nom, args, body, vars, ct, h, lfn),
+        Some(Fn::Fn(args, body)) => eval_cons_fn(nom, args, body, vars, ct, h, lfn),
         None => {
             // Les appels partiels de variable de ne sont que sur un argument
             assert_eq!(vars.len(), 1);
@@ -319,7 +323,7 @@ pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<
                 
             }else {  
                 match lfn.get(name).cloned() {
-                    Some(Fn::Fn(_, args, body)) => {
+                    Some(Fn::Fn(args, body)) => {
                         if args.len() == vars.len() {
                             eval_var_call_full(body, vars, args, ct, h, lfn)
                         } else {
@@ -328,7 +332,7 @@ pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<
                     },
             
                     None =>  {
-                        panic!("{} n'est pas une fonction", name)
+                        panic!("\"{}\" n'est pas une fonction", name)
                     } 
                 }
             }
@@ -433,12 +437,10 @@ pub  fn eval_case(var: Var, bodys: Vec<FnBody>, ct: &Ctxt, h:&mut Heap, lfn:&mut
 }
 
 
-pub fn eval_program(c: Const, fun:Fn, _: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Const::Const(nom) = c;
-    let Fn::Fn(c_, _, _) = fun.clone();
-    lfn.insert(nom, fun);
-    let pap = Value::Pap(c_, vec![]);
-    h.add((pap, 0))
+pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
+    let Program::Program(Const::Const(nom), fun) = prog;
+    lfn.insert(nom.clone(), fun);
+    return Loc::Loc(0);
 }
 
 

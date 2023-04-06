@@ -51,8 +51,13 @@ pub fn eval_fncall_primitive(nom: String, vars:Vec<Var>, lfn:&mut HashMap<String
     }
 }
 
+<<<<<<< HEAD
 pub fn write_ln(file : &File,s : str){
     file.write("{}\n", s);
+=======
+pub fn write_ln(s : &str, out : &File){
+    write(out, "{s}\n");
+>>>>>>> c6daa5e6f1399ae8f76e1e39d13945043e124e1f
 }
 
 pub fn make_num(file : &File, val: Var) {

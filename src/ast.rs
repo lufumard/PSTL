@@ -33,13 +33,19 @@ pub enum FnBody {
     Dec(Var, Box<FnBody>),
 }
 
-#[allow(dead_code)]
+
 #[derive(Debug, Clone)]
 pub enum Fn {
-    Fn(Const, Vec<Var>, FnBody),
+    Fn(Vec<Var>, FnBody),
 }
 
-#[allow(dead_code)]
+
+#[derive(Debug, Clone)]
+pub enum Program {
+    Program(Const, Fn),
+}
+
+
 #[derive(Debug, Clone)]
 pub enum AST {
     Const(Const),
@@ -47,7 +53,7 @@ pub enum AST {
     Expr(Expr),
     FnBody(FnBody),
     Fn(Fn),
-    Program(Const, Fn)
+    Program(Program)
 }
 
 #[allow(dead_code)]

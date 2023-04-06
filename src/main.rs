@@ -2,10 +2,7 @@
 
 mod ast;
 use chumsky::Parser;
-use interpreter::Heap;
-use interpreter::Value;
-use interpreter::Ctxt;
-use interpreter::Var;
+use std::env;
 use std::fs;
 
 
@@ -13,27 +10,44 @@ use std::fs;
 
 pub mod reader;
 
-#[path = "interpreter/primitives.rs"]
-mod primitives;
-
 #[path = "interpreter/interpreter.rs"]
 mod interpreter;
+
+//#[path = "compiler/compiler.rs"]
+//mod compiler;
 
 #[path = "interpreter/tests.rs"]
 mod tests_interpreter;
 
-fn add_value(var:Var, v:Value, c:Ctxt, h:&mut Heap) -> Ctxt {
-    c.add(var, h.add((v, 1)))
-}
 
 fn main() {
-    let file_path = "./examples/swap.pstl";
-    let file_contents = fs::read_to_string(file_path)
-        .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
-    drop(parsed);
-    //dbg!(parsed);
-
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 3 {
+        println!("Usage : pstl <-c|-i> <file.pstl>")
+    }
+    match args.get(2) {
+        Some(file_path) => {
+            let file_contents = fs::read_to_string(file_path)
+                .expect(format!("unable to read file + {}", file_path).as_str());
+            let parsed = reader::ast().parse(file_contents).expect("can't parse");
+            match args.get(3) {
+                Some(out) => {
+                    match args.get(1) {
+                        Some(e) => {
+                            if e.to_owned() == "-i".to_string() {
+                                interpreter::interpreter(parsed, out);
+                            } else if  e.to_owned() == "-c".to_string() {
+                                //compiler::compile(parsed, out);
+                            }
+                        },
+                        None => panic!("Il manque le nom de sortie ou la fonction à exécuter"),
+                    }
+                },
+                None => panic!("Pas assez d'arguments"),
+            }
+        },
+        None => panic!("Pas assez d'arguments"),
+    }
 }
 
 
