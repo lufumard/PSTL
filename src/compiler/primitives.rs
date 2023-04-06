@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs::File;
 
 use crate::ast::Fn;
 use crate::ast::Var;
@@ -50,100 +51,105 @@ pub fn eval_fncall_primitive(nom: String, vars:Vec<Var>, lfn:&mut HashMap<String
     }
 }
 
-pub fn write_ln(s : str){
-    write("{}\n", s);
+pub fn write_ln(file : &File,s : str){
+    file.write("{}\n", s);
 }
 
+pub fn make_num(file : &File, val: Var) {
+    write_ln(file,"table.get 0")
+}
 
+pub fn get_bool(file : &File, val: Var) {
 
+}
 
 // Définition des primitives
 // TODO : rendre plus concis
 
-pub fn add_fn(vars: Vec<Var>)  {
+pub fn add_fn(file : &File, vars: Vec<Var>)  {
     assert_eq!(vars.len(), 2);
     assert_eq!(vars.len(), 2);
-    write_ln("(call (make_num (i32.add (");
+    write_ln(file, "(call (make_num (i32.add (");
+    get_num(vars[0]);
+    write_ln(file, ") (");
+    get_num(vars[1]);
+    write_ln(file,"))))");
+}
+
+pub fn sub_fn(file : &File, vars: Vec<Var>)  {
+    assert_eq!(vars.len(), 2);
+    assert_eq!(vars.len(), 2);
+    write_ln(fill, "(call (make_num (i32.sub (");
+    get_num(vars[0]);
+    write_ln(file, ") (");
+    get_num(vars[1]);
+    write_ln(file, "))))");
+}
+
+pub fn mul_fn(file : &File, vars: Vec<Var>)  {
+    assert_eq!(vars.len(), 2);
+    assert_eq!(vars.len(), 2);
+    write_ln(file, "(call (make_num (i32.mul (");
+    get_num(vars[0]);
+    write_ln(file, ") (");
+    get_num(vars[1]);
+    write_ln(file, "))))");
+}
+
+pub fn div_fn(file : &File, vars: Vec<Var>)  {
+    assert_eq!(vars.len(), 2);
+    assert_eq!(vars.len(), 2);
+    write_ln(file, "(call (make_num (i32.div_s (");
+    get_num(vars[0]);
+    write_ln(file, ") (");
+    get_num(vars[1]);
+    write_ln(file, "))))");
+}
+
+pub fn mod_fn(file : &File, vars: Vec<Var>)  {
+    assert_eq!(vars.len(), 2);
+    assert_eq!(vars.len(), 2);
+    write_ln(file, "(call (make_num (i32.rem_s (");
     get_num(vars[0]);
     write_ln(") (");
     get_num(vars[1]);
-    write_ln("))))");
+    write_ln(file, "))))");
 }
 
-pub fn sub_fn(vars: Vec<Var>)  {
+pub fn eq_fn(file : &File, vars: Vec<Var>)  {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(call (make_num (i32.sub (");
+    write_ln(file, "(if (i32.eq (");
     get_num(vars[0]);
-    write_ln(") (");
+    write_ln(file, ") (");
     get_num(vars[1]);
-    write_ln("))))");
+    write_ln(file, ")) (then (call make_true)) (else (call make_false)))");
 }
 
-pub fn mul_fn(vars: Vec<Var>)  {
+pub fn and_fn(file : &File,vars: Vec<Var>)  {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(call (make_num (i32.mul (");
-    get_num(vars[0]);
-    write_ln(") (");
-    get_num(vars[1]);
-    write_ln("))))");
-}
-
-pub fn div_fn(vars: Vec<Var>)  {
-    assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(call (make_num (i32.div_s (");
-    get_num(vars[0]);
-    write_ln(") (");
-    get_num(vars[1]);
-    write_ln("))))");
-}
-
-pub fn mod_fn(vars: Vec<Var>)  {
-    assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(call (make_num (i32.rem_s (");
-    get_num(vars[0]);
-    write_ln(") (");
-    get_num(vars[1]);
-    write_ln("))))");
-}
-
-pub fn eq_fn(vars: Vec<Var>)  {
-    assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.eq (");
-    get_num(vars[0]);
-    write_ln(") (");
-    get_num(vars[1]);
-    write_ln(")) (then (call make_true)) (else (call make_false)))");
-}
-
-pub fn and_fn(vars: Vec<Var>)  {
-    assert_eq!(vars.len(), 2);
-    write_ln("(if (");
+    write_ln(file, "(if (");
     get_bool(vars[0]);
-    write_ln(") (then (if (i32.eq (1) (");
+    write_ln(file, ") (then (if (i32.eq (1) (");
     get_bool(vars[1]);
-    write_ln(") (then (call make_true))) (else (call make_false))))");
+    write_ln(file, ") (then (call make_true))) (else (call make_false))))");
 }
 
 
-pub fn or_fn(vars: Vec<Var>)  {
+pub fn or_fn(file : &File, vars: Vec<Var>)  {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (");
+    write_ln(file, "(if (");
+    get_bool(vars[0]);
+    write_ln(file, ") (then (call make_true)) (else (if (i32.eq (1) (");
+    get_bool(vars[1]);
+    write_ln(file, ") (then (call make_true)) (else (call make_false)))))");
+}
+
+pub fn not_fn(file : &File, var : Var)  {
+    write_ln(file, "(if (");
     get_bool(vars[0]);
     write_ln(") (then (call make_true)) (else (if (i32.eq (1) (");
     get_bool(vars[1]);
-    write_ln(") (then (call make_true)) (else (call make_false)))))");
-}
-
-pub fn not_fn(var : Var)  {
-    write_ln("(if (");
-    get_bool(vars[0]);
-    write_ln(") (then (call make_true)) (else (if (i32.eq (1) (");
-    get_bool(vars[1]);
-    write_ln(") (then (call make_true)) (else (call make_false)))))");
+    write_ln(file, ") (then (call make_true)) (else (call make_false)))))");
 }
 
 pub fn sup_fn(vars: Vec<Var>)  {
