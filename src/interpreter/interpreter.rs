@@ -192,6 +192,8 @@ pub fn interpreter (funs : Vec<AST>, call : &String) {
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
     let res = start_interpreter (funs, exec, &ctxt, &mut heap);
+
+
 }
 
 pub  fn get_nb_args_ctor(n: i32) -> i32 {
@@ -200,6 +202,7 @@ pub  fn get_nb_args_ctor(n: i32) -> i32 {
         CONST_TRUE => 0,
         CONST_NIL => 0,
         CONST_LIST => 2,
+        CONST_NUM => 1,
         _ => panic!("Ctor {} non existant", n),
     }
 }
@@ -246,8 +249,9 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
         Expr::Proj(n, var) => eval_proj(n, var, ct, h, lfn),
         Expr::Num(n) => eval_value(n, ct, h, lfn),
         Expr::PapCall(ident, var) => eval_pap_fncall(ident, var, ct, h, lfn),
-        Expr::Reset(_) => todo!(),
-        Expr::Reuse(_, _, _) => todo!(),
+        _ => panic!("Pas dans l'interpréteur")
+        // Expr::Reset(_) => todo!(),
+        // Expr::Reuse(_, _, _) => todo!(),
     }
 }
 
@@ -407,8 +411,9 @@ pub  fn eval_fnbody(body: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<Strin
         FnBody::Ret(var) => eval_ret(var, ct, h, lfn),
         FnBody::Let(var, expr, fnbody) => eval_let(var, expr, *fnbody, ct, h, lfn),
         FnBody::Case(var, bodys) => eval_case(var, bodys, ct, h, lfn),
-        FnBody::Inc(var, fnbody) => eval_inc(var, *fnbody, ct, h, lfn),
-        FnBody::Dec(var, fnbody) => eval_dec(var, *fnbody, ct, h, lfn),
+        // FnBody::Inc(var, fnbody) => eval_inc(var, *fnbody, ct, h, lfn),
+        // FnBody::Dec(var, fnbody) => eval_dec(var, *fnbody, ct, h, lfn),
+        _ => panic!("Pas dans l'interpréteur")
     }
 }
 
@@ -443,7 +448,7 @@ pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<Stri
     return Loc::Loc(0);
 }
 
-
+/*
 pub fn eval_inc(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
     h.inc(ct.get(var));
     return eval_fnbody(fnbody, ct, h, lfn);
@@ -453,3 +458,5 @@ pub fn eval_dec(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashM
     h.dec(ct.get(var));
     return eval_fnbody(fnbody, ct, h, lfn);
 }
+
+*/

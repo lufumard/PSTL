@@ -413,6 +413,7 @@ fn test_swap_pstl_2fun(){
     assert_eq!(3, n3);
 }
 
+/*
 #[test]
 fn test_inc() {
     let mut heap = empty_heap();
@@ -450,3 +451,4 @@ fn test_dec() {
     assert_eq!(1, n);
     assert_eq!(make_num(1), v);
 }
+*/
