@@ -48,23 +48,19 @@ pub fn compile_fncall_primitive(nom: String, vars:Vec<Var>, out:&mut File) {
     }
 }
 
+use std::io::Write;
 pub fn write_out(s : &str, out : &mut File){
-    todo!()
+    write!(out, "{}", s).err();
 }
 
 pub fn write_ln(s : &str, out : &mut File){
     write_out(&format!("{s}\n"), out);
 }
 
-pub fn make_num(file : &File, val: Var) {
-    write_ln(file,"table.get 0")
-}
-
 pub fn get_num(var:Var, out : &mut File) {
     let s = string_of_var(var);
     write_ln(&format!("(i32.load (i32.add (local.get ${s}) (8)))"), out);
 }
-pub fn get_bool(file : &File, val: Var) {
 
 pub fn get_bool(var:Var, out : &mut File) {
     compile_var(var, out);

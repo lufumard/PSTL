@@ -42,8 +42,9 @@ pub  fn make_list(out:&mut File) {
 
 }
 
-pub  fn make_num(out:&mut File) {
 
+pub  fn make_num(out:&mut File) {
+    write_ln("i32.load 0", out);
 }
 
 
