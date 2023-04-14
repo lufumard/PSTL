@@ -14,8 +14,8 @@ pub mod reader;
 #[path = "interpreter/interpreter.rs"]
 mod interpreter;
 
-//#[path = "compiler/compiler.rs"]
-//mod compiler;
+#[path = "compiler/compiler.rs"]
+mod compiler;
 
 #[path = "interpreter/tests.rs"]
 #[cfg(test)]

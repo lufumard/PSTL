@@ -189,6 +189,8 @@ pub fn interpreter (funs : Vec<AST>, call : &String) {
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
     let res = start_interpreter (funs, exec, &ctxt, &mut heap);
+
+
 }
 
 pub  fn get_nb_args_ctor(n: i32) -> i32 {
@@ -197,6 +199,7 @@ pub  fn get_nb_args_ctor(n: i32) -> i32 {
         CONST_TRUE => 0,
         CONST_NIL => 0,
         CONST_LIST => 2,
+        CONST_NUM => 1,
         _ => panic!("Ctor {} non existant", n),
     }
 }
@@ -436,7 +439,7 @@ pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<Stri
     return Loc::Loc(0);
 }
 
-
+/*
 pub fn eval_inc(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
     h.inc(ct.get(var));
     return eval_fnbody(fnbody, ct, h, lfn);
@@ -446,3 +449,5 @@ pub fn eval_dec(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashM
     h.dec(ct.get(var));
     return eval_fnbody(fnbody, ct, h, lfn);
 }
+
+*/
