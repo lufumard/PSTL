@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod ast;
+mod ast_rc;
 use chumsky::Parser;
 use std::env;
 use std::fs;
@@ -17,8 +18,16 @@ mod interpreter;
 //mod compiler;
 
 #[path = "interpreter/tests.rs"]
+#[cfg(test)]
 mod tests_interpreter;
 
+#[path = "compiler/pure_to_rc.rs"]
+#[cfg(test)]
+mod test_compiler_rc;
+
+#[path = "compiler/collect.rs"]
+#[cfg(test)]
+mod test_collect;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

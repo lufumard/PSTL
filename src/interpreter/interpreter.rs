@@ -1,8 +1,5 @@
 #![allow(dead_code)]
 
-#[path = "../ast.rs"]
-pub mod ast;
-
 use std::collections::HashMap;
 pub use crate::ast::CONST_NUM;
 use crate::ast::Program;
@@ -246,8 +243,6 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
         Expr::Proj(n, var) => eval_proj(n, var, ct, h, lfn),
         Expr::Num(n) => eval_value(n, ct, h, lfn),
         Expr::PapCall(ident, var) => eval_pap_fncall(ident, var, ct, h, lfn),
-        Expr::Reset(_) => todo!(),
-        Expr::Reuse(_, _, _) => todo!(),
     }
 }
 
@@ -407,8 +402,6 @@ pub  fn eval_fnbody(body: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<Strin
         FnBody::Ret(var) => eval_ret(var, ct, h, lfn),
         FnBody::Let(var, expr, fnbody) => eval_let(var, expr, *fnbody, ct, h, lfn),
         FnBody::Case(var, bodys) => eval_case(var, bodys, ct, h, lfn),
-        FnBody::Inc(var, fnbody) => eval_inc(var, *fnbody, ct, h, lfn),
-        FnBody::Dec(var, fnbody) => eval_dec(var, *fnbody, ct, h, lfn),
     }
 }
 
