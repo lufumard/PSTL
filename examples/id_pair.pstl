@@ -1,0 +1,5 @@
+id x = ret x
+
+fst x y = ret x
+
+sec x y = ret y

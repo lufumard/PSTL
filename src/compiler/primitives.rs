@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::write;
 use std::fs::File;
 
-use crate::ast::Var;
+use crate::compiler::ast_compiler::Var;
 use crate::compiler::compile_var;
 use crate::compiler::make_num;
 use crate::compiler::make_true;

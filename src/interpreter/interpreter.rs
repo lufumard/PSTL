@@ -188,7 +188,7 @@ pub fn interpreter (funs : Vec<AST>, call : &String) {
     let mut heap = empty_heap();
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
-    let res = start_interpreter (funs, exec, &ctxt, &mut heap);
+    let _res = start_interpreter (funs, exec, &ctxt, &mut heap);
 
 
 }
@@ -438,6 +438,7 @@ pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<Stri
     lfn.insert(nom.clone(), fun);
     return Loc::Loc(0);
 }
+
 
 /*
 pub fn eval_inc(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {

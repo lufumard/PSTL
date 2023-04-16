@@ -1,7 +1,11 @@
-use crate::ast::Var;
-use crate::ast::Const;
-use std::collections::HashMap;
+use crate::compiler::ast_compiler::{Var, Const};
+use indexmap::IndexMap;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConstWrapper {
+    //(novelle constante, constate qu'on wrappe)
+    ConstWrapper(Const, Const)
+}
 #[derive(Debug, Clone, PartialEq)]
 pub enum FnBodyRC {
     Ret(Var),
@@ -15,7 +19,7 @@ pub enum FnBodyRC {
 pub enum ExprRC{
     FnCall(Const, Vec<Var>),
     PapCall(Var, Var),
-    Pap(Const, Vec<Var>),
+    Pap(ConstWrapper, Vec<Var>),
     Ctor(i32, Vec<Var>),
     Proj(i32, Var),
     Num(i32),
@@ -23,12 +27,12 @@ pub enum ExprRC{
     Reuse(Var, i32, Vec<Var>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum FnRC {
     Fn(Vec<Var>, FnBodyRC),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ProgramRC {
-    Program(HashMap<Const,FnRC>),
+    Program(IndexMap<Const, FnRC>),
 }

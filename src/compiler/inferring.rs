@@ -1,11 +1,14 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
 
-use crate::ast::Var;
-use crate::ast::Const;
-use crate::ast_rc::ExprRC;
-use crate::ast_rc::FnBodyRC;
-use crate::ast_rc::FnRC;
+use crate::compiler::ast_compiler::{Var};
+use crate::compiler::ast_rc::ExprRC;
+use crate::compiler::ast_rc::FnBodyRC;
+use crate::compiler::ast_rc::FnRC;
+
+use super::Const;
+use super::ast_rc::ProgramRC;
+
 
 
 pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var> {
@@ -73,15 +76,26 @@ pub fn inferring_signatures(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) ->
     }
 }
 
+pub fn inferring_programs(prog: ProgramRC) -> HashMap<Const,Vec<char>>{
+    let ProgramRC::Program(fun_dec) = prog;
+    let mut beta: HashMap<Const,Vec<char>> = HashMap::new();
+
+    for (cste, fun) in fun_dec {
+        let beta_c = inferring_signatures(cste.clone(), fun, beta.clone());
+        beta.insert(cste, beta_c);
+    }
+
+    beta
+}
+
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod tests_collect_o {
     use std::collections::{HashSet, HashMap};
 
-    use crate::ast::Const;
-    use crate::test_collect::collect_o;
-    use crate::ast::Var;
-    use crate::ast_rc::{FnBodyRC, ExprRC};
+    use crate::compiler::ast_compiler::{Var, Const};
+    use crate::compiler::ast_rc::{FnBodyRC, ExprRC, ConstWrapper};
+    use crate::compiler::inferring::collect_o;
 
     #[test]
     fn  test_ctor() {
@@ -148,11 +162,12 @@ mod tests_collect_o {
         let z = Var::Var(String::from("z"));
         let retour = Box::new(FnBodyRC::Ret(z.clone()));
 
-        let add = Const::Const(String::from("add_c"));
+        let add = Const::Const(String::from("add"));
+        let add_wrap = ConstWrapper::ConstWrapper(Const::Const(String::from("add_c")), add.clone());
         let mut beta: HashMap<Const,Vec<char>> = HashMap::new();
         beta.insert(add.clone(), vec!['O', 'O']);
 
-        let body = FnBodyRC::Let(z.clone(), ExprRC::Pap(add.clone(), vec![x.clone()]), retour.clone());
+        let body = FnBodyRC::Let(z.clone(), ExprRC::Pap(add_wrap, vec![x.clone()]), retour.clone());
         let expected = HashSet::from( [x.clone()]);
         assert_eq!(expected, collect_o(body, beta));
         
@@ -208,5 +223,14 @@ mod tests_collect_o {
 
 #[cfg(test)]
 mod tests_inferring {
-    
+    use crate::compiler::reader_compiler;
+    use std::fs;
+    use chumsky::Parser;
+
+    fn id_pair() {
+        let file_path = "./examples/id_pair.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+    }   
 }

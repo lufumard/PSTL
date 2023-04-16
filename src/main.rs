@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 
 mod ast;
-mod ast_rc;
 use chumsky::Parser;
 use std::env;
 use std::fs;
-
 
 //use crate::interpreter::{start_interpreter, empty_heap, empty_ctxt};
 
@@ -14,6 +12,7 @@ pub mod reader;
 #[path = "interpreter/interpreter.rs"]
 mod interpreter;
 
+
 #[path = "compiler/compiler.rs"]
 mod compiler;
 
@@ -21,15 +20,9 @@ mod compiler;
 #[cfg(test)]
 mod tests_interpreter;
 
-#[path = "compiler/pure_to_rc.rs"]
-#[cfg(test)]
-mod test_compiler_rc;
-
-#[path = "compiler/collect.rs"]
-#[cfg(test)]
-mod test_collect;
 
 fn main() {
+    
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         println!("Usage : pstl <-c|-i> <file.pstl>")
