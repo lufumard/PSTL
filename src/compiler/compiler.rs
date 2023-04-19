@@ -9,6 +9,7 @@ pub mod inc;
 pub mod reader_compiler;
 pub mod utils;
 
+use std::collections::HashMap;
 use std::fs::File;
 use self::ast_compiler::Program;
 pub use self::ast_compiler::Var;
@@ -25,6 +26,8 @@ use self::ast_rc::ExprRC;
 use self::ast_rc::FnBodyRC;
 use self::ast_rc::FnRC;
 use self::ast_rc::ProgramRC;
+use self::inc::insert_inc;
+use self::inferring::inferring_programs;
 use self::reuse::insert_reuse;
 
 
@@ -66,7 +69,9 @@ pub fn compile(prog: Program, out : &mut File){
     write_ln("(module", out);
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let prog_reuse = insert_reuse(prog);
-    compile_program(prog_reuse, out);
+    let beta: HashMap<Const,Vec<char>> = inferring_programs(prog_reuse.clone());
+    let prog_inc = insert_inc(prog_reuse, beta);
+    compile_program(prog_inc, out);
     write_ln(")", out);
 
 }
