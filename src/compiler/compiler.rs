@@ -77,6 +77,7 @@ pub fn compile(prog: Program, out : &mut File){
 pub fn compile_var(var: Var, out : &mut File) {
     let v = string_of_var(var);
     write_ln(&format!("local.get ${v}"), out);
+    write_ln("i32.load", out);
 }
 
 /*
@@ -94,10 +95,6 @@ pub fn compile_expr(expr: ExprRC, out : &mut File) {
         ExprRC::Reset(var) => compile_reset(var, out),
         ExprRC::Reuse(var, i, args) => compile_reuse(var, i, args, out),
     }
-}
-
-pub  fn compile_fun(fun:Fn, out : &mut File)  {
-
 }
 
 
@@ -143,13 +140,14 @@ fn string_of_const(Const::Const(c):Const) -> String {
 }
 
 pub  fn compile_ret(var: Var, out : &mut File)  {
-    compile_var(var, out);
+    let v = string_of_var(var);
+    write_ln(&format!("local.get ${v}"), out);
     write_ln("return", out);
 }
 
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
-    let v = string_of_var(var);
     compile_expr(expr, out);
+    let v = string_of_var(var);
     write_ln(&format!("local.set ${v}"), out);
     compile_fnbody(fnbody, out);
 }
@@ -163,9 +161,9 @@ pub fn compile_program(prog: ProgramRC, out : &mut File)  {
     let ProgramRC::Program(fun_dec) = prog;
     for (cste, fun) in fun_dec {
         let Const::Const(nom) = cste;
-        write_ln(&format!("(func ${nom} "), out);
+        write_out(&format!("(func ${nom} (export \"{nom}\")"), out);
         compile_fn(fun, out);
-        write_ln(&format!("export \"{nom}\" (func ${nom}))"), out);
+        write_ln(")", out);
     }
     
 }
@@ -174,7 +172,7 @@ pub fn compile_fn(fun:FnRC, out:&mut File){
     let FnRC::Fn(params, fnbody) = fun;
     for param in params {
         let s = string_of_var(param);
-        write_out(&format!("(param ${s} i32 ) "), out);
+        write_out(&format!("(param ${s} i32) "), out);
     }
     write_ln("(result i32)", out);
     compile_fnbody(fnbody, out);

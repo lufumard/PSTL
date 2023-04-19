@@ -59,7 +59,10 @@ pub fn write_ln(s : &str, out : &mut File){
 
 pub fn get_num(var:Var, out : &mut File) {
     let s = string_of_var(var);
-    write_ln(&format!("(i32.load (i32.add (local.get ${s}) (8)))"), out);
+    write_ln(&format!("local.get ${s}"), out);
+    write_ln("i32.const 8", out);
+    write_ln("i32.add", out);
+    write_ln("i32.load", out);
 }
 
 pub fn get_bool(var:Var, out : &mut File) {
@@ -71,158 +74,138 @@ pub fn get_bool(var:Var, out : &mut File) {
 
 pub fn add_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(i32.add (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln("))", out);
-    make_num(out);
+    write_ln("i32.add", out);
+    make_num(out); 
 }
 
 pub fn sub_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(i32.sub (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln("))", out);
+    write_ln("i32.sub", out);
     make_num(out);
 }
 
 pub fn mul_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(i32.mul (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln("))", out);
+    write_ln("i32.mul", out);
     make_num(out);
 }
 
 pub fn div_fn(vars: Vec<Var>, out:&mut File) {
-    assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(i32.div_s (", out);
+    assert_eq!(vars.len(), 2);    
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln("))", out);
-    make_num(out);
+    write_ln("i32.div_s", out);
+    make_num(out);    
 }
 
 pub fn mod_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    assert_eq!(vars.len(), 2);
-    write_ln("(i32.rem_s (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln("))", out);
+    write_ln("i32.rem_s", out);
     make_num(out);
 }
 
 pub fn eq_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.eq (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("i32.eq", out);
+    write_ln("(if (then ", out);
     make_true(out);
-    write_ln(")) (else (", out);
+    write_ln(") (else ", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln("))", out);
 }
 
 pub fn and_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.eq (1) (", out);
     get_bool(vars[0].to_owned(), out);
-    write_ln(")) (then (if (i32.eq (1) (", out);
+    write_ln("(if (then ", out);
     get_bool(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("(if (then ", out);
     make_true(out);
-    write_ln(")))) (else (", out);
+    write_ln(") (else ", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln("))) (else ", out);
+    make_false(out);
+    write_ln("))", out);
 }
 
 
 pub fn or_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.eq (1) (", out);
     get_bool(vars[0].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("(if (then ", out);
     make_true(out);
-    write_ln(")) (else (if (i32.eq (1) (", out);
+    write_ln(") (else ", out);
     get_bool(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("(if (then ", out);
     make_true(out);
-    write_ln(")) (else (", out);
+    write_ln(") (else ", out);
     make_false(out);
-    write_ln(")))))", out);
+    write_ln("))))", out);
 }
 
 pub fn not_fn(var : Var, out:&mut File) {
-    write_ln("(if (i32.eq (1) (", out);
     get_bool(var, out);
-    write_ln(")) (then", out);
-    make_true(out);
-    write_ln(")) (else (", out);
+    write_ln("(if (then", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln(") (else ", out);
+    make_true(out);
+    write_ln("))", out);
 }
 
 pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.gt_s (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("i32.gt_s", out);
+    write_ln("(if (then", out);
     make_true(out);
-    write_ln(")) (else (", out);
-    write_ln(")))", out);
+    write_ln(") (else", out);
+    make_false(out);
+    write_ln("))", out);
 }
 
 pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.lt_s (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("i32.lt_s", out);
+    write_ln("(if (then", out);
     make_true(out);
-    write_ln(")) (else (", out);
+    write_ln(") (else", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln("))", out);
 }
 
 pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.ge_s (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("i32.ge_s", out);
+    write_ln("(if (then", out);
     make_true(out);
-    write_ln(")) (else (", out);
+    write_ln(") (else", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln("))", out);
 }
 
 pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    write_ln("(if (i32.le_s (", out);
     get_num(vars[0].to_owned(), out);
-    write_ln(") (", out);
     get_num(vars[1].to_owned(), out);
-    write_ln(")) (then (", out);
+    write_ln("i32.le_s", out);
+    write_ln("(if (then", out);
     make_true(out);
-    write_ln(")) (else (", out);
+    write_ln(") (else", out);
     make_false(out);
-    write_ln(")))", out);
+    write_ln("))", out);
 }
