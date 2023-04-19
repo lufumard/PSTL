@@ -83,6 +83,10 @@ impl Heap {
         }
     }
     
+    pub fn nb_alloc(&self) -> i32 {
+        return self.loc.clone();
+    }
+
     fn new_loc(& mut self) -> Loc {
         let n = self.loc;
         self.loc = n.clone()+1;
@@ -188,13 +192,51 @@ pub fn start_interpreter (prog : Program, exec: Expr, ctxt: &Ctxt, heap: &mut He
     eval_expr(exec, ctxt, heap, &mut liste_fun)
 }
 
+pub fn debug_loc(loc : Loc, h : &mut Heap){
+    let Loc::Loc(l) = loc.clone();
+    let (v, r) = h.get(loc);
+    match v {
+        Value::Ctor(i, ls) => {
+            match i {
+                CONST_FALSE => println!("Loc : {l}; #ref : {r}; valeur : False"),
+                CONST_TRUE => println!("Loc : {l}; #ref : {r}; valeur : True"),
+                CONST_NIL => println!("Loc : {l}; #ref : {r}; valeur : Nil"),
+                CONST_NUM => {
+                    let Loc::Loc(n) = ls[0].to_owned();
+                    println!("Loc : {l}; #ref : {r}; valeur : Num {n}");
+                },
+                CONST_LIST => {
+                    let Loc::Loc(l1) = ls[0].to_owned();
+                    let Loc::Loc(l2) = ls[1].to_owned();
+                    println!("Loc : {l}; #ref : {r}; valeur : List ({l1}, {l2}) puis");
+                    debug_loc(ls[0], h);
+                    debug_loc(ls[1], h);
+                },
+                _ => println!("Loc : {l}; #ref : {r}; valeur : type {i} inconnu"),
+            }
+        },
+        Value::Pap(c, ls) => {
+            let Const::Const(nom) = c;
+            let nb = ls.len();
+            println!("Loc : {l}; #ref : {r}; valeur : Pap {nom}, {nb} arg:");
+            ls.iter().map(|l| debug_loc(*l, h)).count();
+        },
+        Value::Null => println!("Loc : {l}; #ref : {r}; valeur : Null"),
+    }
+    
+}
+
 pub fn interpreter (program : Program, call : &String) {
     let mut heap = empty_heap();
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
-    let _res = start_interpreter (program, exec, &ctxt, &mut heap);
+    let res = start_interpreter (program, exec, &ctxt, &mut heap);
 
-
+    let nb_alloc = heap.nb_alloc();
+    
+    println!("Nombre d'allocations : {nb_alloc}");
+    println!("Résultat : ");
+    debug_loc(res, &mut heap);
 }
 
 pub  fn get_nb_args_ctor(n: i32) -> i32 {

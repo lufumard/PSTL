@@ -298,3 +298,32 @@ compile_make_num
 ;; pre : le nombre à créer est en haut de la pile
 ---------------------
 call $__make_num
+
+compile_make_list
+;; pre : les arguments sont en haut de la pile
+---------------------
+call $__make_num
+
+compile_case (var:Var, bodys:Vec<FnBody>)
+---------------------
+for n in 0..bodys.len() {
+  ;; on crée un block pour chaque cas énuméré
+  (block $__case{i}
+} 
+(block $__choice
+;; on charge le type de la variable
+compile_var(var)
+i32.load
+;; br_table choisi un enbranchement selon la valeur du type de la variable
+(br_table 
+for n in 1..bodys.len() {
+  $__case{i}
+}
+$__choice)
+for body in bodys {
+compile_fnbody(body)
+}
+)
+for _ in 0..bodys.len() {
+  )
+} 

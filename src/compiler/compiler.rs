@@ -281,7 +281,24 @@ pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
-    write_ln("TODO:case", out);
+    for i in 0..bodys.len() {
+        write_ln(&format!("(block $__case{i}"), out);
+    } 
+    write_ln("(block $__choice", out);
+    compile_var(var, out);
+    write_ln("i32.load", out);
+    write_ln("br_table ", out);
+    for i in 1..bodys.len() {
+        write_out(&format!("$__case{i}"), out);
+    }
+    write_ln("$__choice)", out);
+    for i in 0..bodys.len() {
+        compile_fnbody(bodys[i].clone(), out);
+    }
+    
+    for _ in 0..(bodys.len()+1) {
+        write_out(")", out);
+    } 
 }
 
 
@@ -312,20 +329,20 @@ pub fn init_var(var: Var, out: &mut File) {
 }
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    write_ln("TODO:inc", out);
+    todo!();
     compile_fnbody(fnbody, out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    write_ln("TODO:dec", out);
+    todo!();
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
-    write_ln("TODO:reset", out);
+    todo!();
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
-    write_ln("TODO:reuse", out);
+    todo!();
 } 

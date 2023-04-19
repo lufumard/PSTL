@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::fmt::write;
 use std::fs::File;
 
 use crate::ast::Var;
