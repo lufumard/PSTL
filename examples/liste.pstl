@@ -1,0 +1,16 @@
+liste = 
+    let f  = ctor0;
+    let n1 = 1;
+    let n2 = 2;
+    let n3 = 3;
+    let n4 = 4;
+    let n5 = 5;
+    let nil= ctor2;
+
+    let l5 = ctor3 n5 nil;
+    let l4 = ctor3 n4 l5;
+    let l3 = ctor3 n3 l4;
+    let l2 = ctor3 n2 l3;
+    let l1 = ctor3 n1 l2;
+
+    ret l1
