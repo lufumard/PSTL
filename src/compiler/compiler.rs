@@ -37,27 +37,146 @@ use primitives::compile_fncall_primitive;
 use self::primitives::write_ln;
 use self::primitives::write_out;
 
+pub fn write_runtime(out :&mut File) {
+        
+    //crée un constructeur sans argument en wat
+    write_ln("(func $__make_no_arg (param $b i32) (result i32)", out);
+    write_ln("    ;; true ou false ou nil", out);
+    write_ln("    local.get $b", out);
+    write_ln("    call $__init_type", out);
+    write_ln("", out);
+    write_ln("    ;; références", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("    i32.const 1 ;; x 1", out);
+    write_ln("    call $__set_ref", out);
+    write_ln("", out);
+    write_ln("    ;; préparation de la valeur de retour", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("", out);
+    write_ln("    ;; la valeur en haut de la pile : x", out);
+    write_ln(")", out);
 
+
+    write_ln("(func $__init_type (param $t i32)", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("    local.get $t;; x t", out);
+    write_ln("    i32.store   ;; ", out);
+    write_ln(")", out);
+
+    write_ln("(func $__offset_next (param $n i32)", out);
+    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.const 0 ;; 0 0", out);
+    write_ln("    i32.load    ;; 0 x", out);
+    write_ln("    local.get $n;; 0 x n", out);
+    write_ln("    i32.add     ;; x 0 (x+n)", out);
+    write_ln("    i32.store   ;;", out);
+    write_ln(")", out);
+
+    write_ln("(func $__set_ref (param $adr i32) (param $ref i32)", out);
+    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    local.get $adr ;; @x", out);
+    write_ln("    i32.const 4    ;; @x 4", out);
+    write_ln("    i32.add        ;; @refs", out);
+    write_ln("    local.get $n   ;; @refs n", out);
+    write_ln("    i32.store      ;;", out);
+    write_ln(")", out);
+
+    //crée un constructeur de nombre en wat
+    write_ln("(func $__make_num (param $n i32) (result i32)", out);
+    write_ln("        ;; stoque le type du constructeur", out);
+    write_ln("        i32.const 4 ;; 4", out);
+    write_ln("        call $__init_type", out);
+
+    write_ln("        ;; références", out);
+    write_ln("        i32.const 0 ;; 0", out);
+    write_ln("        i32.load    ;; x", out);
+    write_ln("        i32.const 1 ;; x 1", out);
+    write_ln("        call $__set_ref", out);
+
+    write_ln("        ;; stoque le nombre", out);
+    write_ln("        i32.const 0 ;; 0", out);
+    write_ln("        i32.load    ;; x", out);
+    write_ln("        i32.const 8 ;; x ", out);
+    write_ln("        i32.add     ;; (x+8)", out);
+    write_ln("        local.get $n;; (x+8) n", out);
+    write_ln("        i32.store   ;;", out);
+
+    write_ln("        ;; préparation de la valeur de retour", out);
+    write_ln("        i32.const 0 ;; 0", out);
+    write_ln("        i32.load    ;; x", out);
+
+    write_ln("        ;; mise à jour de memory[0]", out);
+    write_ln("        i32.const 12     ;; x 12", out);
+    write_ln("        call $__offset_next ;; x", out);
+    write_ln("    ;; la valeur en haut de la pile : x", out);
+    write_ln(")", out);
+
+    // crée un constructeur de liste
+    write_ln("(func $__make_list (param $a i32) (param $b i32) (result i32)", out);
+    write_ln("    ;; stoque le type du constructeur", out);
+    write_ln("    i32.const 3 ;; 3", out);
+    write_ln("    call $__init_type", out);
+
+    write_ln("    ;; références", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("    i32.const 1 ;; x 1", out);
+    write_ln("    call $__set_ref", out);
+        
+    write_ln("    ;; stoque la première adresse", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("    i32.const 8 ;; x 8", out);
+    write_ln("    i32.add     ;; (x+8)", out);
+    write_ln("    local.get $a;; (x+8) a", out);
+    write_ln("    i32.store   ;;", out);
+
+    write_ln("    ;; stoque la deuxième adresse", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+    write_ln("    i32.const 12;; x 12", out);
+    write_ln("    i32.add     ;; (x+12)", out);
+    write_ln("    local.get $b;; (x+12) b", out);
+    write_ln("    i32.store   ;;", out);
+
+    write_ln("    ;; préparation de la valeur de retour", out);
+    write_ln("    i32.const 0 ;; 0", out);
+    write_ln("    i32.load    ;; x", out);
+
+    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    i32.const 16     ;; x 16", out);
+    write_ln("    call $__offset_next ;; x", out);
+
+    write_ln("    ;; la valeur en haut de la pile : x", out);
+    write_ln(")", out);
+}
 
 pub fn make_false(out:&mut File) {
-
+    write_ln("i32.const 0", out);
+    write_ln("call $__make_no_arg", out);
 }
 
 pub fn make_true(out:&mut File) {
-
+    write_ln("i32.const 1", out);
+    write_ln("call $__make_no_arg", out);
 }
 
 pub fn make_nil(out:&mut File) {
-
+    write_ln("i32.const 2", out);
+    write_ln("call $__make_no_arg", out);
 }
 
 pub  fn make_list(out:&mut File) {
-
+    
 }
 
 
 pub  fn make_num(out:&mut File) {
-    write_ln("i32.load 0", out);
+    write_ln("call $__make_num", out);
 }
 
 
@@ -184,20 +303,20 @@ pub fn init_var(var: Var, out: &mut File) {
 }
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    
+    todo!();
     compile_fnbody(fnbody, out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    
+    todo!();
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
-
+    todo!();
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
-
+    todo!();
 } 
