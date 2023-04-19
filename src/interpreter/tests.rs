@@ -239,7 +239,7 @@ fn test_fibo_of_7(){
     let file_path = "./examples/fibo.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     
     // fibo 7  = 21
     // fibo 10 = 89
@@ -262,7 +262,7 @@ fn test_fibo_of_10(){
     let file_path = "./examples/fibo.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     
     // fibo 7  = 21
     // fibo 10 = 89
@@ -285,7 +285,7 @@ fn test_fibo_num_of_10(){
     let file_path = "./examples/fibo_num.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     
     // fibo 7  = 21
     // fibo 10 = 89
@@ -307,7 +307,7 @@ fn test_fibo_num_of_7(){
     let file_path = "./examples/fibo_num.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     
     // fibo 7  = 21
     // fibo 10 = 89
@@ -329,7 +329,7 @@ fn test_pap(){
     let file_path = "./examples/pap.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     let mut heap = empty_heap();
     let ctxt = add_value(Var::Var("n".to_string()), make_num(10), 
                 add_value(Var::Var("m".to_string()), make_num(6), empty_ctxt(), &mut heap)
@@ -348,7 +348,7 @@ fn test_swap_pstl(){
     let file_path = "./examples/swap_pstl.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     let mut heap = empty_heap();
 
     let l22 = heap.add((make_num(3), 1));
@@ -384,7 +384,7 @@ fn test_swap_pstl_2fun(){
     let file_path = "./examples/swap_pstl_2fun.pstl";
     let file_contents = fs::read_to_string(file_path)
         .expect(format!("unable to read file + {}", file_path).as_str());
-    let parsed = reader::ast().parse(file_contents).expect("can't parse");
+    let parsed = reader::program().parse(file_contents).expect("can't parse");
     let mut heap = empty_heap();
 
     let l22 = heap.add((make_num(3), 1));

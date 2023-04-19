@@ -175,20 +175,24 @@ pub  fn throw() {
 }
 
 
-pub fn start_interpreter (funs : Vec<AST>, exec: Expr, ctxt: &Ctxt, heap: &mut Heap) -> Loc {
+pub fn start_interpreter (prog : Program, exec: Expr, ctxt: &Ctxt, heap: &mut Heap) -> Loc {
+    let Program::Program(fun_dec) = prog;
+    
     let mut liste_fun = HashMap::new();
-    funs.iter().fold(Loc::Loc(0), |_, f| {
-        eval_ast(f.clone(), ctxt, heap,&mut liste_fun)
+    fun_dec.iter().fold(Loc::Loc(0), |_, (c, fun)| {
+        let Const::Const(name) = c;
+        liste_fun.insert(name.clone(), fun.clone());
+        Loc::Loc(0)
     });
     //dbg!(&liste_fun);
     eval_expr(exec, ctxt, heap, &mut liste_fun)
 }
 
-pub fn interpreter (funs : Vec<AST>, call : &String) {
+pub fn interpreter (program : Program, call : &String) {
     let mut heap = empty_heap();
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
-    let _res = start_interpreter (funs, exec, &ctxt, &mut heap);
+    let _res = start_interpreter (program, exec, &ctxt, &mut heap);
 
 
 }
@@ -434,8 +438,11 @@ pub  fn eval_case(var: Var, bodys: Vec<FnBody>, ct: &Ctxt, h:&mut Heap, lfn:&mut
 
 
 pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Program::Program(Const::Const(nom), fun) = prog;
-    lfn.insert(nom.clone(), fun);
+    let Program::Program(fun_dec) = prog;
+    for (cste, fun) in fun_dec {
+        let Const::Const(nom) = cste;
+        lfn.insert(nom.clone(), fun);    
+    }    
     return Loc::Loc(0);
 }
 

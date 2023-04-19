@@ -1,4 +1,4 @@
-use crate::compiler::ast_compiler::{Var, Const};
+use crate::ast::{Var, Const};
 use indexmap::IndexMap;
 
 #[derive(Debug, Clone, PartialEq)]

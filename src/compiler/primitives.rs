@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::write;
 use std::fs::File;
 
-use crate::compiler::ast_compiler::Var;
+use crate::ast::Var;
 use crate::compiler::compile_var;
 use crate::compiler::make_num;
 use crate::compiler::make_true;
@@ -67,6 +67,7 @@ pub fn get_num(var:Var, out : &mut File) {
 
 pub fn get_bool(var:Var, out : &mut File) {
     compile_var(var, out);
+    write_ln("i32.load", out);
 }
 
 // Définition des primitives

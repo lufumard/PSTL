@@ -1,26 +1,27 @@
  //#![allow(dead_code)]
 
-pub mod ast_compiler;
 pub mod ast_rc;
 pub mod inferring;
 pub mod reuse;
 #[allow(non_snake_case)]
 pub mod inc;
-pub mod reader_compiler;
 pub mod utils;
 
 use std::fs::File;
-use self::ast_compiler::Program;
-pub use self::ast_compiler::Var;
-pub use self::ast_compiler::Expr;
-pub use self::ast_compiler::FnBody;
-pub use self::ast_compiler::Fn;
-pub use self::ast_compiler::AST;
-pub use self::ast_compiler::Const;
-pub use self::ast_compiler::CONST_FALSE;
-pub use self::ast_compiler::CONST_TRUE;
-pub use self::ast_compiler::CONST_NIL;
-pub use self::ast_compiler::CONST_LIST;
+use crate::compiler::primitives::get_num;
+
+use crate::ast::CONST_NUM;
+use crate::ast::Program;
+pub use crate::ast::Var;
+pub use crate::ast::Expr;
+pub use crate::ast::FnBody;
+pub use crate::ast::Fn;
+pub use crate::ast::AST;
+pub use crate::ast::Const;
+pub use crate::ast::CONST_FALSE;
+pub use crate::ast::CONST_TRUE;
+pub use crate::ast::CONST_NIL;
+pub use crate::ast::CONST_LIST;
 use self::ast_rc::ExprRC;
 use self::ast_rc::FnBodyRC;
 use self::ast_rc::FnRC;
@@ -148,7 +149,7 @@ pub fn make_nil(out:&mut File) {
 }
 
 pub  fn make_list(out:&mut File) {
-    
+    write_ln("call $__make_list", out);
 }
 
 
@@ -157,11 +158,10 @@ pub  fn make_num(out:&mut File) {
 }
 
 
-pub fn compile(prog: Program, out : &mut File){
-
+pub fn compile(program: Program, out : &mut File){
     write_ln("(module", out);
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
-    let prog_reuse = insert_reuse(prog);
+    let prog_reuse = insert_reuse(program);
     compile_program(prog_reuse, out);
     write_ln(")", out);
 
@@ -173,7 +173,6 @@ pub fn compile(prog: Program, out : &mut File){
 pub fn compile_var(var: Var, out : &mut File) {
     let v = string_of_var(var);
     write_ln(&format!("local.get ${v}"), out);
-    write_ln("i32.load", out);
 }
 
 /*
@@ -195,23 +194,51 @@ pub fn compile_expr(expr: ExprRC, out : &mut File) {
 
 
 pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
-
+    for var in vars {
+        compile_var(var, out);
+    }
+    
+    let nom = string_of_const(ident);
+    write_ln(&format!("call ${nom}"), out);
 }
 
 
 
 pub fn compile_ctor(n: i32, vars:Vec<Var>, out : &mut File)  {
-
+    match n {
+        CONST_FALSE => make_false(out),
+        CONST_TRUE  => make_true(out),
+        CONST_NIL   => make_nil(out),
+        CONST_LIST  => {
+            assert_eq!(vars.len(), 2);
+            compile_var(vars[0].to_owned(), out);
+            compile_var(vars[1].to_owned(), out);
+            make_list(out);
+        },
+        CONST_NUM   => {
+            assert_eq!(vars.len(), 1);
+            get_num(vars[0].to_owned(), out);
+            make_num(out);
+        },
+        _ => panic!("Constructeur {n} inconnu")
+    }
 }
 
 // On commence à 1
 pub fn compile_proj(n: i32, var:Var, out : &mut File)  {
-    
+    compile_var(var, out);
+    // calcul de l'offset en ajoutant la case des références et sur alignement des entier 32 bits
+    let arg = (n + 1) * 4; 
+    // sur liste : 3 4 123 456, proj1 => 123 (offset de 8) et proj2 => 456 (offset de 12)
+
+    write_ln(&format!("i32.const {arg}"), out);
+    write_ln("i32.add", out); // calcul de l'adresse à récupérer
+    write_ln("i32.load", out) // chargement du nième argument
 }
 
 pub  fn compile_value(n: i32, out : &mut File)  {
     write_ln(&format!("i32.const {n}"), out);
-    make_num(out);
+    make_num(out); // création du nombre
 }
 
 /*
@@ -236,8 +263,7 @@ fn string_of_const(Const::Const(c):Const) -> String {
 }
 
 pub  fn compile_ret(var: Var, out : &mut File)  {
-    let v = string_of_var(var);
-    write_ln(&format!("local.get ${v}"), out);
+    compile_var(var, out);
     write_ln("return", out);
 }
 
@@ -249,7 +275,7 @@ pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
-
+    
 }
 
 
