@@ -1,12 +1,15 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
 
+use indexmap::IndexMap;
+
 use crate::ast::{Var};
 use crate::compiler::ast_rc::ExprRC;
 use crate::compiler::ast_rc::FnBodyRC;
 use crate::compiler::ast_rc::FnRC;
 
 use super::Const;
+use super::ast_rc::ConstWrapper;
 use super::ast_rc::ProgramRC;
 
 
@@ -52,33 +55,58 @@ définit si il est borrowed('B') ou owned('O')
  */
 pub fn inferring_signatures(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> Vec<char> {
     let mut temp_beta = beta.clone();
-    match f {
-        FnRC::Fn(ref vars, fnbody) =>  {
-            let mut beta_c: Vec<char> = vars.into_iter().map(|_| 'B').collect();
-            loop {
-                temp_beta.insert(c.clone(), beta_c.clone());
-                let s: HashSet<Var> = collect_o(fnbody.clone(), temp_beta.clone());
-                let it = vars.iter().zip(beta_c.iter());
-                let mut temp_beta_c: Vec<char> = Vec::new();
-                for (var, beta_c_var) in it {
-                    if s.contains(&var) {
-                        temp_beta_c.push('O')
-                    } else {
-                        temp_beta_c.push(*beta_c_var)
-                    }
-                }
-                if temp_beta_c == beta_c {
-                    return  temp_beta_c;
-                }
-                beta_c = temp_beta_c
+
+    let FnRC::Fn(ref vars, fnbody) = f;  
+    let mut beta_c: Vec<char> = vars.into_iter().map(|_| 'B').collect();
+    loop {
+        temp_beta.insert(c.clone(), beta_c.clone());
+        let s: HashSet<Var> = collect_o(fnbody.clone(), temp_beta.clone());
+        let it = vars.iter().zip(beta_c.iter());
+        let mut temp_beta_c: Vec<char> = Vec::new();
+        for (var, beta_c_var) in it {
+            if s.contains(&var) {
+                temp_beta_c.push('O')
+            } else {
+                temp_beta_c.push(*beta_c_var)
             }
         }
+        if temp_beta_c == beta_c {
+            return  temp_beta_c;
+        }
+        beta_c = temp_beta_c
     }
+
+}
+
+pub fn inferring_pap_fnbody(fnbody:FnBodyRC, mut beta: HashMap<Const,Vec<char>>) -> HashMap<Const,Vec<char>> {
+    match fnbody {
+        FnBodyRC::Let(_, e, _body) => {
+            match e {
+                ExprRC::Pap(ConstWrapper::ConstWrapper(wrap,_), vars) => {
+                    beta.insert(wrap, vec!['O'; vars.len()]).unwrap();
+                    beta
+                },
+                _ => beta,
+            }
+        },
+        _ => beta,
+    }
+}
+pub fn inferring_pap(fun_dec : IndexMap<Const, FnRC>) -> HashMap<Const,Vec<char>>{
+    let beta: HashMap<Const,Vec<char>> = HashMap::new();
+
+    for (_, fun) in fun_dec {
+        let FnRC::Fn(_, fnbody) = fun;
+        beta.clone().extend(inferring_pap_fnbody(fnbody, beta.clone()));
+        
+    }
+
+    beta
 }
 
 pub fn inferring_programs(prog: ProgramRC) -> HashMap<Const,Vec<char>>{
     let ProgramRC::Program(fun_dec) = prog;
-    let mut beta: HashMap<Const,Vec<char>> = HashMap::new();
+    let mut beta = inferring_pap(fun_dec.clone());
 
     for (cste, fun) in fun_dec {
         let beta_c = inferring_signatures(cste.clone(), fun, beta.clone());

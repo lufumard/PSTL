@@ -1,12 +1,26 @@
 use std::collections::{HashSet, HashMap};
 
+use indexmap::IndexMap;
+
 use super::{ast_rc::{FnBodyRC, ExprRC, ProgramRC, FnRC}, Var, Const};
 
-pub fn insert_inc(prog: ProgramRC) -> ProgramRC {
-    todo!()
+pub fn insert_inc(prog: ProgramRC, beta: HashMap<Const,Vec<char>>) -> ProgramRC {
+    let ProgramRC::Program(fun_dec) = prog;
+
+    let mut fun_dec_in = IndexMap::new();
+    for (cste, fun) in fun_dec {
+        fun_dec_in.insert(cste.clone(), delta_rc(cste, fun, beta.clone()));
+    }
+
+    ProgramRC::Program(fun_dec_in)
 }
-pub fn delta_rc(c : FnRC) -> FnRC {
-    todo!()
+pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
+    let FnRC::Fn(ref vars, fnbody) = f; 
+    let beta_l : HashMap<Var,char> = beta.get(&c).unwrap().into_iter()
+    .zip(vars.clone().into_iter())
+    .map(|(status,y)| (y,*status)).collect();
+
+    FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), beta), beta_l))
 }
 
 pub fn o_plus_var(x: Var, V: HashSet<Var>, F : FnBodyRC, beta_l : HashMap<Var,char>) -> FnBodyRC {
@@ -19,9 +33,9 @@ pub fn o_plus_var(x: Var, V: HashSet<Var>, F : FnBodyRC, beta_l : HashMap<Var,ch
 
 pub fn o_moins_var(x: Var, F : FnBodyRC, beta_l : HashMap<Var,char>) -> FnBodyRC {
     if beta_l.get(&x).unwrap().eq(&'O') &&  !FV(F.clone()).contains(&x) {
-        F
-    } else {
         FnBodyRC::Dec(x, Box::new(F))
+    } else {
+        F
     }
 }
 
@@ -152,4 +166,354 @@ pub fn C_app(vars: Vec<Var>, status_var : Vec<char>, fnbody : FnBodyRC, beta_l :
         _ => panic!("Traitement non définis"),
     }
 
+}
+
+#[cfg(test)]
+mod  tests {
+    use std::collections::{HashMap, HashSet};
+
+    use crate::compiler::ast_rc::FnBodyRC;
+    use crate::compiler::ast_compiler::{Var};
+
+    use super::FV;
+
+    #[test]
+    fn test_FV_ret() {
+        let x = Var::Var(String::from("x"));
+        let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+        let res = FV(body);
+        assert!(res.contains(&x));
+    }
+    
+    #[test]
+    fn test_FV_inc() {
+        let x = Var::Var(String::from("x"));
+        let body = FnBodyRC::Inc(x.clone(), 
+            Box::new(FnBodyRC::Ret(Var::Var(String::from("y")))));
+
+        let res = FV(body);
+        assert!(res.contains(&x));
+    }
+
+    #[test]
+    fn test_FV_dec() {
+        let x = Var::Var(String::from("x"));
+        let body = FnBodyRC::Dec(x.clone(), 
+            Box::new(FnBodyRC::Ret(Var::Var(String::from("y")))));
+
+        let res = FV(body);
+        assert!(res.contains(&x));
+    }
+    
+    #[cfg(test)]
+    pub mod tests_o {
+        use crate::compiler::ast_rc::ExprRC;
+        use crate::compiler::inc::{o_plus_var, o_moins_var, o_moins};
+
+        use super::{HashMap, HashSet};
+        use super::{Var, FnBodyRC};
+
+        /*cas où x est une variable morte et owned */
+        #[test]
+        fn test_o_plus_var_dead_owned() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+            let res = o_plus_var(x.clone(),HashSet::new(),body.clone(), beta_l);
+            assert_eq!(body, res);
+        }
+
+        #[test]
+        fn test_o_plus_var_dead_borrowed() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            let res = o_plus_var(x.clone(),HashSet::new(),body.clone(), beta_l);
+            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            assert_eq!(excpected, res);
+            
+        }
+
+        #[test]
+        fn test_o_plus_var_live_owned() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+
+            let mut V = HashSet::new();
+            V.insert(x.clone());
+
+            let res = o_plus_var(x.clone(),V,body.clone(), beta_l);
+            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            assert_eq!(excpected, res);
+        }
+
+        #[test]
+        fn test_o_plus_var_live_borrowed() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+
+            let mut V = HashSet::new();
+            V.insert(x.clone());
+            
+            let res = o_plus_var(x.clone(),V,body.clone(), beta_l);
+            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            assert_eq!(excpected, res);
+        }
+
+        /*cas où x est une variable morte et owned */
+        #[test]
+        fn test_o_moins_var_dead_owned() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("y")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            let excpected = FnBodyRC::Dec(x.clone(), Box::new(body));
+            assert_eq!(excpected, res);
+        }
+
+        /*cas où x est une variable morte et borrowed */
+        #[test]
+        fn test_o_moins_var_dead_borrowed() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("y")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            assert_eq!(body, res);
+            
+        }
+
+        #[test]
+        fn test_o_moins_var_live_owned() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+
+            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            assert_eq!(body, res);
+        }
+
+        #[test]
+        fn test_o_moins_var_live_borrowed() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            
+            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            assert_eq!(body, res);
+        }
+
+        /*Cas où la liste des variables est vide */
+        #[test]
+        fn test_o_moins() {
+            let x = Var::Var(String::from("x"));
+            let body = FnBodyRC::Ret(Var::Var(String::from("x")));
+
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            
+            let res = o_moins(vec![], body.clone(), beta_l);
+            assert_eq!(body, res);
+        }
+        
+        #[test]
+        fn test_moins_1() {
+            let x = Var::Var(String::from("x"));
+            let y = Var::Var(String::from("y"));
+            let z = Var::Var(String::from("z"));
+            let retour = Box::new(FnBodyRC::Ret(x.clone()));
+
+            let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
+            let cases = vec![case1.clone(), case2.clone()];
+            
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+            beta_l.insert(y.clone(), 'O');
+            beta_l.insert(z.clone(), 'O');
+
+            let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+            let res = o_moins(vec![x,y,z], body.clone(), beta_l);
+            assert_eq!(body,res)
+        }
+
+        #[test]
+        fn test_moins_2() {
+            let x = Var::Var(String::from("x"));
+            let y = Var::Var(String::from("y"));
+            let z = Var::Var(String::from("z"));
+            let retour = Box::new(FnBodyRC::Ret(x.clone()));
+
+            let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
+            let cases = vec![case1.clone(), case2.clone()];
+            
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            beta_l.insert(y.clone(), 'B');
+            beta_l.insert(z.clone(), 'B');
+
+            let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+            let res = o_moins(vec![x,y,z], body.clone(), beta_l);
+            assert_eq!(body,res)
+        }
+
+        #[test]
+        fn test_moins_3() {
+            let w = Var::Var(String::from("w"));
+            let x = Var::Var(String::from("x"));
+            let y = Var::Var(String::from("y"));
+            let z = Var::Var(String::from("z"));
+            let retour = Box::new(FnBodyRC::Ret(x.clone()));
+
+            let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
+            let cases = vec![case1.clone(), case2.clone()];
+            
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            beta_l.insert(y.clone(), 'B');
+            beta_l.insert(z.clone(), 'B');
+            beta_l.insert(w.clone(), 'B');
+
+            let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+            let res = o_moins(vec![x,y,z, w], body.clone(), beta_l);
+            assert_eq!(body,res)
+        }
+
+        #[test]
+        fn test_moins_4() {
+            let w = Var::Var(String::from("w"));
+            let x = Var::Var(String::from("x"));
+            let y = Var::Var(String::from("y"));
+            let z = Var::Var(String::from("z"));
+            let retour = Box::new(FnBodyRC::Ret(x.clone()));
+
+            let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
+            let cases = vec![case1.clone(), case2.clone()];
+            
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+            beta_l.insert(y.clone(), 'B');
+            beta_l.insert(z.clone(), 'B');
+            beta_l.insert(w.clone(), 'O');
+
+            let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+            let res = o_moins(vec![x,y,z, w.clone()], body.clone(), beta_l);
+            let expected = FnBodyRC::Dec(w, Box::new(body));
+            assert_eq!(expected,res)
+        }
+
+    }
+
+    #[cfg(test)]
+    mod test_C {
+        use super::{HashMap, HashSet};
+        use super::{Var, FnBodyRC};
+
+        use crate::compiler::inc::C;
+
+        fn test_c_app_owned() {
+
+        }
+
+        fn test_c_app_borrwed() {
+            
+        }
+
+        fn test_c_app() {
+            
+        }
+
+        #[test]
+        fn test_C_ret_borrowed() {
+            /*let x = Var::Var(String::from("x"));
+            let retour = Box::new(FnBodyRC::Ret(x.clone()));
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'B');
+
+            let excpected  = FnBodyRC::Inc(x.clone(), retour.clone());
+            let res = C(*retour, beta_l, HashMap::new());
+
+            assert_eq!(excpected, res);*/
+        }
+
+        #[test]
+        fn test_C_ret_owned() {
+            /*let x = Var::Var(String::from("x"));
+            let retour = FnBodyRC::Ret(x.clone());
+            let mut beta_l = HashMap::new();
+            beta_l.insert(x.clone(), 'O');
+
+            let res = C(retour.clone(), beta_l, HashMap::new());
+
+
+            assert_eq!(retour, res);*/
+        }
+
+        #[test]
+        fn test_C_case() {
+
+        }
+
+        #[test]
+        fn test_C_proj_borrowed() {
+
+        }
+
+        #[test]
+        fn test_C_proj_owned() {
+
+        }
+
+        #[test]
+        fn test_C_reset() {
+
+        }
+
+        #[test]
+        fn test_C_fncall() {
+
+        }
+
+        #[test]
+        fn test_C_pap() {
+
+        }
+
+        #[test]
+        fn test_C_papcall() {
+
+        }
+
+        #[test]
+        fn test_C_ctor() {
+
+        }
+
+        #[test]
+        fn test_C_reuse() {
+            
+        }
+
+    }
 }
