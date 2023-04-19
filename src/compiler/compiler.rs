@@ -51,13 +51,13 @@ pub fn write_runtime(out :&mut File) {
     }
 
     fn wa1(out :&mut File){
-        write_ln("        ;; stoque le nombre", out);
-        write_ln("        i32.const 0 ;; 0", out);
-        write_ln("        i32.load    ;; x", out);
-        write_ln("        i32.const 8 ;; x ", out);
-        write_ln("        i32.add     ;; (x+8)", out);
-        write_ln("        local.get $a;; (x+8) a", out);
-        write_ln("        i32.store   ;;", out);
+        write_ln("    ;; stoque le nombre", out);
+        write_ln("    i32.const 0 ;; 0", out);
+        write_ln("    i32.load    ;; x", out);
+        write_ln("    i32.const 8 ;; x ", out);
+        write_ln("    i32.add     ;; (x+8)", out);
+        write_ln("    local.get $a;; (x+8) a", out);
+        write_ln("    i32.store   ;;", out);
     }
 
     fn wpr(out: &mut File){
@@ -97,22 +97,22 @@ pub fn write_runtime(out :&mut File) {
     write_ln("    local.get $adr ;; @x", out);
     write_ln("    i32.const 4    ;; @x 4", out);
     write_ln("    i32.add        ;; @refs", out);
-    write_ln("    local.get $n   ;; @refs n", out);
+    write_ln("    local.get $ref ;; @refs n", out);
     write_ln("    i32.store      ;;", out);
     write_ln(")", out);
 
     //crée un constructeur de nombre en wat
     write_ln("(func $__make_num (param $a i32) (result i32)", out);
-    write_ln("        ;; stoque le type du constructeur", out);
-    write_ln("        i32.const 4 ;; 4", out);
-    write_ln("        call $__init_type", out);
+    write_ln("    ;; stoque le type du constructeur", out);
+    write_ln("    i32.const 4 ;; 4", out);
+    write_ln("    call $__init_type", out);
 
     wr(out);
     wa1(out);
     wpr(out);
-    write_ln("        ;; mise à jour de memory[0]", out);
-    write_ln("        i32.const 12     ;; x 12", out);
-    write_ln("        call $__offset_next ;; x", out);
+    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    i32.const 12        ;; x 12", out);
+    write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
     // crée un constructeur de liste
@@ -131,7 +131,7 @@ pub fn write_runtime(out :&mut File) {
     write_ln("    i32.store   ;;", out);
         wpr(out);
     write_ln("    ;; mise à jour de memory[0]", out);
-    write_ln("    i32.const 16     ;; x 16", out);
+    write_ln("    i32.const 16        ;; x 16", out);
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 }
@@ -164,6 +164,7 @@ pub  fn make_num(out:&mut File) {
 pub fn compile(program: Program, out : &mut File){
     write_ln("(module", out);
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
+    write_runtime(out);
     let prog_reuse = insert_reuse(program);
     let beta: HashMap<Const,Vec<char>> = inferring_programs(prog_reuse.clone());
     let prog_inc = insert_inc(prog_reuse, beta);
@@ -280,7 +281,7 @@ pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
-    
+    write_ln("TODO:case", out);
 }
 
 
@@ -311,20 +312,20 @@ pub fn init_var(var: Var, out: &mut File) {
 }
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    todo!();
+    write_ln("TODO:inc", out);
     compile_fnbody(fnbody, out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    todo!();
+    write_ln("TODO:dec", out);
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
-    todo!();
+    write_ln("TODO:reset", out);
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
-    todo!();
+    write_ln("TODO:reuse", out);
 } 

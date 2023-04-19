@@ -38,12 +38,9 @@ fn main() {
                                 .expect(format!("unable to read file + {}", file_path).as_str());
                             let parsed = reader::program().parse(file_contents).expect("can't parse");
                             if e.to_owned() == "i".to_string() {
-                                
                                 interpreter::interpreter(parsed, out);
                             } else if  e.to_owned() == "c".to_string() {
-                                let mut file = File::options()
-                                    .write(true)
-                                    .open(out.clone())
+                                let mut file = File::create(out)
                                     .expect(&format!("Impossible d'ouvrir le fichier {out}"));
                                 compiler::compile(parsed, &mut file);
                             }
