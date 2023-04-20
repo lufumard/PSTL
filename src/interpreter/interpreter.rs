@@ -83,6 +83,10 @@ impl Heap {
         }
     }
     
+    pub fn nb_alloc(&self) -> i32 {
+        return self.loc.clone();
+    }
+
     fn new_loc(& mut self) -> Loc {
         let n = self.loc;
         self.loc = n.clone()+1;
@@ -175,22 +179,65 @@ pub  fn throw() {
 }
 
 
-pub fn start_interpreter (funs : Vec<AST>, exec: Expr, ctxt: &Ctxt, heap: &mut Heap) -> Loc {
+pub fn start_interpreter (prog : Program, exec: Expr, ctxt: &Ctxt, heap: &mut Heap) -> Loc {
+    let Program::Program(fun_dec) = prog;
+    
     let mut liste_fun = HashMap::new();
-    funs.iter().fold(Loc::Loc(0), |_, f| {
-        eval_ast(f.clone(), ctxt, heap,&mut liste_fun)
+    fun_dec.iter().fold(Loc::Loc(0), |_, (c, fun)| {
+        let Const::Const(name) = c;
+        liste_fun.insert(name.clone(), fun.clone());
+        Loc::Loc(0)
     });
     //dbg!(&liste_fun);
     eval_expr(exec, ctxt, heap, &mut liste_fun)
 }
 
-pub fn interpreter (funs : Vec<AST>, call : &String) {
+pub fn debug_loc(loc : Loc, h : &mut Heap){
+    let Loc::Loc(l) = loc.clone();
+    let (v, _) = h.get(loc);
+    match v {
+        Value::Ctor(i, ls) => {
+            match i {
+                CONST_FALSE => println!("Loc : {l}; valeur : False"),
+                CONST_TRUE => println!("Loc : {l}; valeur : True"),
+                CONST_NIL => println!("Loc : {l}; valeur : Nil"),
+                CONST_NUM => {
+                    let Loc::Loc(n) = ls[0].to_owned();
+                    println!("Loc : {l}; valeur : Num {n}");
+                },
+                CONST_LIST => {
+                    let Loc::Loc(l1) = ls[0].to_owned();
+                    let Loc::Loc(l2) = ls[1].to_owned();
+                    println!("Loc : {l}; valeur : List (@{l1}, @{l2}), soit");
+                    debug_loc(ls[0], h);
+                    debug_loc(ls[1], h);
+                },
+                _ => println!("Loc : {l}; valeur : type {i} inconnu"),
+            }
+        },
+        Value::Pap(c, ls) => {
+            let Const::Const(nom) = c;
+            let nb = ls.len();
+            println!("Loc : {l}; valeur : Pap {nom}, {nb} arg:");
+            ls.iter().map(|l| debug_loc(*l, h)).count();
+        },
+        Value::Null => println!("Loc : {l}; valeur : Null"),
+    }
+    
+}
+
+pub fn interpreter (program : Program, call : &String) {
     let mut heap = empty_heap();
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
-    let _res = start_interpreter (funs, exec, &ctxt, &mut heap);
+    let res = start_interpreter (program, exec, &ctxt, &mut heap);
 
-
+    let nb_alloc = heap.nb_alloc();
+    
+    println!("Attention ! L'interpréteur implémente le langage pur, sans inc, dec, reset, reuse");
+    println!("Nombre d'allocations : {nb_alloc}");
+    println!("Résultat : ");
+    debug_loc(res, &mut heap);
 }
 
 pub  fn get_nb_args_ctor(n: i32) -> i32 {
@@ -434,8 +481,11 @@ pub  fn eval_case(var: Var, bodys: Vec<FnBody>, ct: &Ctxt, h:&mut Heap, lfn:&mut
 
 
 pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Program::Program(Const::Const(nom), fun) = prog;
-    lfn.insert(nom.clone(), fun);
+    let Program::Program(fun_dec) = prog;
+    for (cste, fun) in fun_dec {
+        let Const::Const(nom) = cste;
+        lfn.insert(nom.clone(), fun);    
+    }    
     return Loc::Loc(0);
 }
 

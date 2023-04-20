@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use indexmap::IndexMap;
 
-use crate::compiler::ast_compiler::{Var};
+use crate::ast::{Var};
 use crate::compiler::ast_rc::ExprRC;
 use crate::compiler::ast_rc::FnBodyRC;
 use crate::compiler::ast_rc::FnRC;
@@ -104,7 +104,7 @@ pub fn inferring_pap(fun_dec : IndexMap<Const, FnRC>) -> HashMap<Const,Vec<char>
     beta
 }
 
-pub fn inferring_programs(prog: ProgramRC) -> HashMap<Const,Vec<char>>{
+pub fn inferring_program(prog: ProgramRC) -> HashMap<Const,Vec<char>>{
     let ProgramRC::Program(fun_dec) = prog;
     let mut beta = inferring_pap(fun_dec.clone());
 
@@ -121,7 +121,7 @@ pub fn inferring_programs(prog: ProgramRC) -> HashMap<Const,Vec<char>>{
 mod tests_collect_o {
     use std::collections::{HashSet, HashMap};
 
-    use crate::compiler::ast_compiler::{Var, Const};
+    use crate::ast::{Var, Const};
     use crate::compiler::ast_rc::{FnBodyRC, ExprRC, ConstWrapper};
     use crate::compiler::inferring::collect_o;
 
@@ -251,7 +251,7 @@ mod tests_collect_o {
 
 #[cfg(test)]
 mod tests_inferring {
-    use crate::compiler::{reader_compiler, reuse::insert_reuse};
+    use crate::reader;
     use std::fs;
     use chumsky::Parser;
 
@@ -259,7 +259,6 @@ mod tests_inferring {
         let file_path = "./examples/id_pair.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
-        let prog_rc = insert_reuse(prog);
+        let prog = reader::program().parse(file_contents).expect("can't parse");
     }   
 }

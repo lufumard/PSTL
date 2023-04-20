@@ -1,9 +1,9 @@
 #![allow(dead_code)]
-use crate::compiler::ast_compiler::{FnBody, Var, Expr, Fn, Program};
+use crate::ast::{FnBody, Var, Expr, Fn, Program};
 use crate::compiler::ast_rc::{ExprRC, FnBodyRC, FnRC, ProgramRC};
 
 use super::Const;
-use super::ast_compiler::{CONST_FALSE, CONST_NIL, CONST_TRUE, CONST_LIST, CONST_NUM};
+use crate::ast::{CONST_FALSE, CONST_NIL, CONST_TRUE, CONST_LIST, CONST_NUM};
 use super::ast_rc::ConstWrapper;
 use super::utils::{is_in_expr, is_in_fn};
 
@@ -135,9 +135,10 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
 #[allow(non_snake_case)]
 mod tests {
     use crate::compiler::ast_rc::{ExprRC, FnBodyRC, ProgramRC, FnRC};
-    use crate::compiler::ast_compiler::{Var, Expr, FnBody, Program};
-    use crate::compiler::{reader_compiler, Const, Fn, CONST_LIST, reader_rc};
+    use crate::ast::{Var, Expr, FnBody, Program};
+    use crate::compiler::{Const, Fn, CONST_LIST, reader_rc};
     use crate::compiler::reuse::{D,R,S,W, insert_reuse};
+    use crate::reader;
     use std::fs;
     use chumsky::Parser;
     use indexmap::IndexMap;
@@ -294,7 +295,7 @@ mod tests {
         let file_path = "./examples/map_pstl.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        let prog = reader::program().parse(file_contents).expect("can't parse");
         let Program::Program(fun_dec) = prog;
         let fn_ = fun_dec.get(&Const::Const(String::from("map"))).unwrap();
         let  Fn::Fn(_, fnbody) = fn_;
@@ -329,7 +330,7 @@ mod tests {
         let file_path = "./examples/id_pair.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        let prog = reader::program().parse(file_contents).expect("can't parse");
 
         let x = Var::Var(String::from("x"));
         let y = Var::Var(String::from("y")); 
@@ -353,7 +354,7 @@ mod tests {
         let file_path = "./examples/map_pstl.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        let prog = reader::program().parse(file_contents).expect("can't parse");
         
         let file_path_rc = "./examples/map_reuse.pstl";
         let file_contents_rc = fs::read_to_string(file_path_rc)
@@ -368,7 +369,7 @@ mod tests {
         let file_path = "./examples/swap_pstl1.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        let prog = reader::program().parse(file_contents).expect("can't parse");
         
         let file_path_rc = "./examples/swap_reuse.pstl";
         let file_contents_rc = fs::read_to_string(file_path_rc)

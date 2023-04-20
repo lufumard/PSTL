@@ -1,4 +1,6 @@
-use crate::ast::{Const, Expr, Fn, FnBody, Var, AST, Program};
+use crate::ast::{Const, Expr, Fn, FnBody, Var, Program};
+use indexmap::IndexMap;
+
 use chumsky::{
     prelude::*,
     text::{ident, int, keyword},
@@ -94,21 +96,20 @@ pub(crate) fn fun() -> impl Parser<char, Fn, Error = Simple<char>> {
         .map(|(_args, _fnbody)| Fn::Fn(_args, _fnbody))
 }
 
-pub(crate) fn program() -> impl Parser<char, Program, Error = Simple<char>> {
+
+pub(crate) fn fn_dec() -> impl Parser<char, (Const, Fn), Error = Simple<char>> {
     const_()
         .then(fun())
-        .map(|(_const, _fn)| Program::Program(_const, _fn))
+        .map(|(_const, _fn)| (_const, _fn))
 }
 
-pub(crate) fn ast() -> impl Parser<char, Vec<AST>, Error = Simple<char>> {
-    program()
+pub(crate) fn program() -> impl Parser<char, Program, Error = Simple<char>> {
+    fn_dec()
         .padded()
-        .map(AST::Program)
-        .or(fun().padded().map(AST::Fn))
-        .or(fnbody().padded().map(AST::FnBody))
-        .or(expr().padded().map(AST::Expr))
-        .or(var().padded().map(AST::Var))
         .repeated()
         .padded()
         .then_ignore(end())
+        .map(|f| Program::Program(f.into_iter()
+        .map(|(_const, _fn)| (_const, _fn))
+        .collect::<IndexMap<Const, Fn>>()))
 }

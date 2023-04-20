@@ -14,27 +14,27 @@ WebAssembly.instantiateStreaming(fetch("memory.wasm"), {
 });
 
 ---------------------
-out <- (module
-out <-     (memory (import "js" "mem") 1)
+(module
+    (memory (import "js" "mem") 1)
 compile_program(fonctions[i])*
-out <- )
+)
 
 
 compile_program (cste : Const, fun:Fn)
 ---------------------
 nom = string_of_const(cste)
-out <- (func ${nom} (export "{nom}") 
+(func ${nom} (export "{nom}") 
 compile_fonction(fun)
-out <- )
+)
 
 
 
 compile_fonction (nom : Const,  params :Vec<Var>, body : FnBody)
 ---------------------
 for param in params {
-out <- (param $params[i] i32 )
+(param $params[i] i32 )
 }
-out <- (result i32)
+(result i32)
 ;; les lignes au dessus sont en une ligne avec la signature de la fonction 
 ;; sous la forme (func $ajout (export "ajout") (param $a i32) (param $b i32) (result i32)
 let vars = catch_vars(body)
@@ -47,22 +47,21 @@ compile_fnbody(body)
 compile_init_var (var : Var)
 ---------------------
 let s = string_of_var(var)
-out <- (local ${s} i32)
+(local ${s} i32)
 
 
 compile_let (var:Var, expr: Expr, fnbody:FnBody)
 ---------------------
 compile_expr(expr)
 let v = string_of_var(var)
-out <- local.set ${v}
+local.set ${v}
 compile_fnbody(fnbody)
 
 
 compile_return (var : Var)
 ---------------------
-let s = string_of_var(var)
-out <- local.get ${s}
-out <- return
+compile_var(var)
+return
 
 
 compile_inc (var:Var, fnbody:FnBody)
@@ -80,13 +79,12 @@ compile_fnbody(fnbody)
 compile_var (var:Var)
 ---------------------
 let s = string_of_var(var)
-out <- local.get ${s}
-out <- i32.load
+local.get ${s}
 
 
 compile_value(n: i32)
 ---------------------
-out <- i32.const {n}
+i32.const {n}
 make_num()
 
 
@@ -97,22 +95,21 @@ compile_ctor (i: int, params : Vec<Loc>)
 compile_get_num (var:Var)
 ---------------------
 let s = string_of_var(var)
-out <- local.get ${s}
-out <- i32.const 8 ;;décallage de deux entiers, la place de la valeur du nombre
-out <- i32.add
-out <- i32.load
+local.get ${s}
+i32.const 8 ;;décallage de deux entiers, la place de la valeur du nombre
+i32.add
+i32.load
 
 compile_get_bool (var:Var)
 ---------------------
-let s = string_of_var(var)
-out <- local.get ${s}
-out <- i32.load ;; types : 0=FALSE, 1=TRUE, 2=NIL, ... donc la valeur du booleen est son type
+  compile_var(var)
+i32.load ;; types : 0=FALSE, 1=TRUE, 2=NIL, ... donc la valeur du booleen est son type
 
 compile_add (vars:Vec!<Var>)
 ---------------------
 compile_get_num(vars[0])
 compile_get_num(vars[1])
-out <- i32.add
+i32.add
 compile_make_num()
 ;; valeur en haut de la pile : l'adresse de l'objet
 
@@ -120,7 +117,7 @@ compile_sub (vars:Vec!<Var>)
 ---------------------
 compile_get_num(vars[0])
 compile_get_num(vars[1])
-out <- i32.sub
+i32.sub
 compile_make_num()
 ;; valeur en haut de la pile : l'adresse de l'objet
 ...
@@ -128,39 +125,39 @@ compile_make_num()
 compile_and (vars:Vec!<Var>)
 ---------------------
 compile_get_bool(vars[0]);
-out <- (if (then
+(if (then
 compile_get_bool(vars[1])
-out <- (if (then
+(if (then
 compile_make_true()
-out <- ) (else
+) (else
 compile_make_false()
-out <- ))) (else
+))) (else
 compile_make_false()
-out <- ))
+))
 ;; valeur en haut de la pile : l'adresse de l'objet
 
 compile_or (vars:Vec!<Var>)
 ---------------------
 compile_get_bool(vars[0])
-out <- (if (then
+(if (then
 compile_make_true()
-out <- ) (else
+) (else
 compile_get_bool(vars[1])
-out <- (if (then
+(if (then
 compile_make_true()
-out <- ) (else
+) (else
 compile_make_false()
-out <- ))))
+))))
 ;; valeur en haut de la pile : l'adresse de l'objet
 
 compile_not (var:Var)
 ---------------------
 compile_get_bool(var)
-out <- (if (then
+(if (then
 compile_make_false()
-out <- ) (else
+) (else
 compile_make_true()
-out <- ))
+))
 ;; valeur en haut de la pile : l'adresse de l'objet
 
 
@@ -284,20 +281,49 @@ crée un constructeur de nombre en wat
 
 compile_make_false
 ---------------------
-out <- i32.const 0
-out <- call $__make_no_arg
+i32.const 0
+call $__make_no_arg
 
 compile_make_true
 ---------------------
-out <- i32.const 1
-out <- call $__make_no_arg
+i32.const 1
+call $__make_no_arg
 
 compile_make_nil
 ---------------------
-out <- i32.const 2
-out <- call $__make_no_arg
+i32.const 2
+call $__make_no_arg
 
 compile_make_num
 ;; pre : le nombre à créer est en haut de la pile
 ---------------------
-out <- call $__make_num
+call $__make_num
+
+compile_make_list
+;; pre : les arguments sont en haut de la pile
+---------------------
+call $__make_num
+
+compile_case (var:Var, bodys:Vec<FnBody>)
+---------------------
+for n in 0..bodys.len() {
+  ;; on crée un block pour chaque cas énuméré
+  (block $__case{i}
+} 
+(block $__choice
+;; on charge le type de la variable
+compile_var(var)
+i32.load
+;; br_table choisi un enbranchement selon la valeur du type de la variable
+(br_table 
+for n in 1..bodys.len() {
+  $__case{i}
+}
+$__choice)
+for body in bodys {
+compile_fnbody(body)
+}
+)
+for _ in 0..bodys.len() {
+  )
+} 

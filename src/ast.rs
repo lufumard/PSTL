@@ -1,16 +1,15 @@
-#[allow(dead_code)]
+use indexmap::IndexMap;
+
 #[derive(Debug, Clone, PartialEq,Eq,Hash)]
 pub enum Var {
     Var(String),
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Const {
     Const(String),
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Expr {
     FnCall(Const, Vec<Var>),
@@ -21,7 +20,6 @@ pub enum Expr {
     Num(i32),
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum FnBody {
     Ret(Var),
@@ -38,7 +36,7 @@ pub enum Fn {
 
 #[derive(Debug, Clone)]
 pub enum Program {
-    Program(Const, Fn),
+    Program(IndexMap<Const, Fn>),
 }
 
 

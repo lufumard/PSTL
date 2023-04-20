@@ -173,7 +173,7 @@ mod  tests {
     use std::collections::{HashMap, HashSet};
 
     use crate::compiler::ast_rc::FnBodyRC;
-    use crate::compiler::ast_compiler::{Var};
+    use crate::ast::{Var};
 
     use super::FV;
 
