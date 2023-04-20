@@ -1,5 +1,5 @@
 use crate::compiler::ast_rc::{ExprRC, FnRC, FnBodyRC, ProgramRC};
-use crate::compiler::ast_compiler::{Const, Var};
+use crate::compiler::{Const, Var};
 use indexmap::IndexMap;
 
 use chumsky::{
