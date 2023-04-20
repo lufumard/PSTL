@@ -7,6 +7,7 @@ pub mod reuse;
 #[allow(non_snake_case)]
 pub mod inc;
 pub mod reader_compiler;
+pub mod reader_rc;
 pub mod utils;
 
 use std::collections::HashMap;

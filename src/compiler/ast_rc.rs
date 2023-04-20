@@ -1,6 +1,7 @@
 use crate::compiler::ast_compiler::{Var, Const};
 use indexmap::IndexMap;
 
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConstWrapper {
     //(novelle constante, constate qu'on wrappe)

@@ -1,0 +1,13 @@
+swap xs = case xs of
+    (ret xs)
+    (ret xs)
+    (ret xs)
+    (let t1 = proj2 xs ; case t1 of
+        (ret xs)
+        (ret xs)
+        (ret xs)
+        (let h1 = proj1 xs ;
+        let h2 = proj1 t1 ; let t2 = proj2 t1 ;
+        let r1 = ctor3 h1 t2 ; let r2 = ctor3 h2 r1 ; ret r2)
+        (ret xs))
+    (ret xs)

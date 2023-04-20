@@ -146,7 +146,7 @@ pub fn C_app(vars: Vec<Var>, status_var : Vec<char>, fnbody : FnBodyRC, beta_l :
     let hd_status = temp_status.get(0);
     match (hd_vars, hd_status) {
         (None, None) => fnbody,
-        (None, Some(_)) | (Some(_), None) => todo!(),
+        (None, Some(_)) | (Some(_), None) => panic!("La liste des status et celle des variables n'ont pas la même taille."),
         (Some(y), Some('O')) => {
             temp_status.remove(0);
             temp_vars.remove(0);

@@ -1,4 +1,4 @@
-use super::{Var, ast_rc::{ExprRC, FnBodyRC}};
+use super::{Var, Const,ast_rc::{ExprRC, FnBodyRC, ConstWrapper}};
 
 /*Verifie si la variable z est dans l'expression e
 si z in e , true, sinon false
@@ -27,4 +27,10 @@ pub fn is_in_fn(z: Var, f:FnBodyRC) -> bool {
         FnBodyRC::Inc(var, fnbody) => var == z || is_in_fn(z, *fnbody),
         FnBodyRC::Dec(var, fnbody) => var == z || is_in_fn(z, *fnbody),
     }
+}
+
+pub fn wrap_const(c : Const) -> ConstWrapper {
+    let Const::Const(mut name) = c.clone();
+    name.push_str("_c");
+    ConstWrapper::ConstWrapper(Const::Const(name), c)
 }

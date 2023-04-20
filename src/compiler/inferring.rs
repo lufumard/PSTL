@@ -251,7 +251,7 @@ mod tests_collect_o {
 
 #[cfg(test)]
 mod tests_inferring {
-    use crate::compiler::reader_compiler;
+    use crate::compiler::{reader_compiler, reuse::insert_reuse};
     use std::fs;
     use chumsky::Parser;
 
@@ -260,5 +260,6 @@ mod tests_inferring {
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
         let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        let prog_rc = insert_reuse(prog);
     }   
 }

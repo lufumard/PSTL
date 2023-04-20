@@ -66,20 +66,21 @@ pub fn insert_reuse(prog: Program) -> ProgramRC {
     .map(|(_const, _fn)| (_const, delta_reuse(_fn))).collect())
 }
 pub fn delta_reuse(c : Fn) -> FnRC {
+    let mut w = W::new(String::from("w"), 1);
     match c {
-        Fn::Fn(vars, fnbody) => FnRC::Fn(vars, R(fnbody)),
+        Fn::Fn(vars, fnbody) => FnRC::Fn(vars, R(fnbody, &mut w)),
     }
 }
 
 #[allow(non_snake_case)]
-pub fn R(body: FnBody) -> FnBodyRC {
-    let mut w = W::new(String::from("w"), 1);
+pub fn R(body: FnBody, w: &mut W) -> FnBodyRC {
+    
     match body {
         FnBody::Ret(x) => FnBodyRC::Ret(x),
-        FnBody::Let(x, e, fnbody) => FnBodyRC::Let(x,expr_pure_rc(e), Box::new(R(*fnbody))),
+        FnBody::Let(x, e, fnbody) => FnBodyRC::Let(x,expr_pure_rc(e), Box::new(R(*fnbody, w))),
         FnBody::Case(x, bodys) => {
             FnBodyRC::Case(x.clone(), ((*bodys.iter().enumerate().map(|(i, fi)| 
-                D(x.clone(), get_nb_args_ctor(i.try_into().unwrap()), R(fi.clone()), & mut w)).collect::<Vec<FnBodyRC>>())).to_vec())
+                D(x.clone(), get_nb_args_ctor(i.try_into().unwrap()), R(fi.clone(), w), w)).collect::<Vec<FnBodyRC>>())).to_vec())
         } ,
     }
 }
@@ -122,7 +123,6 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
             } else {
                 FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody)))
             }
-            ExprRC::Reset(_) | ExprRC::Reuse(_, _, _) => panic!("Les instructions reset et reuse n'ont pas encore été insérées"),
             _ => FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody))),
         },
         FnBodyRC::Inc(_, fnbody) => S(w,n, *fnbody),
@@ -136,7 +136,7 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
 mod tests {
     use crate::compiler::ast_rc::{ExprRC, FnBodyRC, ProgramRC, FnRC};
     use crate::compiler::ast_compiler::{Var, Expr, FnBody, Program};
-    use crate::compiler::{reader_compiler, Const, Fn, CONST_LIST};
+    use crate::compiler::{reader_compiler, Const, Fn, CONST_LIST, reader_rc};
     use crate::compiler::reuse::{D,R,S,W, insert_reuse};
     use std::fs;
     use chumsky::Parser;
@@ -200,49 +200,93 @@ mod tests {
 
     #[test]
     fn test_D_ret() {
+        let z = Var::Var(String::from("z"));
         let body = FnBodyRC::Ret(Var::Var(String::from("x")));
         let mut w = W::new(String::from("w"), 0);
-        assert_eq!(body, D(Var::Var(String::from("w")), 1, body.clone(), &mut w))
+        assert_eq!(body, D(z, 1, body.clone(), &mut w))
     }
 
     #[test]
     fn test_D_let_dead_variable() {
+        let x = Var::Var(String::from("x"));
+        let z = Var::Var(String::from("z"));
+        let w1 = Var::Var(String::from("w1"));
+        let n: usize= 0;
 
+        let F = FnBodyRC::Ret(x.clone());
+        let body = FnBodyRC::Let(x.clone(), ExprRC::Num(2), Box::new(F.clone()));
+
+        let mut w = W::new(String::from("w"), 1);
+        let res = D(z, 0, body.clone(), &mut w);
+        let expected = FnBodyRC::Let(x, ExprRC::Num(2), Box::new(S(w1, n,F)));
+        assert_eq!(expected, res)
     }
 
     #[test]
     fn test_D_let_not_dead_variable() {
+        let x = Var::Var(String::from("x"));
+        let z = Var::Var(String::from("z"));
+        let n: usize= 0;
 
+        let F = FnBodyRC::Ret(z.clone());
+        let body = FnBodyRC::Let(x.clone(), ExprRC::Num(2), Box::new(F.clone()));
+
+        let mut w = W::new(String::from("w"), 1);
+        let res = D(z.clone(), 0, body.clone(), &mut w);
+        let expected = FnBodyRC::Let(x, ExprRC::Num(2), Box::new(D(z, n,F, &mut w)));
+        assert_eq!(expected, res)
     }
 
     #[test]
-    fn test_D_case() {
-        
+    fn test_D_case_1() {
+        let w1 = Var::Var(String::from("w1"));
+        let x = Var::Var(String::from("x"));
+        let y = Var::Var(String::from("y"));
+        let z = Var::Var(String::from("z"));
+        let retour = Box::new(FnBodyRC::Ret(x.clone()));
+
+        let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+        let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
+        let cases = vec![case1.clone(), case2.clone()];
+        let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+
+        let case1_expected = FnBodyRC::Let(w1.clone(), ExprRC::Reset(z.clone()),
+            Box::new(FnBodyRC::Let(x.clone(),ExprRC::Reuse(w1.clone(), 0, Vec::new()) ,retour.clone())));
+        let cases_expected = vec![case1_expected.clone(), case2.clone()];
+        let expected = FnBodyRC::Case(Var::Var("var".to_string()), cases_expected);
+        let mut w = W::new(String::from("w"), 1);
+        assert_eq!(expected ,D(z,0,body.clone(), &mut w))
     }
 
-    /*Cas où on doit insérer un reuse */
     #[test]
-    fn test_D_reuse() {
-
+    fn test_D_case_2() {
+        let v1 = Var::Var("v1".to_string());
+        let v2 = Var::Var("v2".to_string());
+        let z = Var::Var(String::from("z"));
+        let cases = vec![FnBodyRC::Ret(v1.clone()), FnBodyRC::Ret(v2.clone())];
+        let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
+        let mut w = W::new(String::from("w"), 1);
+        assert_eq!(body ,D(z,0,body.clone(), &mut w))
     }
 
     #[test]
     fn test_R_ret() {
         let body = FnBody::Ret(Var::Var(String::from("x")));
         let expected = FnBodyRC::Ret(Var::Var(String::from("x")));
-        assert_eq!(expected, R(body));
+        let mut w = W::new(String::from("w"), 1);
+        assert_eq!(expected, R(body, &mut w));
     }
 
     #[test]
-    fn tes_R_let() {
-        
+    fn tes_R_let() {   
         let x = Var::Var(String::from("x"));
         let z = Var::Var(String::from("z")); 
         let retour = Box::new(FnBody::Ret(z.clone()));
         let body = FnBody::Let(z.clone(), Expr::Proj(0, x.clone()), retour);
         let expected = FnBodyRC::Let(z.clone(), ExprRC::Proj(0, x.clone()), 
             Box::new(FnBodyRC::Ret(Var::Var(String::from("z")))));
-        assert_eq!(expected, R(body));
+        let mut w = W::new(String::from("w"), 1);
+        assert_eq!(expected, R(body, &mut w));
     }
 
     #[test]
@@ -276,7 +320,8 @@ mod tests {
             Box::new(FnBodyRC::Ret(r.clone()))))))))))))),
             FnBodyRC::Ret(xs.clone())]);
 
-        assert_eq!(expected, R(fnbody.clone())) ;
+        let mut w = W::new(String::from("w"), 1);
+        assert_eq!(expected, R(fnbody.clone(), &mut w)) ;
     }
 
     #[test]
@@ -301,6 +346,36 @@ mod tests {
         fun_dec.insert(Const::Const(String::from("sec")), sec_fn.clone());
         
         let expected : ProgramRC = ProgramRC::Program(fun_dec);
+        assert_eq!(expected, insert_reuse(prog));
+    }
+
+    fn test_map() {
+        let file_path = "./examples/map_pstl.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        
+        let file_path_rc = "./examples/map_reuse.pstl";
+        let file_contents_rc = fs::read_to_string(file_path_rc)
+            .expect(format!("unable to read file + {}", file_path_rc).as_str());
+        let expected = reader_rc::program().parse(file_contents_rc).expect("can't parse");
+
+        assert_eq!(expected, insert_reuse(prog));
+    }
+
+    #[test]
+    fn test_swap() {
+        let file_path = "./examples/swap_pstl1.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_compiler::program().parse(file_contents).expect("can't parse");
+        
+        let file_path_rc = "./examples/swap_reuse.pstl";
+        let file_contents_rc = fs::read_to_string(file_path_rc)
+            .expect(format!("unable to read file + {}", file_path_rc).as_str());
+        let expected = reader_rc::program().parse(file_contents_rc).expect("can't parse");
+
+        //let _ = insert_reuse(prog);
         assert_eq!(expected, insert_reuse(prog));
     }
     
