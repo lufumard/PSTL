@@ -19,13 +19,22 @@ pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var
         FnBodyRC::Ret(_) => HashSet::new(),
         FnBodyRC::Let(z, e, f) => match e {
             ExprRC::FnCall(c, vars) => {
-                collect_o(*f, beta.clone())
-                .union(&vars
+                if beta.clone().contains_key(&c) {
+                    collect_o(*f, beta.clone())
+                    .union(&vars
                     .into_iter()
                     .enumerate()
                     .filter(|&(i, _)| beta.clone().get(&c).unwrap().get(i).unwrap().eq(&'O'))
                     .map(|(_, e)| e)
                     .collect::<HashSet<Var>>()).cloned().collect()
+                } else {
+                    /*Si c n'est pas dans la map on fais l'hypothèse que ses paramètres sont owned */
+                    let mut res = collect_o(*f, beta.clone());
+                    res.extend(vars.into_iter());
+                    res
+
+                }
+                
             },
             ExprRC::PapCall(x, y) => collect_o(*f, beta).union(&[x,y].into()).cloned().collect(),
             ExprRC::Pap(_, vars) => collect_o(*f, beta).union(&vars.into_iter().collect()).cloned().collect(),
@@ -251,14 +260,70 @@ mod tests_collect_o {
 
 #[cfg(test)]
 mod tests_inferring {
-    use crate::reader;
-    use std::fs;
+    use crate::{compiler::{Const, inferring::inferring_program, reader_rc}};
+    use std::{fs, vec, collections::HashMap};
     use chumsky::Parser;
-
+   
+    #[test]
     fn id_pair() {
         let file_path = "./examples/id_pair.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
-        let prog = reader::program().parse(file_contents).expect("can't parse");
-    }   
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        let expected : HashMap<Const,Vec<char>> = 
+            vec![(Const::Const(String::from("id")), vec!['B']), 
+            (Const::Const(String::from("fst")), vec!['B', 'B']), 
+            (Const::Const(String::from("sec")), vec!['B', 'B'])]
+            .into_iter().collect();
+
+        assert_eq!(expected, inferring_program(prog));
+    }
+
+    #[test]
+    fn swap() {
+        let file_path = "./examples/swap_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        let expected : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("swap")), vec!['O'])]
+            .into_iter().collect();
+        assert_eq!(expected, inferring_program(prog));
+
+    }
+
+    #[test]
+    fn map() {
+        let file_path = "./examples/map_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        
+        let expected : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("map")), vec!['B', 'O'])]
+            .into_iter().collect();
+        assert_eq!(expected, inferring_program(prog));
+    }  
+
+    #[test]
+    fn go_foward() {
+        let file_path = "./examples/goFoward_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        
+        let expected : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("goForward")), vec!['O'])]
+            .into_iter().collect();
+        assert_eq!(expected, inferring_program(prog));  
+    }
+
+    #[test]
+    fn has_none() {
+        let file_path = "./examples/hasNone_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        
+        let expected : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("hasNone")), vec!['B'])]
+            .into_iter().collect();
+        assert_eq!(expected, inferring_program(prog));
+    } 
 }

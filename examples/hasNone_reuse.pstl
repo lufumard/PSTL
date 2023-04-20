@@ -1,0 +1,5 @@
+hasNone xs = case xs of
+    (let r = ctor0 ; ret r)
+    (let h = proj1 xs ; case h of
+        (let r = ctor1 ; ret r)
+        (let t = proj2 xs ; let r = hasNone t ; ret r))

@@ -516,4 +516,15 @@ mod  tests {
         }
 
     }
+
+    #[test]
+    fn test_map() {
+
+    }
+
+    #[test]
+    fn test_swap() {
+        
+    }
+
 }
