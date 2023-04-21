@@ -315,15 +315,16 @@ for n in 0..bodys.len() {
 compile_var(var)
 i32.load
 ;; br_table choisi un enbranchement selon la valeur du type de la variable
+;; br renvoie à la fin du block indiqué, 
+;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
 (br_table 
 for n in 1..bodys.len() {
   $__case{i}
 }
 $__choice)
+)
 for body in bodys {
 compile_fnbody(body)
-}
 )
-for _ in 0..bodys.len() {
-  )
-} 
+}
+ 
