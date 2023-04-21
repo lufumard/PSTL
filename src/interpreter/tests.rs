@@ -16,7 +16,7 @@ fn get_num(l:Loc, h:&Heap) -> i32 {
 }
 
 fn get_ctor(l:Loc, h:&Heap) -> (i32, Vec<Loc>) {
-    if let Value::Ctor(v, a) = h.get(l){
+    if let (Value::Ctor(v, a), _) = h.get(l){
         return (v, a);
     }else {
         panic!("Pas un ctor");
@@ -24,7 +24,7 @@ fn get_ctor(l:Loc, h:&Heap) -> (i32, Vec<Loc>) {
 }
 
 fn get_pap(l:Loc, h:&Heap) -> (Const, Vec<Loc>) {
-    if let Value::Pap(c, a) = h.get(l){
+    if let (Value::Pap(c, a), _) = h.get(l){
         return (c, a);
     }else {
         panic!("Pas un ctor");
@@ -32,7 +32,7 @@ fn get_pap(l:Loc, h:&Heap) -> (Const, Vec<Loc>) {
 }
 
 fn get_bool(l:Loc, h:&Heap) -> bool {
-    if let Value::Ctor(n, _) = h.get(l){
+    if let (Value::Ctor(n, _), _) = h.get(l){
         match n {
             CONST_FALSE => false,
             CONST_TRUE => true,
@@ -44,7 +44,7 @@ fn get_bool(l:Loc, h:&Heap) -> bool {
 }
 
 fn add_value(var:Var, val:Value, c:Ctxt, h:&mut Heap) -> Ctxt {
-    c.add(var, h.add(val))
+    c.add(var, h.add((val, 1)))
 }
 
 #[test]
@@ -56,7 +56,7 @@ fn test_ret() {
     let var = Var::Var("var".to_string());
     let value = make_num(0);
 
-    let l = heap.add(value);
+    let l = heap.add((value, 1));
     ctxt = ctxt.add(var.clone(), l.clone());
 
     let res = eval_ret(var, &ctxt, &mut heap, &mut lfn);
@@ -85,8 +85,8 @@ fn test_ctor() {
     let mut ctxt = empty_ctxt();
     let mut lfn = HashMap::new();
 
-    let l1 = heap.add(make_num(1));
-    let l2 = heap.add(make_num(2));
+    let l1 = heap.add((make_num(1), 1));
+    let l2 = heap.add((make_num(2), 1));
     ctxt = ctxt.add(Var::Var("a".to_string()), l1.clone());
     ctxt = ctxt.add(Var::Var("b".to_string()), l2.clone());
     let expected_args = vec![Var::Var("a".to_string()), Var::Var("b".to_string())];
@@ -107,13 +107,13 @@ fn test_proj1() {
     let mut lfn = HashMap::new();
 
     let var = Var::Var("var".to_string());
-    let l1 = heap.add(make_num(1));
-    let l2 = heap.add(make_num(2));
+    let l1 = heap.add((make_num(1), 1));
+    let l2 = heap.add((make_num(2), 1));
 
     let args = vec![l1.clone(), l2.clone()];
     let ctor = Value::Ctor(CONST_LIST, args);
     
-    let l = heap.add(ctor);
+    let l = heap.add((ctor, 1));
     ctxt = ctxt.add(var.clone(), l.clone());
 
     let res = eval_proj(1, var, &ctxt, &mut heap, &mut lfn);
@@ -127,16 +127,16 @@ fn test_case_false() {
     let mut lfn = HashMap::new();
 
     let v1 = Var::Var("v1".to_string());
-    let l1 = heap.add(make_num(1));
+    let l1 = heap.add((make_num(1), 1));
     let v2 = Var::Var("v2".to_string());
-    let l2 = heap.add(make_num(2));
+    let l2 = heap.add((make_num(2), 1));
 
     let cases = vec![FnBody::Ret(v1.clone()), FnBody::Ret(v2.clone())];
     ctxt = ctxt.add(v1.clone(), l1.clone());
     ctxt = ctxt.add(v2.clone(), l2.clone());
 
     let var =  Var::Var("var".to_string());
-    let l_var = heap.add(make_false());
+    let l_var = heap.add((make_false(), 1));
     ctxt = ctxt.add(var.clone(), l_var.clone());
 
     let res = eval_case(var.clone(), cases, &ctxt, &mut heap, &mut lfn);
@@ -150,16 +150,16 @@ fn test_case_true() {
     let mut lfn = HashMap::new();
 
     let v1 = Var::Var("v1".to_string());
-    let l1 = heap.add(make_num(1));
+    let l1 = heap.add((make_num(1), 1));
     let v2 = Var::Var("v2".to_string());
-    let l2 = heap.add(make_num(2));
+    let l2 = heap.add((make_num(2), 1));
 
     let cases = vec![FnBody::Ret(v1.clone()), FnBody::Ret(v2.clone())];
     ctxt = ctxt.add(v1.clone(), l1.clone());
     ctxt = ctxt.add(v2.clone(), l2.clone());
 
     let var =  Var::Var("var".to_string());
-    let l_var = heap.add(make_true());
+    let l_var = heap.add((make_true(), 1));
     ctxt = ctxt.add(var.clone(), l_var.clone());
 
     let res = eval_case(var.clone(), cases, &ctxt, &mut heap, &mut lfn);
@@ -174,9 +174,9 @@ fn test_const_app_full() {
     let mut lfn = HashMap::new();
 
     let v1 = Var::Var("v1".to_string());
-    let l1 = heap.add(make_num(3));
+    let l1 = heap.add((make_num(3), 1));
     let v2 = Var::Var("v2".to_string());
-    let l2 = heap.add(make_num(2));
+    let l2 = heap.add((make_num(2), 1));
 
     let expected = 1;
 
@@ -198,7 +198,7 @@ fn test_const_app_part() {
     let mut lfn = HashMap::new();
 
     let v1 = Var::Var("v1".to_string());
-    let l1 = heap.add(make_num(1));
+    let l1 = heap.add((make_num(1), 1));
 
     ctxt = ctxt.add(v1.clone(), l1.clone());
 
@@ -221,13 +221,13 @@ fn test_proj2() {
     let mut lfn = HashMap::new();
 
     let var = Var::Var("var".to_string());
-    let l1 = heap.add(make_num(1));
-    let l2 = heap.add(make_num(2));
+    let l1 = heap.add((make_num(1), 1));
+    let l2 = heap.add((make_num(2), 1));
 
     let args = vec![l1.clone(), l2.clone()];
     let ctor = Value::Ctor(CONST_LIST, args);
     
-    let l = heap.add(ctor);
+    let l = heap.add((ctor, 1));
     ctxt = ctxt.add(var.clone(), l.clone());
 
     let res = eval_proj(2, var, &ctxt, &mut heap, &mut lfn);
@@ -351,11 +351,11 @@ fn test_swap_pstl(){
     let parsed = reader::program().parse(file_contents).expect("can't parse");
     let mut heap = empty_heap();
 
-    let l22 = heap.add(make_num(3));
-    let l21 = heap.add(make_num(2));
-    let l2 = heap.add(make_list(vec![l21, l22]));
-    let l11 = heap.add(make_num(1));
-    let l1 = heap.add(make_list(vec![l11, l2]));
+    let l22 = heap.add((make_num(3), 1));
+    let l21 = heap.add((make_num(2), 1));
+    let l2 = heap.add((make_list(vec![l21, l22]), 1));
+    let l11 = heap.add((make_num(1), 1));
+    let l1 = heap.add((make_list(vec![l11, l2]), 1));
 
     let ctxt = empty_ctxt().add(Var::Var("l".to_string()), l1);
 
@@ -387,11 +387,11 @@ fn test_swap_pstl_2fun(){
     let parsed = reader::program().parse(file_contents).expect("can't parse");
     let mut heap = empty_heap();
 
-    let l22 = heap.add(make_num(3));
-    let l21 = heap.add(make_num(2));
-    let l2 = heap.add(make_list(vec![l21, l22]));
-    let l11 = heap.add(make_num(1));
-    let l1 = heap.add(make_list(vec![l11, l2]));
+    let l22 = heap.add((make_num(3), 1));
+    let l21 = heap.add((make_num(2), 1));
+    let l2 = heap.add((make_list(vec![l21, l22]), 1));
+    let l11 = heap.add((make_num(1), 1));
+    let l1 = heap.add((make_list(vec![l11, l2]), 1));
 
     let ctxt = empty_ctxt().add(Var::Var("l".to_string()), l1);
 
@@ -412,3 +412,43 @@ fn test_swap_pstl_2fun(){
     assert_eq!(2, n2);
     assert_eq!(3, n3);
 }
+
+/*
+#[test]
+fn test_inc() {
+    let mut heap = empty_heap();
+    let mut ctxt = empty_ctxt();
+    let mut lfn = HashMap::new();
+
+    let var = Var::Var("var".to_string());
+    let l = heap.add((make_num(1), 1));
+    let fnbody = FnBody::Ret(var.clone());
+
+    ctxt = ctxt.add(var.clone(), l.clone());
+
+    let res = eval_inc(var, fnbody, &ctxt, &mut heap, &mut lfn);
+    let (v, n) = heap.get(res.clone());
+    assert_eq!(l, res);
+    assert_eq!(2, n);
+    assert_eq!(make_num(1), v);
+}
+
+#[test]
+fn test_dec() {
+    let mut heap = empty_heap();
+    let mut ctxt = empty_ctxt();
+    let mut lfn = HashMap::new();
+
+    let var = Var::Var("var".to_string());
+    let l = heap.add((make_num(1), 2));
+    let fnbody = FnBody::Ret(var.clone());
+
+    ctxt = ctxt.add(var.clone(), l.clone());
+
+    let res = eval_dec(var, fnbody, &ctxt, &mut heap, &mut lfn);
+    let (v, n) = heap.get(res.clone());
+    assert_eq!(l, res);
+    assert_eq!(1, n);
+    assert_eq!(make_num(1), v);
+}
+*/
