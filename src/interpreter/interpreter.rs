@@ -38,7 +38,7 @@ pub enum Ctxt{
 
 #[derive(Debug, Clone)]
 pub struct Heap{
-    map : HashMap<i32, (Value, i32)>,
+    map : HashMap<i32, Value>,
     loc : i32,
 }
 
@@ -75,7 +75,7 @@ impl Ctxt {
 
 
 impl Heap {
-    pub fn get(&self, l:Loc) -> (Value, i32) {
+    pub fn get(&self, l:Loc) -> Value {
         let Loc::Loc(n) = l;
         match self.map.get(&n).cloned() {
             Some(r) => r,
@@ -93,47 +93,11 @@ impl Heap {
         Loc::Loc(n)
     }
 
-    pub fn add(&mut self, v:(Value, i32)) -> Loc {
+    pub fn add(&mut self, v:Value) -> Loc {
         let l = self.new_loc();
         let Loc::Loc(n) = &l;
         self.map.insert(n.clone(), v);
         return l;
-    }
-
-    pub fn inc(&mut self, l:Loc) -> Loc {
-        let Loc::Loc(n) = &l;
-        let (v,i) = self.get(l.clone());
-        self.map.insert(n.clone(), (v, i+1));
-        return l;
-    }
-
-    pub fn dec(&mut self, l:Loc) -> Loc {
-        let Loc::Loc(n) = &l;
-        let (v,i) = self.get(l.clone());
-        if i > 1 {
-            self.map.insert(n.clone(), (v, i-1));
-            return l;
-        } else {
-            self.map.insert(n.clone(), (Value::Null, 0));
-            match v {
-                Value::Pap(_, ls) => {
-                    for l in ls {
-                        self.dec(l);
-                    }
-                    return Loc::Loc(0);
-                },
-                Value::Ctor(t, ls) => {
-                    if t != CONST_NUM {
-                        for l in ls {
-                            self.dec(l);
-                        }
-                    }
-                    return Loc::Loc(0);
-                },
-                Value::Null => return Loc::Loc(0)
-            };
-            
-        }
     }
 }
 
@@ -169,11 +133,6 @@ pub  fn make_num(num : i32) -> Value {
     return Value::Ctor(CONST_NUM, vec![Loc::Loc(num)]);
 }
 
-pub fn get_nb_ref(l:Loc, h:&Heap) -> i32 {
-    let (_, n) = h.get(l);
-    return n;
-}
-
 pub  fn throw() {
     panic!("Evaluation non défini pour ce type");
 }
@@ -194,7 +153,7 @@ pub fn start_interpreter (prog : Program, exec: Expr, ctxt: &Ctxt, heap: &mut He
 
 pub fn debug_loc(loc : Loc, h : &mut Heap){
     let Loc::Loc(l) = loc.clone();
-    let (v, _) = h.get(loc);
+    let v = h.get(loc);
     match v {
         Value::Ctor(i, ls) => {
             match i {
@@ -345,11 +304,11 @@ pub fn eval_cons_full(args_fun:Vec<Var>, body_fun:FnBody, args:Vec<Var>, ct: & C
 pub fn eval_cons_part(ident:Const, vars:Vec<Var>, ct: & Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
     let locs:Vec<Loc> = vars.iter().map(|v| ct.get(v.to_owned())).collect();
     let pap = Value::Pap(ident, locs);
-    return h.add((pap, 1));
+    return h.add(pap);
 }
 
 pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let (v, _) = h.get(ct.get(x));
+    let v = h.get(ct.get(x));
     let l = ct.get(y.to_owned());
     match v {
         Value::Pap(c, mut vars) => {
@@ -361,7 +320,7 @@ pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<
                     return eval_fncall_primitive(name.to_owned(), vars, ct, h, lfn);
                 } else if s < 1 {
                     let v = Value::Pap(Const::Const(name.to_string()), vars);
-                    return h.add((v, 1));
+                    return h.add(v);
                 } else {
                     panic!("Pas le bon nombre d'arguments pour la primitive {}, reçois {}", name, vars.len() );
                 }
@@ -401,13 +360,13 @@ pub fn eval_var_call_full(body: FnBody, vars: Vec<Loc>, fn_args:Vec<Var>, c: &Ct
 
 pub fn eval_var_call_part(ident: Const, vars: Vec<Loc>, _: &Ctxt, h:&mut Heap,  _:&mut HashMap<String, Fn>) -> Loc {
     let v = Value::Pap(ident, vars);
-    return h.add((v, 1));
+    return h.add(v);
 }
 
 pub  fn eval_pap(ident: Const, vars: Vec<Var>, c: &Ctxt, h:&mut Heap,  _:&mut HashMap<String, Fn>) -> Loc {
     let locs = vars.iter().map(|v| c.get(v.to_owned())).collect();
     let v = Value::Pap(ident, locs);
-    return h.add((v, 1));
+    return h.add(v);
 }
 
 
@@ -420,13 +379,13 @@ pub fn eval_ctor(n: i32, vars: Vec<Var>, c: &Ctxt, h:&mut Heap, _:&mut HashMap<S
     assert!(get_nb_args_ctor(n) == len);
     let locs : Vec<Loc> = vars.iter().map(|v| c.get(v.to_owned())).collect();
     let v = create_ctor(n, locs);
-    return h.add((v, 1));
+    return h.add(v);
 }
 
 // On commence à 1
 pub  fn eval_proj(n: i32, var: Var, ct: &Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
     assert!(n>0);
-    let (v, _) = h.get(ct.get(var));
+    let v = h.get(ct.get(var));
 
     if let Value::Ctor(_, locs) = v {
         let i:usize = match n.try_into() {
@@ -441,7 +400,7 @@ pub  fn eval_proj(n: i32, var: Var, ct: &Ctxt, h:&mut Heap, _:&mut HashMap<Strin
 
 pub  fn eval_value(n: i32, _: &Ctxt, h:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
     let num = make_num(n);
-    return h.add((num, 1));
+    return h.add(num);
 }
 
 /*
@@ -466,7 +425,7 @@ pub  fn eval_let(var: Var, expr: Expr, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, l
 }
 
 pub  fn eval_case(var: Var, bodys: Vec<FnBody>, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let (v, _) = h.get(ct.get(var));
+    let v = h.get(ct.get(var));
     if let Value::Ctor(n, _) = v {
         let i:usize = match n.try_into() {
             Ok(v) => v,
