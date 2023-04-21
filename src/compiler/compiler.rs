@@ -296,13 +296,13 @@ pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
         write_out(&format!("$__case{i}"), out);
     }
     write_ln("$__choice)", out);
-    for i in 0..bodys.len() {
-        compile_fnbody(bodys[i].clone(), out);
+    write_ln(")", out);
+    for body in bodys {
+        compile_fnbody(body.clone(), out);
+        write_out(")", out);
     }
     
-    for _ in 0..(bodys.len()+1) {
-        write_out(")", out);
-    } 
+    
 }
 
 
