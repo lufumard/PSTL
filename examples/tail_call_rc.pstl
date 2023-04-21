@@ -1,0 +1,4 @@
+f x = case x of
+(let r = proj1 x ; inc r ; dec x ; ret r)
+(dec x ; let y1 = ctor1 ; let y2 = ctor1 y1 ;
+let r = f y2 ; ret r)

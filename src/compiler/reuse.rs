@@ -285,7 +285,7 @@ mod tests {
         let retour = Box::new(FnBody::Ret(z.clone()));
         let body = FnBody::Let(z.clone(), Expr::Proj(0, x.clone()), retour);
         let expected = FnBodyRC::Let(z.clone(), ExprRC::Proj(0, x.clone()), 
-            Box::new(FnBodyRC::Ret(Var::Var(String::from("z")))));
+            Box::new(FnBodyRC::Ret(z)));
         let mut w = W::new(String::from("w"), 1);
         assert_eq!(expected, R(body, &mut w));
     }
@@ -376,7 +376,7 @@ mod tests {
             .expect(format!("unable to read file + {}", file_path_rc).as_str());
         let expected = reader_rc::program().parse(file_contents_rc).expect("can't parse");
 
-        //let _ = insert_reuse(prog);
+
         assert_eq!(expected, insert_reuse(prog));
     }
     

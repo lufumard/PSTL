@@ -20,16 +20,18 @@ pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var
         FnBodyRC::Let(z, e, f) => match e {
             ExprRC::FnCall(c, vars) => {
                 if beta.clone().contains_key(&c) {
-                    collect_o(*f, beta.clone())
+                    let beta_c = beta.clone().get(&c).unwrap().clone();
+                    assert_eq!(beta_c.clone().len(), vars.len());
+                    collect_o(*f, beta)
                     .union(&vars
                     .into_iter()
                     .enumerate()
-                    .filter(|&(i, _)| beta.clone().get(&c).unwrap().get(i).unwrap().eq(&'O'))
+                    .filter(|&(i, _)| beta_c.get(i).unwrap().eq(&'O'))
                     .map(|(_, e)| e)
                     .collect::<HashSet<Var>>()).cloned().collect()
                 } else {
                     /*Si c n'est pas dans la map on fais l'hypothèse que ses paramètres sont owned */
-                    let mut res = collect_o(*f, beta.clone());
+                    let mut res = collect_o(*f, beta);
                     res.extend(vars.into_iter());
                     res
 
@@ -92,7 +94,7 @@ pub fn inferring_pap_fnbody(fnbody:FnBodyRC, mut beta: HashMap<Const,Vec<char>>)
         FnBodyRC::Let(_, e, _body) => {
             match e {
                 ExprRC::Pap(ConstWrapper::ConstWrapper(wrap,_), vars) => {
-                    beta.insert(wrap, vec!['O'; vars.len()]).unwrap();
+                    beta.insert(wrap, vec!['O'; vars.len()]);
                     beta
                 },
                 _ => beta,
@@ -326,4 +328,17 @@ mod tests_inferring {
             .into_iter().collect();
         assert_eq!(expected, inferring_program(prog));
     } 
+
+    #[test]
+    fn tail_call() {
+        let file_path = "./examples/tail_call.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        
+        let expected : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("f")), vec!['B'])]
+            .into_iter().collect();
+        
+        assert_eq!(expected, inferring_program(prog));
+    }
 }

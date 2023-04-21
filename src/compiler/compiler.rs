@@ -1,4 +1,6 @@
  //#![allow(dead_code)]
+ #![allow(unused_variables)]
+ #![allow(unreachable_code)]
 
 pub mod ast_rc;
 pub mod inferring;
