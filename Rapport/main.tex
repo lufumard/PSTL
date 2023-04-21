@@ -152,8 +152,9 @@ l'on modifie par effet de bord.
 
 \subsection{Pile}
 
-La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, la valeur de la variable, 
-ainsi que la suite de la pile. On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
+La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, 
+l'emplacement de la variable dans le tas, ainsi que la suite de la pile. 
+On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
 de la nouvelle variable ainsi que l'ancienne pile. 
 
 Nous ne transmettons pas la pile crée à l'appelant, ainsi la pile est automatiquement dépilée lorsque l'on quitte le 
@@ -171,7 +172,14 @@ Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d
 Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
 et non passé en sortie de block afin de rendre une seule valeur de retour.
 
-Ce tas \verb|Heap| est une structure contenant une table de hashage d'un entier vers un \verb|Value|.
+Ce tas \verb|Heap| est une structure contenant une table de hashage d'un entier vers un couple \verb|(Value, i32)| où l'entier est 
+le nombre de références de cet objet.
+
+Cette structure permet de lier des emplacements et les valeurs et fonctionne avec \verb|Ctxt|. 
+
+\medskip
+
+Ainsi, \verb|Ctxt| permet de prendre une référence et \verb|Heap| permet de prendre la valeur associée à cette référence.
 
 \bigskip
 
