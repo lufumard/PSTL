@@ -146,10 +146,39 @@ dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|).
 \verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans le tas. C'est la valeur de retour de toutes les sémantiques 
 du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
 Contrairement à l'article, nous avons choisi de ne pas retourner un nouveau tas à chaque fois, mais de garder un même tas que 
-l'on modifie par effet de bord. 
+l'on modifie par effet de bord.
+
+\medskip
+
+\subsection{Pile}
+
+La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, la valeur de la variable, 
+ainsi que la suite de la pile. On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
+de la nouvelle variable ainsi que l'ancienne pile. 
+
+Nous ne transmettons pas la pile crée à l'appelant, ainsi la pile est automatiquement dépilée lorsque l'on quitte le 
+block d'affectation de variable.
+
+Pour chercher une variable, nous parcourons la pile de l'exterieur vers l'intérieur de façon récursive jusqu'à obtenir la variable 
+souhaitée ou arriver à la fin de la pile, dans quel cas l'interpréteur produit une erreur.
+
+Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d'une pile.
+
+\medskip
+
+\subsection{Tas}
+
+Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
+et non passé en sortie de block afin de rendre une seule valeur de retour.
+
+Ce tas \verb|Heap| est une structure contenant une table de hashage d'un entier vers un \verb|Value|.
+
+\bigskip
 
 Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantiques, mais aussi quelques programmes simples, 
 tels que le calcul de fibonacci, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
+
+\subsection{Compilateur}
 
 WebAssembly ne possède que des types numériques (i32, f32, i64, f64) ainsi, il est compliqué d'implémenter les applications partielles. 
 Ainsi, nous nous réservons le droit de ne pas les implémenter.
