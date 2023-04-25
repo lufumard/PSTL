@@ -61,15 +61,15 @@ pub fn eval_fncall_primitive(nom: String, vars:Vec<Loc>, c: &Ctxt, h:&mut Heap, 
 
 pub fn is_bool(l : &Loc, h:&Heap) -> bool{
     match h.get(l.clone()) {
-        (Ctor(CONST_FALSE, _), _) => true,
-        (Ctor(CONST_TRUE, _), _) => true,
+        Ctor(CONST_FALSE, _) => true,
+        Ctor(CONST_TRUE, _) => true,
         _ => false,
     }
 }
 
 pub fn extract_int(l: Loc, h:&Heap) -> i32 {
     match h.get(l) {
-        (Ctor(CONST_NUM, ls), _) => {
+        Ctor(CONST_NUM, ls) => {
             let Loc::Loc(n) = ls[0];
             n
         },
@@ -79,8 +79,8 @@ pub fn extract_int(l: Loc, h:&Heap) -> i32 {
 
 pub fn extract_bool(l: Loc, h:&Heap) -> bool {
     match h.get(l) {
-        (Ctor(CONST_FALSE, _), _) => false,
-        (Ctor(CONST_TRUE, _), _) => true,
+        Ctor(CONST_FALSE, _) => false,
+        Ctor(CONST_TRUE, _) => true,
         _ => panic!("Opération non défini pour ce type"),
     }
 }
@@ -93,35 +93,35 @@ pub fn add_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, 
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((make_num(n + m), 1));
+    return heap.add(make_num(n + m));
 }
 
 pub fn sub_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((make_num(n - m), 1));
+    return heap.add(make_num(n - m));
 }
 
 pub fn mul_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((make_num(n * m), 1));
+    return heap.add(make_num(n * m));
 }
 
 pub fn div_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((make_num(n / m), 1));
+    return heap.add(make_num(n / m));
 }
 
 pub fn mod_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
-    return heap.add((make_num(n % m), 1));
+    return heap.add(make_num(n % m));
 }
 
 pub fn eq_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
@@ -129,14 +129,14 @@ pub fn eq_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, F
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
     let v = if n==m { make_true() } else { make_false() };
-    return heap.add((v, 1));
+    return heap.add(v);
 }
 
 pub fn and_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     assert_eq!(vars.len(), 2);
     let b = extract_bool(vars[0].to_owned(), heap);
     if !b {
-        return heap.add((make_false(), 1));
+        return heap.add(make_false());
     }
     if is_bool(&vars[1], heap) {
         return vars[1];
@@ -148,7 +148,7 @@ pub fn or_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, F
     assert_eq!(vars.len(), 2);
     let b = extract_bool(vars[0].to_owned(), heap);
     if !b {
-        return heap.add((make_true(), 1));
+        return heap.add(make_true());
     }
     if is_bool(&vars[1], heap) {
         return vars[1];
@@ -159,8 +159,8 @@ pub fn or_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, F
 pub fn not_fn(var: Loc, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
     let b = extract_bool(var, heap);
     match b {
-        false => heap.add((make_true(), 1)),
-        true => heap.add((make_false(), 1)),
+        false => heap.add(make_true()),
+        true => heap.add(make_false()),
     }
 }
 
@@ -169,8 +169,8 @@ pub fn sup_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, 
     let n = extract_int(vars[0].to_owned(), heap);
     let m = extract_int(vars[1].to_owned(), heap);
     match n > m {
-        true => heap.add((make_true(), 1)),
-        false => heap.add((make_false(), 1)),
+        true => heap.add(make_true()),
+        false => heap.add(make_false()),
     }
 }
 
