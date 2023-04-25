@@ -212,7 +212,7 @@ crée un constructeur de nombre en wat
 ---------------------
 (func $__make_num (param $n i32) (result i32)
   ;; stoque le type du constructeur
-  i32.const 4 ;; 4
+  i32.const {CONST_NUM} ;; 4
   call $__init_type
 
   ;; références
@@ -243,7 +243,7 @@ crée un constructeur de nombre en wat
 
 (func $__make_list (param $a i32) (param $b i32) (result i32)
   ;; stoque le type du constructeur
-  i32.const 3 ;; 3
+  i32.const {CONST_LIST} ;; 3
   call $__init_type
 
   ;; références
@@ -273,7 +273,7 @@ crée un constructeur de nombre en wat
   i32.load    ;; x
 
   ;; mise à jour de memory[0]
-  i32.const 16     ;; x 12
+  i32.const 16     ;; x 16
   call $__offset_next ;; x
 
   ;; la valeur en haut de la pile : x
@@ -281,17 +281,17 @@ crée un constructeur de nombre en wat
 
 compile_make_false
 ---------------------
-i32.const 0
+i32.const {CONST_FALSE}
 call $__make_no_arg
 
 compile_make_true
 ---------------------
-i32.const 1
+i32.const {CONST_TRUE}
 call $__make_no_arg
 
 compile_make_nil
 ---------------------
-i32.const 2
+i32.const {CONST_NIL}
 call $__make_no_arg
 
 compile_make_num
@@ -302,7 +302,7 @@ call $__make_num
 compile_make_list
 ;; pre : les arguments sont en haut de la pile
 ---------------------
-call $__make_num
+call $__make_list
 
 compile_case (var:Var, bodys:Vec<FnBody>)
 ---------------------

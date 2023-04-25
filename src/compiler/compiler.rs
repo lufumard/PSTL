@@ -108,7 +108,7 @@ pub fn write_runtime(out :&mut File) {
     //crée un constructeur de nombre en wat
     write_ln("(func $__make_num (param $a i32) (result i32)", out);
     write_ln("    ;; stoque le type du constructeur", out);
-    write_ln("    i32.const 4 ;; 4", out);
+    write_ln(&format!("    i32.const {CONST_NUM}"), out);
     write_ln("    call $__init_type", out);
 
     wr(out);
@@ -122,7 +122,7 @@ pub fn write_runtime(out :&mut File) {
     // crée un constructeur de liste
     write_ln("(func $__make_list (param $a i32) (param $b i32) (result i32)", out);
     write_ln("    ;; stoque le type du constructeur", out);
-    write_ln("    i32.const 3 ;; 3", out);
+    write_ln(&format!("    i32.const {CONST_LIST}"), out);
     write_ln("    call $__init_type", out);
         wr(out);
         wa1(out);
@@ -141,17 +141,17 @@ pub fn write_runtime(out :&mut File) {
 }
 
 pub fn make_false(out:&mut File) {
-    write_ln("i32.const 0", out);
+    write_ln(&format!("i32.const {CONST_FALSE}"), out);
     write_ln("call $__make_no_arg", out);
 }
 
 pub fn make_true(out:&mut File) {
-    write_ln("i32.const 1", out);
+    write_ln(&format!("i32.const {CONST_TRUE}"), out);
     write_ln("call $__make_no_arg", out);
 }
 
 pub fn make_nil(out:&mut File) {
-    write_ln("i32.const 2", out);
+    write_ln(&format!("i32.const {CONST_NIL}"), out);
     write_ln("call $__make_no_arg", out);
 }
 
