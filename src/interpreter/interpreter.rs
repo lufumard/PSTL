@@ -215,6 +215,7 @@ pub  fn create_ctor(n: i32, args: Vec<Loc>) -> Value {
         CONST_TRUE => make_true(),
         CONST_NIL => make_nil(),
         CONST_LIST => make_list(args),
+        CONST_NUM => panic!("Impossible de créer un nombre à partir d'adresses"),
         _ => panic!("Contructeur non connu"),
     }
 }

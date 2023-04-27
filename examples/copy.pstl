@@ -1,0 +1,52 @@
+copy x = case x of 
+    (
+        let r = ctor0;
+        ret r
+    )
+    (
+        let r = ctor1;
+        ret r
+    )
+    (
+        let r = ctor2;
+        ret r
+    )
+    (
+        let l1 = proj1 x;
+        let nl1 = copy l1;
+        let l2 = proj2 x;
+        let nl2 = copy l2;
+        let res = ctor3 nl1 nl2;
+        ret res
+    )
+    (
+        let add_pap = add x;
+        let n0 = 0;
+        let r = add_pap n0;
+        ret r
+    )
+
+main0 = let f = ctor0;
+    let r = copy f;
+    ret r
+
+main1 = let t = ctor1;
+    let r = copy t;
+    ret r
+
+main2 = let nil = ctor2;
+    let r = copy nil;
+    ret r
+
+main4 = let n = 4;
+    let r = copy n;
+    ret r
+
+main3 =
+    let n0 = 0;
+    let n1 = 1;
+    let n2 = 2;
+    let l2 = ctor3 n1 n2;
+    let l1 = ctor3 n0 l2;
+    let r = copy l1;
+    ret r
