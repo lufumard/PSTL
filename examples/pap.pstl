@@ -2,3 +2,9 @@ papcall n m = let pa = sub;
     let pa = pa n;
     let pa = pa m;
     ret pa
+
+main = let n = 5;
+    let m = 2;
+    let r1 = papcall n;
+    let r2 = r1 m;
+    ret r2

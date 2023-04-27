@@ -1,7 +1,22 @@
+swap_list xs t1 = let h1 = proj1 xs ;
+        let h2 = proj1 t1 ; let t2 = proj2 t1 ;
+        let r1 = ctor3 h1 t2 ; let r2 = ctor3 h2 r1 ; ret r2
+
 swap xs = case xs of
     (ret xs)
+    (ret xs)
+    (ret xs)
     (let t1 = proj2 xs ; case t1 of
+        (let r = swap_list xs t1; ret r)
+        (let r = swap_list xs t1; ret r)
         (ret xs)
-        (let h1 = proj1 xs ;
-        let h2 = proj1 t1 ; let t2 = proj2 t1 ;
-        let r1 = ctor2 h1 t2 ; let r2 = ctor2 h2 r1 ; ret r2))
+        (let r = swap_list xs t1; ret r))
+    (ret xs)
+
+main = let n2 = 2; 
+    let nil = ctor2;
+    let l2 = ctor3 n2 nil;
+    let n1 = 1;
+    let l1 = ctor3 n1 l2;
+    let r = swap l1;
+    ret r

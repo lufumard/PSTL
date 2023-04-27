@@ -12,3 +12,16 @@ swap xs = case xs of
         (ret xs)
         (let r = exec xs t1; ret r)
         (let r = exec xs t1; ret r))
+
+
+
+main = 
+    let n3 = 3;
+    let n2 = 2; 
+    let n1 = 1;
+    let nil = ctor2;
+    let l3 = ctor3 n3 nil;
+    let l2 = ctor3 n2 l3;
+    let l1 = ctor3 n1 l2;
+    let r = swap l1;
+    ret r
