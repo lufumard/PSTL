@@ -7,7 +7,6 @@ pub use crate::ast::Var;
 pub use crate::ast::Expr;
 pub use crate::ast::FnBody;
 pub use crate::ast::Fn;
-pub use crate::ast::AST;
 pub use crate::ast::Const;
 pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
@@ -211,25 +210,12 @@ pub  fn get_nb_args_ctor(n: i32) -> i32 {
 }
 
 pub  fn create_ctor(n: i32, args: Vec<Loc>) -> Value {
-
     match n {
         CONST_FALSE => make_false(),
         CONST_TRUE => make_true(),
         CONST_NIL => make_nil(),
         CONST_LIST => make_list(args),
         _ => panic!("Contructeur non connu"),
-    }
-}
-
-// Ast evaluation
-pub  fn eval_ast(ast: AST, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    match ast {
-        AST::Fn(fun) => eval_fun(fun, ct, h, lfn),
-        AST::Var(var) => eval_var(var, ct, h, lfn),
-        AST::Expr(expr) => eval_expr(expr, ct, h, lfn),
-        AST::FnBody(body) => eval_fnbody(body, ct, h, lfn),
-        AST::Const(_) => panic!("Impossible d'évaluer un Const"),
-        AST::Program(prog) => eval_program(prog, ct, h, lfn),
     }
 }
 
@@ -273,13 +259,16 @@ pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mu
             panic!("Trop d'arguments");
         }
     }
-
     match lfn.get(&nom).cloned() {
         Some(Fn::Fn(args, body)) => eval_cons_fn(nom, args, body, vars, ct, h, lfn),
         None => {
+            /*/
             // Les appels partiels de variable de ne sont que sur un argument
             assert_eq!(vars.len(), 1);
+            println!("problème!");
             eval_pap_fncall(Var::Var(nom), vars[0].to_owned(), ct, h, lfn)
+            */
+            panic!("Fonction \"{nom}\" n'existe pas !")
         }
     }
 }

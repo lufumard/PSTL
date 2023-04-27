@@ -21,7 +21,6 @@ pub use crate::ast::Var;
 pub use crate::ast::Expr;
 pub use crate::ast::FnBody;
 pub use crate::ast::Fn;
-pub use crate::ast::AST;
 pub use crate::ast::Const;
 pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;

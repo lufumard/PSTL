@@ -2,6 +2,7 @@
 
 mod ast;
 use chumsky::Parser;
+use transform_var::transform_program;
 use std::env;
 use std::fs;
 use std::fs::File;
@@ -20,6 +21,7 @@ mod compiler;
 #[cfg(test)]
 mod tests_interpreter;
 
+mod transform_var;
 
 fn main() {
     
@@ -36,12 +38,13 @@ fn main() {
                             let file_contents = fs::read_to_string(file_path)
                                 .expect(format!("unable to read file + {}", file_path).as_str());
                             let parsed = reader::program().parse(file_contents).expect("can't parse");
+                            let program = transform_program(parsed);
                             if e.to_owned() == "i".to_string() {
-                                interpreter::interpreter(parsed, out);
+                                interpreter::interpreter(program, out);
                             } else if  e.to_owned() == "c".to_string() {
                                 let mut file = File::create(out)
                                     .expect(&format!("Impossible d'ouvrir le fichier {out}"));
-                                compiler::compile(parsed, &mut file);
+                                compiler::compile(program, &mut file);
                             }
                         },
                         None => panic!("Il manque le nom de sortie ou la fonction à exécuter"),

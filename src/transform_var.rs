@@ -8,7 +8,6 @@ pub use crate::ast::Var;
 pub use crate::ast::Expr;
 pub use crate::ast::FnBody;
 pub use crate::ast::Fn;
-pub use crate::ast::AST;
 pub use crate::ast::Const;
 pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
@@ -30,14 +29,6 @@ pub fn transform_program (prog : Program) -> Program {
     let new_funs : IndexMap<Const, Fn> = fun_dec.iter().map(|(cst, fun)| 
         (cst.to_owned(), transform_fun(fun.to_owned(), vec![]))).collect();
     return Program::Program(new_funs);
-}
-
-
-fn transform_ast_const(cst : Const, ctxt_vars : Vec<String>) -> AST {
-    match transform_const(&cst, ctxt_vars) {
-        Some(v) => AST::Var(v),
-        None => AST::Const(cst),
-    }
 }
 
 fn transform_const(cst : &Const, ctxt_vars : Vec<String>) -> Option<Var> {

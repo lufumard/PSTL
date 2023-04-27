@@ -40,15 +40,6 @@ pub enum Program {
 }
 
 
-#[derive(Debug, Clone)]
-pub enum AST {
-    Const(Const),
-    Var(Var),
-    Expr(Expr),
-    FnBody(FnBody),
-    Fn(Fn),
-    Program(Program)
-}
 
 pub const CONST_FALSE : i32 = 0;
 pub const CONST_TRUE : i32 = 1;
