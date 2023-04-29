@@ -128,7 +128,12 @@ Concernant la grammaire du langage, nous reprenons celle qui est définie dans l
 
 
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
-variables, ce qui nous empêche de distinguer directement les constantes des variables.
+variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
+tous les mots en paramètres de fonction sont lues en tant que \verb|Const|.
+
+C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
+fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
+Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
 
 \subsection{Interpréteur}
 
