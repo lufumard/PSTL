@@ -39,10 +39,7 @@ pub fn o_plus_var(x: Var, V: HashSet<Var>, F : FnBodyRC, beta_l : HashMap<Var,ch
 }
 
 pub fn o_moins_var(x: Var, F : FnBodyRC, beta_l : HashMap<Var,char>) -> FnBodyRC {
-    println!("{:?}", beta_l);
-    println!("{:?} {:?}", x, F);
     if beta_l.get(&x).unwrap_or(&'O').eq(&'O') &&  !FV(F.clone()).contains(&x) {
-        println!("here");
         FnBodyRC::Dec(x, Box::new(F))
     } else {
         F
@@ -77,9 +74,9 @@ pub fn FV_e(e: ExprRC) -> Vec<Var> {
     }
 }
 /*retourne les variables non mortes de F */
-pub fn FV(F : FnBodyRC) -> Vec<Var>{
+pub fn FV(F : FnBodyRC) -> HashSet<Var>{
     match F {
-        FnBodyRC::Ret(x) => vec![x],
+        FnBodyRC::Ret(x) => [x].into_iter().collect(),
         FnBodyRC::Let(x, e, fnbody) => {
             vec![x].into_iter().chain(FV_e(e)).chain(FV(*fnbody)).collect()
         },
@@ -88,12 +85,12 @@ pub fn FV(F : FnBodyRC) -> Vec<Var>{
         },
         FnBodyRC::Inc(x, fnbody) => {
             let mut res = FV(*fnbody);
-            res.push(x);
+            res.insert(x);
             res
         },
         FnBodyRC::Dec(x, fnbody) => {
             let mut res = FV(*fnbody);
-            res.push(x);
+            res.insert(x);
             res
         },
     }
@@ -142,12 +139,16 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
         },
         FnBodyRC::Case(x, cases) => {
 
+
             FnBodyRC::Case(x.clone(), cases.into_iter()
             .map(|f| {
-                let fv = vec![x.clone()].into_iter().chain(FV(f.clone())).collect();
-                o_moins(fv, f.clone(), beta_l.clone())
+                let mut fv : Vec<Var> = FV(f.clone()).into_iter().collect();
+                if !fv.contains(&x) {
+                    fv.insert(0, x.clone())
+                }
+                o_moins(fv, C(f,beta_l.clone(), beta.clone()), beta_l.clone())
         })
-            .collect())            
+            .collect())         
         },
         _ => panic!("Les instructions inc et dec n'ont pas encore été insérées"),
     }
@@ -500,7 +501,7 @@ mod  tests {
         use super::{Var, FnBodyRC};
 
         use crate::compiler::Const;
-        use crate::compiler::ast_rc::{ExprRC, ConstWrapper};
+        use crate::compiler::ast_rc::ExprRC;
         use crate::compiler::inc::{C, C_app};
         
         #[test]
@@ -531,16 +532,19 @@ mod  tests {
         }
 
         #[test]
-        fn test_c_app_one_var_borrowed() {
-            let vars = vec![Var::Var("x".to_owned())];
+        fn test_c_app_one_var_borrowed_dead_variable() {
+            let x = Var::Var("x".to_owned());
+            let vars = vec![x.clone()];
             let status_var = vec!['B'];
 
             let z = Var::Var(String::from("z"));
             let retour = Box::new(FnBodyRC::Ret(z.clone()));
-            let fn_body = FnBodyRC::Let(z, ExprRC::Num(2), retour);
+            let fn_body = FnBodyRC::Let(z.clone(), ExprRC::Num(2), retour.clone());
 
             let beta_l = HashMap::new();
-            assert_eq!(C_app(vars, status_var, fn_body.clone(), beta_l), fn_body);
+            let expected = FnBodyRC::Let(z, ExprRC::Num(2), Box::new(
+                FnBodyRC::Dec(x, retour)));
+            assert_eq!(expected, C_app(vars, status_var, fn_body, beta_l));
         }
         
         #[test]
@@ -557,7 +561,7 @@ mod  tests {
             beta_l.insert(y.clone(), 'O');
 
             let vars = vec![y.clone();2];
-            let F = FnBodyRC::Let(z, crate::compiler::ast_rc::ExprRC::FnCall(c, vars), retour);
+            let F = FnBodyRC::Let(z, ExprRC::FnCall(c, vars), retour);
             
             let res = C(F.clone(),beta_l,beta);
             let expected = FnBodyRC::Inc(y, Box::new(F));
