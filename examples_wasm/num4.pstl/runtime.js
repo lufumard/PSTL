@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { performance } = require('perf_hooks');
 
 const memory = new WebAssembly.Memory({
     initial: 10,
@@ -90,31 +91,38 @@ const createList = (loc1, loc2, mem) => {
  * mem : Uint32Array
  * return void
  */ 
-const interprete = (loc, mem) => {
+const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
     console.log("Nombre d'allocations : ", mem[0]/4);
-    console.log("Résultat : ")
-    let type = mem[loc];
-    let refs = mem[loc+1];
-    switch (type) {
-        case CONST_CONTRUCTEURS.false:
-            return console.log("Loc : ", loc, "; refs :", refs, "; valeur : False")
-        case CONST_CONTRUCTEURS.true:
-            return console.log("Loc : ", loc, "; refs :", refs, "; valeur : True")
-        case CONST_CONTRUCTEURS.nil:
-            return console.log("Loc : ", loc, "; refs :", refs, "; valeur : Nil")
-        case CONST_CONTRUCTEURS.num:
-            let num = mem[loc+2];
-            return console.log("Loc : ", loc, "; refs :", refs, "; valeur : Num of ", num)
-        case CONST_CONTRUCTEURS.list:
-            let loc1 = mem[loc+2] / 4;
-            let loc2 = mem[loc+3] / 4;
-            console.log("Loc : ", loc, "; refs :", refs, "; valeur : List of ", loc1, loc2)
-            interprete(loc1, mem)
-            return interprete(loc2, mem)
-        default:
-            return console.log("Loc : ", loc, "type inconnu :", type)
+    console.log(`Résultat en ${dt} ms`)
+    const interprete_rec = (loc, mem) => {
+        let type = mem[loc];
+        let refs = mem[loc+1];
+        switch (type) {
+            case CONST_CONTRUCTEURS.false:
+                return console.log(`loc : @${loc}; refs : ${refs} ; valeur :`, false)
+            case CONST_CONTRUCTEURS.true:
+                return console.log(`loc : @${loc}; refs : ${refs} ; valeur :`, true)
+            case CONST_CONTRUCTEURS.nil:
+                return console.log(`loc : @${loc}; refs : ${refs} ; valeur : Nil`)
+            case CONST_CONTRUCTEURS.num:
+                let num = mem[loc+2];
+                return console.log(`loc : @${loc}; refs : ${refs} ; valeur : Num of`, num)
+            case CONST_CONTRUCTEURS.list:
+                let loc1 = mem[loc+2] / 4;
+                let loc2 = mem[loc+3] / 4;
+                console.log(`loc : @${loc}; refs : ${refs} ; valeur : List of @${loc1} @${loc2}`)
+                if(loc === loc1) console.log("Liste infinie !");
+                else interprete_rec(loc1, mem)
+                if(loc === loc2) console.log("Liste infinie !");
+                else interprete_rec(loc2, mem)
+                return
+            default:
+                return console.log("Loc : ", loc, "type inconnu :", type)
+        }
     }
+
+    return interprete_rec(loc, mem);
 }
 
 
@@ -138,13 +146,17 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
+    
     //res : Loc
 
     const { num } = wasmModule.instance.exports;
 
+    var startTime = performance.now();
     let res = num();
     let loc = res/4;
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
 
-    interprete(loc, mem)
+    interprete(loc, mem, deltaTime)
     
 });

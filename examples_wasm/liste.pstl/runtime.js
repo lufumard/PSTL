@@ -1,11 +1,12 @@
 const fs = require('fs');
+const { performance } = require('perf_hooks');
 
 const memory = new WebAssembly.Memory({
     initial: 10,
     maximum: 100,
 });
   
-const fichier = "types.wasm";
+const fichier = "liste.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -90,12 +91,11 @@ const createList = (loc1, loc2, mem) => {
  * mem : Uint32Array
  * return void
  */ 
-const interprete = (loc, mem) => {
+const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
     console.log("Nombre d'allocations : ", mem[0]/4);
-
+    console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (loc, mem) => {
-        console.log("Résultat : ")
         let type = mem[loc];
         let refs = mem[loc+1];
         switch (type) {
@@ -146,80 +146,26 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
+
+    const { liste, liste1 } = wasmModule.instance.exports;
+
     //res : Loc
-
-    const { num, mtrue, mfalse, nil, liste } = wasmModule.instance.exports;
-
-    console.log("=========================")
-    console.log("Num (7)")
-
-    var startTime = performance.now();
-    var res = num();
-    var loc = res/4;
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("False")
-
-    var startTime = performance.now();
-    var res = mfalse();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("True")
-
-    var startTime = performance.now();
-    var res = mtrue();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Nil")
-
-    var startTime = performance.now();
-    var res = nil();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Liste [1, 2, 3, nil]")
-
-    var startTime = performance.now();
     var res = liste();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
+    interprete(loc, mem)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
 
+    //res : Loc
+    var res = liste1();
+    var loc = res/4;
+
+    interprete(loc, mem)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
 });
