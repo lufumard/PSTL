@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "types.wasm";
+const fichier = "fibo_num.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -126,7 +126,7 @@ const interprete = (loc, mem, dt) => {
 }
 
 
-const wasmBuffer = fs.readFileSync(fichier);
+const wasmBuffer = fs.readFileSync("fibo_num.pstl");
 WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
@@ -146,80 +146,61 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
-    //res : Loc
-
-    const { num, mtrue, mfalse, nil, liste } = wasmModule.instance.exports;
-
-    console.log("=========================")
-    console.log("Num (7)")
-
-    var startTime = performance.now();
-    var res = num();
-    var loc = res/4;
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
     
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
 
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
+    const { fibo } = wasmModule.instance.exports;
 
-    console.log("=========================")
-    console.log("False")
+    let n7 = createNum(7, mem);
 
     var startTime = performance.now();
-    var res = mfalse();
+    var res = fibo(n7);
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
     interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
+    
+    // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
+});
 
-    console.log("=========================")
-    console.log("True")
+
+const wasmBuffer1 = fs.readFileSync("fibo.wasm");
+WebAssembly.instantiate(wasmBuffer1, {
+    js: { mem: memory },
+}).then((wasmModule) => {
+
+    // Initialisation de la mémoire
+    const mem = new Uint32Array(memory.buffer);
+    mem[0] = 4;
+
+
+    /**
+     * Init memory
+     */
+
+
+
+    /**
+     * Execute function
+     */
+
+    
+
+    const { fibo } = wasmModule.instance.exports;
+
+    let n7 = createNum(7, mem);
 
     var startTime = performance.now();
-    var res = mtrue();
+    var res = fibo(n7);
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
     interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
+    
+    // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Nil")
-
-    var startTime = performance.now();
-    var res = nil();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Liste [1, 2, 3, nil]")
-
-    var startTime = performance.now();
-    var res = liste();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
 });
