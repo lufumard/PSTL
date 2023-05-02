@@ -1,9 +1,11 @@
+const fs = require('fs');
+
 const memory = new WebAssembly.Memory({
     initial: 10,
     maximum: 100,
 });
   
-const fichier = "fichier.wasm";
+const fichier = "num4.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -25,7 +27,7 @@ const createFalse = (mem) => {
     let loc = mem[0];
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
-    mem[0] += 2
+    mem[0] += 2 * 4;
     return loc;
 }
 
@@ -37,7 +39,7 @@ const createTrue = (mem) => {
     let loc = mem[0];
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
-    mem[0] += 2;
+    mem[0] += 2 * 4;
     return loc;
 }
 
@@ -49,7 +51,7 @@ const createNil = (mem) => {
     let loc = mem[0];
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
-    mem[0] += 2
+    mem[0] += 2 * 4;
     return loc;
 }
 
@@ -63,7 +65,7 @@ const createNum = (num, mem) => {
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1;
     mem[loc+2] = num;
-    mem[0] += 3;
+    mem[0] += 3 * 4;
     return loc;
 }
 
@@ -79,7 +81,7 @@ const createList = (loc1, loc2, mem) => {
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
-    mem[0] += 4;
+    mem[0] += 4 * 4;
     return loc;
 }
 
@@ -90,7 +92,7 @@ const createList = (loc1, loc2, mem) => {
  */ 
 const interprete = (loc, mem) => {
     console.log("Mémoire :", mem)
-    console.log("Nombre d'allocations : ", mem[0]);
+    console.log("Nombre d'allocations : ", mem[0]/4);
     console.log("Résultat : ")
     let type = mem[loc];
     let refs = mem[loc+1];
@@ -105,8 +107,8 @@ const interprete = (loc, mem) => {
             let num = mem[loc+2];
             return console.log("Loc : ", loc, "; refs :", refs, "; valeur : Num of ", num)
         case CONST_CONTRUCTEURS.list:
-            let loc1 = mem[loc+2];
-            let loc2 = mem[loc+3];
+            let loc1 = mem[loc+2] / 4;
+            let loc2 = mem[loc+3] / 4;
             console.log("Loc : ", loc, "; refs :", refs, "; valeur : List of ", loc1, loc2)
             interprete(loc1, mem)
             return interprete(loc2, mem)
@@ -116,13 +118,14 @@ const interprete = (loc, mem) => {
 }
 
 
-WebAssembly.instantiateStreaming(fetch(fichier), {
+const wasmBuffer = fs.readFileSync(fichier);
+WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
-}).then((obj) => {
+}).then((wasmModule) => {
 
     // Initialisation de la mémoire
     const mem = new Uint32Array(memory.buffer);
-    mem[0] = 1;
+    mem[0] = 4;
 
 
     /**
@@ -136,8 +139,12 @@ WebAssembly.instantiateStreaming(fetch(fichier), {
      */
 
     //res : Loc
-    let res = obj.instance.exports.exported_func();
 
-    interprete(res, mem)
+    const { num } = wasmModule.instance.exports;
+
+    let res = num();
+    let loc = res/4;
+
+    interprete(loc, mem)
     
 });

@@ -24,12 +24,12 @@ compile_program (cste : Const, fun:Fn)
 ---------------------
 nom = string_of_const(cste)
 (func ${nom} (export "{nom}") 
-compile_fonction(fun)
+compile_fn(fun)
 )
 
 
 
-compile_fonction (nom : Const,  params :Vec<Var>, body : FnBody)
+compile_fn (nom : Const,  params :Vec<Var>, body : FnBody)
 ---------------------
 for param in params {
 (param $params[i] i32 )
@@ -37,17 +37,12 @@ for param in params {
 (result i32)
 ;; les lignes au dessus sont en une ligne avec la signature de la fonction 
 ;; sous la forme (func $ajout (export "ajout") (param $a i32) (param $b i32) (result i32)
-let vars = catch_vars(body)
-for v in vars {
-	compile_init_var(v)
+let vars : Vec<&String> = catch_var_names(body)
+for s in vars {
+  (local ${s} i32)
 }
 compile_fnbody(body)
 
-
-compile_init_var (var : Var)
----------------------
-let s = string_of_var(var)
-(local ${s} i32)
 
 
 compile_let (var:Var, expr: Expr, fnbody:FnBody)
@@ -178,6 +173,10 @@ crée un constructeur sans argument en wat
   i32.const 0 ;; 0
   i32.load    ;; x
 
+  ;; mise à jour de memory[0]
+  i32.const 4        ;; x 4
+  call $__offset_next ;; x
+  
   ;; la valeur en haut de la pile : x
 )
 

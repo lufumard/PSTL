@@ -1,0 +1,20 @@
+num = let n = 7;
+    ret n
+
+mfalse = let f = ctor0;
+    ret f
+
+mtrue = let t = ctor1;
+    ret t
+
+nil = let nil = ctor2;
+    ret nil
+
+liste = let n1 = 1;
+    let n2 = 2;
+    let n3 = 3;
+    let nil = nil;
+    let l2 = ctor3 n3 nil;
+    let l1 = ctor3 n2 l2;
+    let l0 = ctor3 n1 l1;
+    ret l0

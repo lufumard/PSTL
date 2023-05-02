@@ -12,6 +12,7 @@ pub mod reader_rc;
 pub mod utils;
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use crate::compiler::primitives::get_num;
 
@@ -76,6 +77,9 @@ pub fn write_runtime(out :&mut File) {
     write_ln("    call $__init_type", out);
         wr(out);
         wpr(out);
+    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    i32.const 4         ;; x 4", out);
+    write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
     write_ln("(func $__init_type (param $t i32)", out);
@@ -313,18 +317,49 @@ pub fn compile_program(prog: ProgramRC, out : &mut File)  {
         compile_fn(fun, out);
         write_ln(")", out);
     }
-    
 }
 
 pub fn compile_fn(fun:FnRC, out:&mut File){
-    let FnRC::Fn(params, fnbody) = fun;
+    let FnRC::Fn(params, body) = fun;
     for param in params {
         let s = string_of_var(param);
         write_out(&format!("(param ${s} i32) "), out);
     }
     write_ln("(result i32)", out);
-    compile_fnbody(fnbody, out);
+
+    let vars : HashSet<String> = catch_var_names(body.clone());
+    for s in vars {
+        write_ln(&format!("(local ${s} i32)"), out);
+    }
+
+    compile_fnbody(body, out);
 }
+
+fn catch_var_names(body : FnBodyRC) -> HashSet<String> {
+    match body {
+        FnBodyRC::Ret(_) => HashSet::new(),
+        FnBodyRC::Let(var, _, body) => {
+            let mut ns = HashSet::from([string_of_var(var)]);
+            for s in catch_var_names(*body){
+                ns.insert(s);
+            }
+            return ns;
+        },
+        FnBodyRC::Case(_, bodys) => {
+            let mut ns = HashSet::new();
+            for body in bodys {
+                for s in catch_var_names(body){
+                    ns.insert(s);
+                }
+            }
+            return ns;
+        },
+        FnBodyRC::Inc(_, body) => catch_var_names(*body),
+        FnBodyRC::Dec(_, body) => catch_var_names(*body),
+    }
+}
+
+
 
 pub fn init_var(var: Var, out: &mut File) {
     let s = string_of_var(var);
