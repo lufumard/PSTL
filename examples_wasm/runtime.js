@@ -91,8 +91,7 @@ const createList = (loc1, loc2, mem) => {
  * mem : Uint32Array
  * return void
  */ 
-const interprete = (l, mem, dt) => {
-    let loc = l / 4;
+const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
@@ -108,7 +107,8 @@ const interprete = (l, mem, dt) => {
     }
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
-    const interprete_rec = (loc, mem) => {
+    const interprete_rec = (l, mem) => {
+        let loc = l / 4;
         let type = mem[loc];
         let refs = mem[loc+1];
         switch (type) {

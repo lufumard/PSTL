@@ -234,33 +234,4 @@ WebAssembly.instantiate(wasmBuffer, {
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-
-    console.log("\nfirst of List")
-    //res : Loc
-    var startTime = performance.now();
-    var res = first(liste());
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    log_mem(mem);
-    
-    // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("\nlast of List")
-    //res : Loc
-    var startTime = performance.now();
-    var res = last(liste());
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    
-    // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
 });

@@ -142,7 +142,7 @@ pub fn write_runtime(out :&mut File) {
     write_ln("(func $__reset (param $var i32) (result i32)", out);
     compile_dec_body(Var::Var("var".to_string()), out);
     get_ref_loc(Var::Var("var".to_string()), out);
-    write_ln("i32.load", out);
+    write_ln("    i32.load", out);
 
     write_ln("    i32.eqz", out);
     write_ln("    if", out);

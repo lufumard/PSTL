@@ -105,32 +105,33 @@ const interprete = (loc, mem, dt) => {
             i+=4;
         }
     }
-    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
+    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4-1} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
-    const interprete_rec = (loc, mem) => {
+    const interprete_rec = (l, mem) => {
+        let loc = l/4;
         let type = mem[loc];
         let refs = mem[loc+1];
         switch (type) {
             case CONST_CONTRUCTEURS.false:
-                return console.log(`loc : @${loc}; refs : ${refs} ; valeur :`, false)
+                return console.log(`loc : @${l}; refs : ${refs} ; valeur :`, false)
             case CONST_CONTRUCTEURS.true:
-                return console.log(`loc : @${loc}; refs : ${refs} ; valeur :`, true)
+                return console.log(`loc : @${l}; refs : ${refs} ; valeur :`, true)
             case CONST_CONTRUCTEURS.nil:
-                return console.log(`loc : @${loc}; refs : ${refs} ; valeur : Nil`)
+                return console.log(`loc : @${l}; refs : ${refs} ; valeur : Nil`)
             case CONST_CONTRUCTEURS.num:
                 let num = mem[loc+2];
-                return console.log(`loc : @${loc}; refs : ${refs} ; valeur : Num of`, num)
+                return console.log(`loc : @${l}; refs : ${refs} ; valeur : Num of`, num)
             case CONST_CONTRUCTEURS.list:
-                let loc1 = mem[loc+2] / 4;
-                let loc2 = mem[loc+3] / 4;
-                console.log(`loc : @${loc}; refs : ${refs} ; valeur : List of @${loc1} @${loc2}`)
-                if(loc === loc1) console.log("Liste infinie !");
+                let loc1 = mem[loc+2];
+                let loc2 = mem[loc+3];
+                console.log(`loc : @${l}; refs : ${refs} ; valeur : List of @${loc1} @${loc2}`)
+                if(l === loc1) console.log("Liste infinie !");
                 else interprete_rec(loc1, mem)
-                if(loc === loc2) console.log("Liste infinie !");
+                if(l === loc2) console.log("Liste infinie !");
                 else interprete_rec(loc2, mem)
                 return
             default:
-                return console.log("Loc : ", loc, "type inconnu :", type)
+                return console.log("Loc : ", l, "type inconnu :", type)
         }
     }
 
@@ -164,13 +165,12 @@ WebAssembly.instantiate(wasmBuffer, {
 
     const { swap } = wasmModule.instance.exports;
 
-    interprete(l/4, mem, deltaTime)
+    interprete(l, mem, deltaTime)
 
     var startTime = performance.now();
-    var res = swap(l);
+    var loc = swap(l);
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
-    var loc = res/4;
 
     interprete(loc, mem, deltaTime)
     

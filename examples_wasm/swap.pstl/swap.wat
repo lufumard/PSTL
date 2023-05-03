@@ -106,7 +106,7 @@ i32.store
 local.get $var
 i32.const 4
 i32.add
-i32.load
+    i32.load
     i32.eqz
     if
         i32.const 0
@@ -114,71 +114,14 @@ i32.load
     end
     local.get $var
 )
-(func $fun_exec_swap (export "exec_swap")(param $xs i32) (param $t1 i32) (result i32)
-(local $h1 i32)
-(local $t2 i32)
-(local $r2 i32)
-(local $h2 i32)
-(local $r1 i32)
-local.get $xs
-i32.const 8
-i32.add
-i32.load
-local.set $h1
-local.get $t1
-i32.const 8
-i32.add
-i32.load
-local.set $h2
-local.get $t1
-i32.const 12
-i32.add
-i32.load
-local.set $t2
-local.get $h1
-i32.const 4
-i32.add
-local.get $h1
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
-local.get $t2
-i32.const 4
-i32.add
-local.get $t2
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
-local.get $h1
-local.get $t2
-call $__make_list
-local.set $r1
-local.get $h2
-i32.const 4
-i32.add
-local.get $h2
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
-local.get $h2
-local.get $r1
-call $__make_list
-local.set $r2
-local.get $r2
-return
-)
 (func $fun_swap (export "swap")(param $xs i32) (result i32)
+(local $w3 i32)
+(local $h i32)
+(local $w1 i32)
 (local $r i32)
 (local $t1 i32)
+(local $w4 i32)
+(local $w2 i32)
 (block $__case0
 (block $__case1
 (block $__case2
@@ -190,41 +133,11 @@ i32.load
 $__case4 $__case3 $__case2 $__case1 $__case0 )
 )
 local.get $xs
-i32.const 4
-i32.add
-local.get $xs
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
-local.get $xs
 return
 )
 local.get $xs
-i32.const 4
-i32.add
-local.get $xs
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
-local.get $xs
 return
 )
-local.get $xs
-i32.const 4
-i32.add
-local.get $xs
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-i32.store
 local.get $xs
 return
 )
@@ -233,6 +146,16 @@ i32.const 12
 i32.add
 i32.load
 local.set $t1
+local.get $t1
+i32.const 4
+i32.add
+local.get $t1
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
 (block $__case0
 (block $__case1
 (block $__case2
@@ -244,23 +167,14 @@ i32.load
 $__case4 $__case3 $__case2 $__case1 $__case0 )
 )
 local.get $xs
-local.get $t1
-call $fun_exec_swap
-local.set $r
-local.get $r
-return
-)
-local.get $xs
-local.get $t1
-call $fun_exec_swap
-local.set $r
-local.get $r
-return
-)
-local.get $xs
+i32.const 8
+i32.add
+i32.load
+local.set $h
+local.get $h
 i32.const 4
 i32.add
-local.get $xs
+local.get $h
 i32.const 4
 i32.add
 i32.load
@@ -268,32 +182,207 @@ i32.const 1
 i32.add
 i32.store
 local.get $xs
-return
-)
-local.get $xs
+call $__reset
+local.set $w1
+local.get $w1
+i32.eqz
+if
 local.get $t1
-call $fun_exec_swap
-local.set $r
-local.get $r
-return
-)
-local.get $xs
-local.get $t1
-call $fun_exec_swap
-local.set $r
-local.get $r
-return
-)
-local.get $xs
+local.get $h
+call $__make_list
+drop
+else
+local.get $w1
+i32.const 3
+i32.store
+local.get $w1
 i32.const 4
 i32.add
+i32.const 1
+i32.store
+local.get $w1
+i32.load
+i32.const 8
+i32.add
+local.get $t1
+i32.store
+local.get $w1
+i32.const 12
+i32.add
+local.get $h
+i32.store
+end
+local.get $w1
+local.set $r
+local.get $r
+return
+)
 local.get $xs
+i32.const 8
+i32.add
+i32.load
+local.set $h
+local.get $h
+i32.const 4
+i32.add
+local.get $h
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
 i32.store
+local.get $xs
+call $__reset
+local.set $w2
+local.get $w2
+i32.eqz
+if
+local.get $t1
+local.get $h
+call $__make_list
+drop
+else
+local.get $w2
+i32.const 3
+i32.store
+local.get $w2
+i32.const 4
+i32.add
+i32.const 1
+i32.store
+local.get $w2
+i32.load
+i32.const 8
+i32.add
+local.get $t1
+i32.store
+local.get $w2
+i32.const 12
+i32.add
+local.get $h
+i32.store
+end
+local.get $w2
+local.set $r
+local.get $r
+return
+)
+local.get $t1
+i32.const 4
+i32.add
+local.get $t1
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+i32.store
+local.get $xs
+return
+)
+local.get $xs
+i32.const 8
+i32.add
+i32.load
+local.set $h
+local.get $h
+i32.const 4
+i32.add
+local.get $h
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $xs
+call $__reset
+local.set $w3
+local.get $w3
+i32.eqz
+if
+local.get $t1
+local.get $h
+call $__make_list
+drop
+else
+local.get $w3
+i32.const 3
+i32.store
+local.get $w3
+i32.const 4
+i32.add
+i32.const 1
+i32.store
+local.get $w3
+i32.load
+i32.const 8
+i32.add
+local.get $t1
+i32.store
+local.get $w3
+i32.const 12
+i32.add
+local.get $h
+i32.store
+end
+local.get $w3
+local.set $r
+local.get $r
+return
+)
+local.get $xs
+i32.const 8
+i32.add
+i32.load
+local.set $h
+local.get $h
+i32.const 4
+i32.add
+local.get $h
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $xs
+call $__reset
+local.set $w4
+local.get $w4
+i32.eqz
+if
+local.get $t1
+local.get $h
+call $__make_list
+drop
+else
+local.get $w4
+i32.const 3
+i32.store
+local.get $w4
+i32.const 4
+i32.add
+i32.const 1
+i32.store
+local.get $w4
+i32.load
+i32.const 8
+i32.add
+local.get $t1
+i32.store
+local.get $w4
+i32.const 12
+i32.add
+local.get $h
+i32.store
+end
+local.get $w4
+local.set $r
+local.get $r
+return
+)
 local.get $xs
 return
 )
