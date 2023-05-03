@@ -65,15 +65,99 @@ return
 
 compile_inc (var:Var, fnbody:FnBody)
 ---------------------
-TODO
+get_ref_loc(var) ;; @ref
+get_ref_loc(var) ;; @ref @ref
+i32.load         ;; @ref #ref
+i32.const 1      ;; @ref #ref 1
+i32.add          ;; @ref #ref+1
+i32.store
 compile_fnbody(fnbody)
 
 
 compile_dec (var:Var, fnbody:FnBody)
 ---------------------
-TODO
+compile_dec_body(var)
 compile_fnbody(fnbody)
 
+
+compile_reset (var:Var)
+---------------------
+compile_var(var)
+call $__reset
+
+compile_dec_body(var:Var)
+---------------------
+get_ref_loc(var) ;; @ref
+get_ref_loc(var) ;; @ref @ref
+i32.load         ;; @ref #ref
+i32.const 1      ;; @ref #ref 1
+i32.sub          ;; @ref #ref-1
+i32.store
+
+
+(func $__reset (param $var i32) (result i32)
+  compile_dec_body(Var("var"))
+  get_ref_loc(Var("var"))
+  i32.load
+
+  i32.eqz
+  if
+    i32.const 0
+    return
+  end
+  local.get $var
+)
+
+
+compile_reuse (var:Var, ctor: i32, args: Vec<Var>)
+---------------------
+compile_var(var)
+i32.eqz
+if
+  match ctor {
+    CONST_FALSE => compile_make_false(),
+    CONST_TRUE => compile_make_true(),
+    CONST_NIL => compile_make_nil(),
+    CONST_NUM => compile_make_num(args[0]),
+    CONST_LIST => compile_make_list(args[0], args[1]),
+  }
+  drop
+else
+  match ctor {
+    CONST_NUM => panic!("comment ?"),
+    CONST_LIST => {
+      compile_reuse_no_arg(var, CONST_LIST)
+      compile_var(var)
+      i32.const 8
+      i32.add
+      compile_var(args[0])
+      i32.store
+      compile_var(var)
+      i32.const 12
+      i32.add
+      compile_var(args[1])
+      i32.store
+    },
+    _ => compile_reuse_no_arg(var, ctor),
+  }
+end
+
+compile_reuse_no_arg (var:Var, ctor:i32)
+---------------------
+compile_var(var)
+i32.const {ctor}
+i32.store
+compile_var(var)
+i32.const 4
+i32.add
+i32.const 1
+i32.store
+
+get_ref_loc(var:Var)
+---------------------
+compile_var(var)
+i32.const 4
+i32.add
 
 compile_var (var:Var)
 ---------------------
@@ -86,9 +170,6 @@ compile_value(n: i32)
 i32.const {n}
 make_num()
 
-
-compile_ctor (i: int, params : Vec<Loc>)
----------------------
 
 
 compile_get_num (var:Var)
