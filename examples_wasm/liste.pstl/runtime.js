@@ -93,7 +93,19 @@ const createList = (loc1, loc2, mem) => {
  */ 
 const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
-    console.log("Nombre d'allocations : ", mem[0]/4);
+    var nb_alloc = 0;
+    var i=1;
+    while(i<mem[0]/4){
+        nb_alloc++;
+        if (mem[i] <= CONST_CONTRUCTEURS.nil){
+            i+=2;
+        }else if (mem[i] == CONST_CONTRUCTEURS.num){
+            i+=3;
+        }else{
+            i+=4;
+        }
+    }
+    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (loc, mem) => {
         let type = mem[loc];

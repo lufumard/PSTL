@@ -25,11 +25,11 @@ const CONST_CONTRUCTEURS = {
  * return Loc
  */ 
 const createFalse = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -37,11 +37,11 @@ const createFalse = (mem) => {
  * return Loc
  */ 
 const createTrue = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -49,11 +49,11 @@ const createTrue = (mem) => {
  * return Loc
  */ 
 const createNil = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -62,12 +62,12 @@ const createNil = (mem) => {
  * return Loc
  */ 
 const createNum = (num, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1;
     mem[loc+2] = num;
     mem[0] += 3 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -77,13 +77,13 @@ const createNum = (num, mem) => {
  * return Loc
  */ 
 const createList = (loc1, loc2, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
     mem[0] += 4 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -93,7 +93,19 @@ const createList = (loc1, loc2, mem) => {
  */ 
 const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
-    console.log("Nombre d'allocations : ", mem[0]/4);
+    var nb_alloc = 0;
+    var i=1;
+    while(i<mem[0]/4){
+        nb_alloc++;
+        if (mem[i] <= CONST_CONTRUCTEURS.nil){
+            i+=2;
+        }else if (mem[i] == CONST_CONTRUCTEURS.num){
+            i+=3;
+        }else{
+            i+=4;
+        }
+    }
+    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (loc, mem) => {
         let type = mem[loc];

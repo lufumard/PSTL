@@ -1,7 +1,7 @@
-fibo_m1 n m1 = let m2 = add m1 m1; let m0 = sub m1 m1;
+fibo_m1 n m1 = let m2 = add m1 m1;
     let a = inf n m2; case a of
     (let x = sub n m1; let y = sub n m2; 
-    let m = fibo x m1; let n = fibo y m1;
+    let m = fibo_m1 x m1; let n = fibo_m1 y m1;
     let r = add m n; ret r)
     (ret m1)
 

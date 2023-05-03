@@ -1,0 +1,11 @@
+fcase x = case x of
+    (let r = 0; ret r)
+    (let r = 1; ret r)
+
+mainf = let x = ctor0;
+    let r = fcase x;
+    ret r
+
+maint = let x = ctor1;
+    let r = fcase x;
+    ret r

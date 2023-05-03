@@ -12,6 +12,9 @@
     ;; préparation de la valeur de retour
     i32.const 0 ;; 0
     i32.load    ;; x
+    ;; mise à jour de memory[0]
+    i32.const 8         ;; x 8
+    call $__offset_next ;; x
 )
 (func $__init_type (param $t i32)
     i32.const 0 ;; 0

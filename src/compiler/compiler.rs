@@ -1,6 +1,4 @@
  //#![allow(dead_code)]
- #![allow(unused_variables)]
- #![allow(unreachable_code)]
 
 pub mod ast_rc;
 pub mod inferring;
@@ -33,13 +31,12 @@ use self::ast_rc::FnRC;
 use self::ast_rc::ProgramRC;
 use self::inc::insert_inc;
 use self::inferring::inferring_program;
+use self::primitives::has_args;
 use self::reuse::insert_reuse;
 
 
 pub mod primitives;
-#[allow(unused_imports)]
 use primitives::is_primitive;
-#[allow(unused_imports)]
 use primitives::compile_fncall_primitive;
 
 use self::primitives::write_ln;
@@ -78,7 +75,7 @@ pub fn write_runtime(out :&mut File) {
         wr(out);
         wpr(out);
     write_ln("    ;; mise à jour de memory[0]", out);
-    write_ln("    i32.const 4         ;; x 4", out);
+    write_ln("    i32.const 8         ;; x 8", out);
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
@@ -206,13 +203,21 @@ pub fn compile_expr(expr: ExprRC, out : &mut File) {
 }
 
 
-pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
-    for var in vars {
-        compile_var(var, out);
-    }
-    
+pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {   
     let nom = string_of_const(ident);
-    write_ln(&format!("call ${nom}"), out);
+    
+    if is_primitive(&nom) {
+        if has_args(&nom, vars.len()) == 0{
+            compile_fncall_primitive(nom, vars, out);
+        } else {
+            panic!("Pas le bon nombre d'arguments sur l'appel de {nom}");
+        }
+    } else {
+        for var in vars {
+            compile_var(var, out);
+        }
+        write_ln(&format!("call ${nom}"), out);
+    }
 }
 
 
@@ -291,21 +296,18 @@ pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
     for i in 0..bodys.len() {
         write_ln(&format!("(block $__case{i}"), out);
     } 
-    write_ln("(block $__choice", out);
     compile_var(var, out);
     write_ln("i32.load", out);
-    write_ln("br_table ", out);
-    for i in 1..bodys.len() {
-        write_out(&format!("$__case{i}"), out);
+    write_ln("(br_table ", out);
+    for i in 0..bodys.len() {
+        let n = bodys.len()-1-i;
+        write_out(&format!("$__case{n} "), out);
     }
-    write_ln("$__choice)", out);
     write_ln(")", out);
     for body in bodys {
-        compile_fnbody(body.clone(), out);
-        write_out(")", out);
-    }
-    
-    
+        write_ln(")", out);
+        compile_fnbody(body, out);
+    }    
 }
 
 
@@ -359,28 +361,21 @@ fn catch_var_names(body : FnBodyRC) -> HashSet<String> {
     }
 }
 
-
-
-pub fn init_var(var: Var, out: &mut File) {
-    let s = string_of_var(var);
-    write_ln(&format!("(local ${s} i32)"), out);
-}
-
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    todo!();
+    //todo!();
     compile_fnbody(fnbody, out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    todo!();
+    //todo!();
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
-    todo!();
+    //todo!();
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
-    todo!();
+    //todo!();
 } 

@@ -11,11 +11,11 @@ nil = let nil = ctor2;
     ret nil
 
 liste = 
-    let n1 = 1;
-    let nil = nil;
-    let n2 = 2;
     let n3 = 3;
+    let nil = nil;    
     let l2 = ctor3 n3 nil;
+    let n2 = 2;
     let l1 = ctor3 n2 l2;
+    let n1 = 1;
     let l0 = ctor3 n1 l1;
     ret l0

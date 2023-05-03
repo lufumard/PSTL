@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "num4.wasm";
+const fichier = "case.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -159,16 +159,30 @@ WebAssembly.instantiate(wasmBuffer, {
      */
 
     
-    //res : Loc
 
-    const { num } = wasmModule.instance.exports;
+    const { mainf, maint } = wasmModule.instance.exports;
 
     var startTime = performance.now();
-    let res = num();
-    let loc = res/4;
+    var res = mainf();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
+    var loc = res/4;
 
     interprete(loc, mem, deltaTime)
     
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var res = maint();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
 });

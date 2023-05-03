@@ -174,7 +174,7 @@ crée un constructeur sans argument en wat
   i32.load    ;; x
 
   ;; mise à jour de memory[0]
-  i32.const 4        ;; x 4
+  i32.const 8         ;; x 8
   call $__offset_next ;; x
   
   ;; la valeur en haut de la pile : x
@@ -308,8 +308,7 @@ compile_case (var:Var, bodys:Vec<FnBody>)
 for n in 0..bodys.len() {
   ;; on crée un block pour chaque cas énuméré
   (block $__case{i}
-} 
-(block $__choice
+}
 ;; on charge le type de la variable
 compile_var(var)
 i32.load
@@ -317,13 +316,12 @@ i32.load
 ;; br renvoie à la fin du block indiqué, 
 ;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
 (br_table 
-for n in 1..bodys.len() {
-  $__case{i}
+for n in 0..bodys.len() {
+  $__case{len-1-i}
 }
-$__choice)
 )
 for body in bodys {
-compile_fnbody(body)
 )
+compile_fnbody(body)
 }
  

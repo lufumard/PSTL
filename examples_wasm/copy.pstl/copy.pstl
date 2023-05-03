@@ -42,10 +42,10 @@ main4 = let n = 4;
     ret r
 
 main3 =
-    let n0 = 0;
     let n1 = 1;
     let n2 = 2;
     let l2 = ctor3 n1 n2;
+    let n0 = 0;
     let l1 = ctor3 n0 l2;
     let r = copy l1;
     ret r

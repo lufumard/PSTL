@@ -92,103 +92,49 @@
     i32.const 16        ;; x 16
     call $__offset_next ;; x
 )
-(func $liste (export "liste")(result i32)
-(local $n5 i32)
-(local $l5 i32)
-(local $l2 i32)
-(local $f i32)
-(local $l1 i32)
-(local $nil i32)
-(local $n3 i32)
-(local $l3 i32)
-(local $n4 i32)
-(local $n1 i32)
-(local $n2 i32)
-(local $l4 i32)
+(func $fcase (export "fcase")(param $x i32) (result i32)
+(local $r i32)
+(block $__case0
+(block $__case1
+local.get $x
+i32.load
+(br_table 
+$__case1 $__case0 )
+)
 i32.const 0
-call $__make_no_arg
-local.set $f
-i32.const 1
 call $__make_num
-local.set $n1
-i32.const 2
-call $__make_num
-local.set $n2
-i32.const 3
-call $__make_num
-local.set $n3
-i32.const 4
-call $__make_num
-local.set $n4
-i32.const 5
-call $__make_num
-local.set $n5
-i32.const 2
-call $__make_no_arg
-local.set $nil
-local.get $n5
-local.get $nil
-call $__make_list
-local.set $l5
-local.get $n4
-local.get $l5
-call $__make_list
-local.set $l4
-local.get $n3
-local.get $l4
-call $__make_list
-local.set $l3
-local.get $n2
-local.get $l3
-call $__make_list
-local.set $l2
-local.get $n1
-local.get $l2
-call $__make_list
-local.set $l1
-local.get $l1
+local.set $r
+local.get $r
 return
 )
-(func $liste1 (export "liste1")(result i32)
-(local $l3 i32)
-(local $l5 i32)
-(local $l4 i32)
-(local $n1 i32)
-(local $nil i32)
-(local $l1 i32)
-(local $l0 i32)
-(local $l2 i32)
 i32.const 1
 call $__make_num
-local.set $n1
-i32.const 2
+local.set $r
+local.get $r
+return
+)
+(func $mainf (export "mainf")(result i32)
+(local $x i32)
+(local $r i32)
+i32.const 0
 call $__make_no_arg
-local.set $nil
-local.get $n1
-local.get $nil
-call $__make_list
-local.set $l5
-local.get $n1
-local.get $l5
-call $__make_list
-local.set $l4
-local.get $n1
-local.get $l4
-call $__make_list
-local.set $l3
-local.get $n1
-local.get $l3
-call $__make_list
-local.set $l2
-local.get $n1
-local.get $l2
-call $__make_list
-local.set $l1
-local.get $n1
-local.get $l1
-call $__make_list
-local.set $l0
-local.get $l0
+local.set $x
+local.get $x
+call $fcase
+local.set $r
+local.get $r
+return
+)
+(func $maint (export "maint")(result i32)
+(local $r i32)
+(local $x i32)
+i32.const 1
+call $__make_no_arg
+local.set $x
+local.get $x
+call $fcase
+local.set $r
+local.get $r
 return
 )
 )

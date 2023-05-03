@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "num4.wasm";
+const fichier = "add.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -25,11 +25,11 @@ const CONST_CONTRUCTEURS = {
  * return Loc
  */ 
 const createFalse = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -37,11 +37,11 @@ const createFalse = (mem) => {
  * return Loc
  */ 
 const createTrue = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -49,11 +49,11 @@ const createTrue = (mem) => {
  * return Loc
  */ 
 const createNil = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -62,12 +62,12 @@ const createNil = (mem) => {
  * return Loc
  */ 
 const createNum = (num, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1;
     mem[loc+2] = num;
     mem[0] += 3 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -77,13 +77,13 @@ const createNum = (num, mem) => {
  * return Loc
  */ 
 const createList = (loc1, loc2, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
     mem[0] += 4 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -159,16 +159,19 @@ WebAssembly.instantiate(wasmBuffer, {
      */
 
     
-    //res : Loc
 
-    const { num } = wasmModule.instance.exports;
+    const { addnum } = wasmModule.instance.exports;
+
+    let a = createNum(1, mem);
+    let b = createNum(2, mem);
+
+    console.log(a, b)
 
     var startTime = performance.now();
-    let res = num();
-    let loc = res/4;
+    var res = addnum(a, b);
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
+    var loc = res/4;
 
     interprete(loc, mem, deltaTime)
-    
 });
