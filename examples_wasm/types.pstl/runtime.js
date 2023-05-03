@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "types.wasm";
+const fichier = "fichier.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -25,11 +25,11 @@ const CONST_CONTRUCTEURS = {
  * return Loc
  */ 
 const createFalse = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -37,11 +37,11 @@ const createFalse = (mem) => {
  * return Loc
  */ 
 const createTrue = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -49,11 +49,11 @@ const createTrue = (mem) => {
  * return Loc
  */ 
 const createNil = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -62,12 +62,12 @@ const createNil = (mem) => {
  * return Loc
  */ 
 const createNum = (num, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1;
     mem[loc+2] = num;
     mem[0] += 3 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -77,13 +77,13 @@ const createNum = (num, mem) => {
  * return Loc
  */ 
 const createList = (loc1, loc2, mem) => {
-    let loc = mem[0];
-    mem[loc] = CONST_CONTRUCTEURS.num;
+    let loc = mem[0]/4;
+    mem[loc] = CONST_CONTRUCTEURS.list;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
     mem[0] += 4 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -158,80 +158,19 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
-    //res : Loc
-
-    const { num, mtrue, mfalse, nil, liste } = wasmModule.instance.exports;
-
-    console.log("=========================")
-    console.log("Num (7)")
-
-    var startTime = performance.now();
-    var res = num();
-    var loc = res/4;
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
     
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
 
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("False")
+    const { exported_func } = wasmModule.instance.exports;
 
     var startTime = performance.now();
-    var res = mfalse();
+    var res = exported_func();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
     interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
+    
+    // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-
-    console.log("=========================")
-    console.log("True")
-
-    var startTime = performance.now();
-    var res = mtrue();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Nil")
-
-    var startTime = performance.now();
-    var res = nil();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("=========================")
-    console.log("Liste [1, 2, 3, nil]")
-
-    var startTime = performance.now();
-    var res = liste();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    console.log("=========================")
-
 });

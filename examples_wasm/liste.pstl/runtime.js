@@ -78,12 +78,17 @@ const createNum = (num, mem) => {
  */ 
 const createList = (loc1, loc2, mem) => {
     let loc = mem[0];
-    mem[loc] = CONST_CONTRUCTEURS.num;
+    mem[loc] = CONST_CONTRUCTEURS.list;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
     mem[0] += 4 * 4;
     return loc;
+}
+
+
+const log_mem = (mem) => {
+    console.log("Mémoire :", mem);
 }
 
 /**
@@ -92,7 +97,6 @@ const createList = (loc1, loc2, mem) => {
  * return void
  */ 
 const interprete = (loc, mem, dt) => {
-    console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
     while(i<mem[0]/4){
@@ -159,23 +163,102 @@ WebAssembly.instantiate(wasmBuffer, {
      */
 
 
-    const { liste, liste1 } = wasmModule.instance.exports;
+    const { liste, liste1, head, tail, first, last, length } = wasmModule.instance.exports;
 
+    console.log("\nList [1,2,3,4,5]")
     //res : Loc
+    var startTime = performance.now();
     var res = liste();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem)
+    interprete(loc, mem, deltaTime)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 
+    console.log("\nList of 1")
     //res : Loc
+    var startTime = performance.now();
     var res = liste1();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem)
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\nhead of List")
+    //res : Loc
+    var startTime = performance.now();
+    var res = head(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\ntail of List")
+    //res : Loc
+    var startTime = performance.now();
+    var res = tail(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\nlength of List")
+    //res : Loc
+    var startTime = performance.now();
+    var res = length(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\nfirst of List")
+    //res : Loc
+    var startTime = performance.now();
+    var res = first(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    log_mem(mem);
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\nlast of List")
+    //res : Loc
+    var startTime = performance.now();
+    var res = last(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}

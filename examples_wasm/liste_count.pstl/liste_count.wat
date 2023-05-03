@@ -13,7 +13,7 @@
     i32.const 0 ;; 0
     i32.load    ;; x
     ;; mise à jour de memory[0]
-    i32.const 4        ;; x 4
+    i32.const 8         ;; x 8
     call $__offset_next ;; x
 )
 (func $__init_type (param $t i32)
@@ -41,7 +41,7 @@
 )
 (func $__make_num (param $a i32) (result i32)
     ;; stoque le type du constructeur
-    i32.const 4 ;; 4
+    i32.const 4
     call $__init_type
     ;; références
     i32.const 0 ;; 0
@@ -64,7 +64,7 @@
 )
 (func $__make_list (param $a i32) (param $b i32) (result i32)
     ;; stoque le type du constructeur
-    i32.const 3 ;; 3
+    i32.const 3
     call $__init_type
     ;; références
     i32.const 0 ;; 0
@@ -91,5 +91,167 @@
     ;; mise à jour de memory[0]
     i32.const 16        ;; x 16
     call $__offset_next ;; x
+)
+(func $fun_count (export "count")(param $a i32) (param $b i32) (result i32)
+(local $r i32)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $a
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $b
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+i32.const 10
+call $__make_num
+return
+)
+i32.const 11
+call $__make_num
+return
+)
+i32.const 12
+call $__make_num
+return
+)
+i32.const 13
+call $__make_num
+return
+)
+i32.const 14
+call $__make_num
+return
+)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $b
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+i32.const 20
+call $__make_num
+return
+)
+i32.const 21
+call $__make_num
+return
+)
+i32.const 22
+call $__make_num
+return
+)
+i32.const 23
+call $__make_num
+return
+)
+i32.const 24
+call $__make_num
+return
+)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $b
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+i32.const 30
+call $__make_num
+return
+)
+i32.const 31
+call $__make_num
+return
+)
+i32.const 32
+call $__make_num
+return
+)
+i32.const 33
+call $__make_num
+return
+)
+i32.const 34
+call $__make_num
+return
+)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $b
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+i32.const 40
+call $__make_num
+return
+)
+i32.const 41
+call $__make_num
+return
+)
+i32.const 42
+call $__make_num
+return
+)
+i32.const 43
+call $__make_num
+return
+)
+i32.const 44
+call $__make_num
+return
+)
+(block $__case0
+(block $__case1
+(block $__case2
+(block $__case3
+(block $__case4
+local.get $b
+i32.load
+(br_table 
+$__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+i32.const 50
+call $__make_num
+return
+)
+i32.const 51
+call $__make_num
+return
+)
+i32.const 52
+call $__make_num
+return
+)
+i32.const 53
+call $__make_num
+return
+)
+i32.const 54
+call $__make_num
+return
 )
 )

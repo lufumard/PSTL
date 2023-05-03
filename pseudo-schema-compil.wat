@@ -48,9 +48,13 @@ compile_fnbody(body)
 compile_let (var:Var, expr: Expr, fnbody:FnBody)
 ---------------------
 compile_expr(expr)
-let v = string_of_var(var)
-local.set ${v}
-compile_fnbody(fnbody)
+if expr == Ret(var) {
+  return
+} else {
+  let v = string_of_var(var)
+  local.set ${v}
+  compile_fnbody(fnbody)
+}
 
 
 compile_return (var : Var)

@@ -78,7 +78,7 @@ const createNum = (num, mem) => {
  */ 
 const createList = (loc1, loc2, mem) => {
     let loc = mem[0];
-    mem[loc] = CONST_CONTRUCTEURS.num;
+    mem[loc] = CONST_CONTRUCTEURS.list;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;

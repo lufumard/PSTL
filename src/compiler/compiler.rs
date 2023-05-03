@@ -216,7 +216,7 @@ pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
         for var in vars {
             compile_var(var, out);
         }
-        write_ln(&format!("call ${nom}"), out);
+        write_ln(&format!("call $fun_{nom}"), out);
     }
 }
 
@@ -287,9 +287,13 @@ pub  fn compile_ret(var: Var, out : &mut File)  {
 
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
     compile_expr(expr, out);
-    let v = string_of_var(var);
-    write_ln(&format!("local.set ${v}"), out);
-    compile_fnbody(fnbody, out);
+    if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
+        write_ln("return", out);
+    } else {
+        let v = string_of_var(var);
+        write_ln(&format!("local.set ${v}"), out);
+        compile_fnbody(fnbody, out);
+    }   
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
@@ -300,7 +304,7 @@ pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
     write_ln("i32.load", out);
     write_ln("(br_table ", out);
     for i in 0..bodys.len() {
-        let n = bodys.len()-1-i;
+        let n = bodys.len()-i-1;
         write_out(&format!("$__case{n} "), out);
     }
     write_ln(")", out);
@@ -315,7 +319,7 @@ pub fn compile_program(prog: ProgramRC, out : &mut File)  {
     let ProgramRC::Program(fun_dec) = prog;
     for (cste, fun) in fun_dec {
         let Const::Const(nom) = cste;
-        write_out(&format!("(func ${nom} (export \"{nom}\")"), out);
+        write_out(&format!("(func $fun_{nom} (export \"{nom}\")"), out);
         compile_fn(fun, out);
         write_ln(")", out);
     }
