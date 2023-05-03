@@ -287,13 +287,13 @@ pub  fn compile_ret(var: Var, out : &mut File)  {
 
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
     compile_expr(expr, out);
-    if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
+    /*if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
         write_ln("return", out);
-    } else {
+    } else {*/
         let v = string_of_var(var);
         write_ln(&format!("local.set ${v}"), out);
         compile_fnbody(fnbody, out);
-    }   
+    //}   
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
@@ -367,19 +367,23 @@ fn catch_var_names(body : FnBodyRC) -> HashSet<String> {
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
     //todo!();
+    write_ln(";;TODO : inc", out);
     compile_fnbody(fnbody, out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
     //todo!();
+    write_ln(";;TODO : dec", out);
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
     //todo!();
+    write_ln(";;TODO : reset", out);
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
     //todo!();
+    write_ln(";;TODO : reuse", out);
 } 
