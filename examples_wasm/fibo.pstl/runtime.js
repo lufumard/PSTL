@@ -25,7 +25,7 @@ const CONST_CONTRUCTEURS = {
  * return Loc
  */ 
 const createFalse = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
@@ -37,7 +37,7 @@ const createFalse = (mem) => {
  * return Loc
  */ 
 const createTrue = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
@@ -49,7 +49,7 @@ const createTrue = (mem) => {
  * return Loc
  */ 
 const createNil = (mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
@@ -62,7 +62,7 @@ const createNil = (mem) => {
  * return Loc
  */ 
 const createNum = (num, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1;
     mem[loc+2] = num;
@@ -77,7 +77,7 @@ const createNum = (num, mem) => {
  * return Loc
  */ 
 const createList = (loc1, loc2, mem) => {
-    let loc = mem[0];
+    let loc = mem[0]/4;
     mem[loc] = CONST_CONTRUCTEURS.num;
     mem[loc+1] = 1; //une ref
     mem[loc+2] = loc1;
@@ -162,7 +162,7 @@ WebAssembly.instantiate(wasmBuffer, {
 
     const { fibo } = wasmModule.instance.exports;
 
-    let n7 = createNum(7, mem);
+    let n7 = createNum(0, mem);
 
     var startTime = performance.now();
     var res = fibo(n7);
@@ -202,7 +202,7 @@ WebAssembly.instantiate(wasmBuffer1, {
 
     const { fibo } = wasmModule.instance.exports;
 
-    let n7 = createNum(7, mem);
+    let n7 = createNum(1, mem);
 
     var startTime = performance.now();
     var res = fibo(n7);

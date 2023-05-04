@@ -114,3 +114,181 @@ i32.add
     end
     local.get $var
 )
+(func $fun_fibo (export "fibo")(param $n i32) (result i32)
+(local $r i32)
+(local $m1 i32)
+(local $a i32)
+(local $m2 i32)
+(local $__intern_var i32)
+(local $m i32)
+(local $y i32)
+(local $x i32)
+i32.const 1
+call $__make_num
+local.set $m1
+local.get $n
+i32.const 4
+i32.add
+local.get $n
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $m1
+i32.const 4
+i32.add
+local.get $m1
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $n
+i32.const 8
+i32.add
+i32.load
+local.get $m1
+i32.const 8
+i32.add
+i32.load
+i32.le_s
+(if (then
+i32.const 1
+call $__make_no_arg
+local.set $__intern_var
+) (else
+i32.const 0
+call $__make_no_arg
+local.set $__intern_var
+))
+local.get $__intern_var
+local.set $a
+(block $__case0
+(block $__case1
+local.get $a
+i32.load
+(br_table 
+$__case1 $__case0 )
+)
+local.get $a
+i32.const 4
+i32.add
+local.get $a
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+i32.store
+local.get $n
+i32.const 4
+i32.add
+local.get $n
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $n
+i32.const 8
+i32.add
+i32.load
+local.get $m1
+i32.const 8
+i32.add
+i32.load
+i32.sub
+call $__make_num
+local.set $x
+i32.const 2
+call $__make_num
+local.set $m2
+local.get $n
+i32.const 4
+i32.add
+local.get $n
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $n
+i32.const 8
+i32.add
+i32.load
+local.get $m2
+i32.const 8
+i32.add
+i32.load
+i32.sub
+call $__make_num
+local.set $y
+local.get $x
+call $fun_fibo
+local.set $m
+local.get $x
+i32.const 4
+i32.add
+local.get $x
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+i32.store
+local.get $y
+call $fun_fibo
+local.set $n
+local.get $y
+i32.const 4
+i32.add
+local.get $y
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+i32.store
+local.get $n
+i32.const 4
+i32.add
+local.get $n
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+i32.store
+local.get $m
+i32.const 8
+i32.add
+i32.load
+local.get $n
+i32.const 8
+i32.add
+i32.load
+i32.add
+call $__make_num
+local.set $r
+local.get $r
+return
+)
+local.get $a
+i32.const 4
+i32.add
+local.get $a
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+i32.store
+local.get $m1
+return
+)
+)

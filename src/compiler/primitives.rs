@@ -118,9 +118,12 @@ pub fn eq_fn(vars: Vec<Var>, out:&mut File) {
     write_ln("i32.eq", out);
     write_ln("(if (then ", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else ", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn and_fn(vars: Vec<Var>, out:&mut File) {
@@ -130,11 +133,15 @@ pub fn and_fn(vars: Vec<Var>, out:&mut File) {
     get_bool(vars[1].to_owned(), out);
     write_ln("(if (then ", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else ", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))) (else ", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 
@@ -143,22 +150,29 @@ pub fn or_fn(vars: Vec<Var>, out:&mut File) {
     get_bool(vars[0].to_owned(), out);
     write_ln("(if (then ", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else ", out);
     get_bool(vars[1].to_owned(), out);
     write_ln("(if (then ", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else ", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn not_fn(var : Var, out:&mut File) {
     get_bool(var, out);
     write_ln("(if (then", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else ", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
@@ -168,9 +182,12 @@ pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
     write_ln("i32.gt_s", out);
     write_ln("(if (then", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
@@ -180,9 +197,12 @@ pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
     write_ln("i32.lt_s", out);
     write_ln("(if (then", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
@@ -192,9 +212,12 @@ pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
     write_ln("i32.ge_s", out);
     write_ln("(if (then", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }
 
 pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
@@ -204,7 +227,10 @@ pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
     write_ln("i32.le_s", out);
     write_ln("(if (then", out);
     make_true(out);
+    write_ln("local.set $__intern_var", out);
     write_ln(") (else", out);
     make_false(out);
+    write_ln("local.set $__intern_var", out);
     write_ln("))", out);
+    write_ln("local.get $__intern_var", out);
 }

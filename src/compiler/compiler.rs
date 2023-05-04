@@ -341,13 +341,14 @@ pub fn compile_program(prog: ProgramRC, out : &mut File)  {
 
 pub fn compile_fn(fun:FnRC, out:&mut File){
     let FnRC::Fn(params, body) = fun;
+    let mut vars : HashSet<String> = catch_var_names(body.clone());
     for param in params {
         let s = string_of_var(param);
+        vars.remove(&s);
         write_out(&format!("(param ${s} i32) "), out);
     }
-    write_ln("(result i32)", out);
-
-    let vars : HashSet<String> = catch_var_names(body.clone());
+    write_ln("(result i32)", out);   
+    
     for s in vars {
         write_ln(&format!("(local ${s} i32)"), out);
     }
@@ -359,14 +360,14 @@ fn catch_var_names(body : FnBodyRC) -> HashSet<String> {
     match body {
         FnBodyRC::Ret(_) => HashSet::new(),
         FnBodyRC::Let(var, _, body) => {
-            let mut ns = HashSet::from([string_of_var(var)]);
+            let mut ns = HashSet::from([string_of_var(var), "__intern_var".to_string()]);
             for s in catch_var_names(*body){
                 ns.insert(s);
             }
             return ns;
         },
         FnBodyRC::Case(_, bodys) => {
-            let mut ns = HashSet::new();
+            let mut ns = HashSet::from(["__intern_var".to_string()]);
             for body in bodys {
                 for s in catch_var_names(body){
                     ns.insert(s);
@@ -418,6 +419,29 @@ pub fn compile_reset(var: Var, out : &mut File)  {
 pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut File){
     compile_var(var.clone(), out);
     write_ln("i32.eqz", out);
+
+    // soit types égaux
+    compile_var(var.clone(), out);
+    write_ln("i32.load", out);
+    write_ln(&format!("i32.const {:?}", ctor.clone()), out);
+    write_ln("i32.eq", out);
+
+    // soit types tous les deux <= à 3
+    compile_var(var.clone(), out);
+    write_ln("i32.load", out);
+    write_ln("i32.const 3", out);
+    write_ln("i32.le_s", out);
+
+    if ctor.clone() <= 3 {
+        write_ln("i32.const 1", out);
+    }else {
+        write_ln("i32.const 0", out);
+    }
+
+    write_ln("i32.and", out);
+    write_ln("i32.or", out);
+    write_ln("i32.and", out);
+
     write_ln("if", out);
     match ctor {
         CONST_FALSE => make_false(out),

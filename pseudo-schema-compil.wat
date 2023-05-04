@@ -113,6 +113,29 @@ compile_reuse (var:Var, ctor: i32, args: Either<i32, Vec<Var>>)
 ---------------------
 compile_var(var)
 i32.eqz
+
+;; soit types égaux
+compile_var(var)
+i32.load
+i32.const {ctor}
+i32.eq
+
+;; soit types tous les deux <= à 3
+compile_var(var)
+i32.load
+i32.const 3
+i32.le_s
+
+if ctor <= 3 {
+i32.const 1
+} else {
+i32.const 0
+}
+
+i32.and
+i32.or
+i32.and
+
 if
   match ctor {
     CONST_FALSE => compile_make_false(),
