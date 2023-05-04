@@ -129,7 +129,7 @@ Concernant la grammaire du langage, nous reprenons celle qui est définie dans l
 
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
 variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
-tous les mots en paramètres de fonction sont lues en tant que \verb|Const|.
+tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
 
 C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
@@ -177,14 +177,104 @@ Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d
 Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
 et non passé en sortie de block afin de rendre une seule valeur de retour.
 
-Ce tas \verb|Heap| est une structure contenant une table de hashage d'un entier vers un couple \verb|(Value, i32)| où l'entier est 
-le nombre de références de cet objet.
+Ce tas \verb|Heap| est une structure contenant le nombre totale d'allocations ainsi qu'une table de hashage d'un entier 
+vers un \verb|Value|.
 
 Cette structure permet de lier des emplacements et les valeurs et fonctionne avec \verb|Ctxt|. 
 
+Les auteurs de l'artice stockent un couple \verb|(Valeur, entier)|, où l'entier est le nombre de références de l'objet. Nous l'implémentons dans
+le compilateur, mais comme l'interpréteur n'adapte que la partie pure du langage, le nombre de références n'est jamais modifié. De ce 
+fait, nous avons préféré enlevé la présence de ce nombre dans l'interpréteur pour simplifier la lecture du code.
+
 \medskip
 
-Ainsi, \verb|Ctxt| permet de prendre une référence et \verb|Heap| permet de prendre la valeur associée à cette référence.
+Ainsi, \verb|Ctxt| permet de prendre une référence associée à un nom de variable et \verb|Heap| permet de prendre la valeur associée à cette référence.
+
+\bigskip
+
+\subsection{AST}
+Nous avons implémenté en Rust l'AST du langage proposé par les auteurs, en en étendant les 
+expression (\verb|Expr|) pour ajouter la notion d'entiers à notre interpréteur,
+sou la forme \verb|Expr::Num(i32)| en Rust afin de tester concrètement notre interpréteur à partir de
+langages lus de fichiers.
+
+\bigskip
+
+Les énumérateurs feuilles dans notre AST sont les variables \verb|Var| et les constantes \verb|Const|,
+qui contiennent chacunes une chaîne de charactère décrivant le nom de la fonction pour les constantes et 
+le nom de la variable pour les variables. La valeur de la variable peut être récupérée dans le tas
+une fois que l'on a l'adresse, obtenue à partir de la pile et de la chaîne de charactère.
+
+\medskip
+
+Une expression peut être un appel de fonction (\verb|FnCall(Const, Vec<Var>)|), un appel de fonction partielle (\verb|PapCall(Var, Var)|),
+une fonction partielle (\verb|Pap(Const, Vec<Var>)|), un constructeur (\verb|Ctor(i32, Vec<Var>)|), 
+l'obtention d'un champ d'un objet ((\verb|Proj(i32, Var)|)), ou un entier (\verb|Num(i32)|).
+
+\medskip
+
+Chaque constructeur est défini par un entier différent, détaillé par les constantes globales ci-dessous.
+
+\begin{lstlisting}
+		CONST_FALSE : i32 = 0;
+		CONST_TRUE 	: i32 = 1;
+		CONST_NIL 	: i32 = 2;
+		CONST_LIST 	: i32 = 3;
+		CONST_NUM 	: i32 = 4;
+\end{lstlisting}
+
+Ainsi, nous avons défini les booléens \verb|False| et \verb|True| par les entiers \verb|0| et \verb|1| respectivement.
+
+Nous utilisons des identifiants plutôt qu'une énumération où l'on pourrait définir chaque type proprement car 
+c'est comme cela que nous allons stocker les types en mémoire en WASM.
+
+Une fois le contructeur créé, nous pouvons accéder aux champs du contructeur avec \verb|Proj|.
+Il est à noter que seules les listes ont des champs, car ce sont les seuls constructeur qui prennent
+des variables en paramètres pour être créés.
+
+\medskip
+
+Une application partielle \verb|Pap| est un appel de fonction dans lequel il manque des arguments, 
+et un appel de fonction partiel \verb|PapCall| est une application partielle désignée par une variable
+à laquelle nous ajoutons une autre variable, augmentant le nombre d'arguments de un. 
+Une fois qu'il y a assez d'arguments dans le vecteur d'arguments de l'application partielle,
+la fonction désignée est exécutée, avec tous les arguments.
+
+\bigskip
+
+En remonttant dans l'AST, nous trouvons les corps de fonction qui peuvent être le retour de fonction d'une variable \verb|Ret(Var)|, 
+une affectation de variable \verb|Let(Var, Expr, Box<FnBody>)| ou un match du type d'une variable 
+\verb|Case(Var, Vec<FnBody>)|.
+
+L'affectation interprète son expression afin d'injecter la valeur en résultant dans le tas, donc l'adresse est associée
+au nom de sa variable, sur la pile. Ainsi, cette variable référencera la valeur de l'expression
+dans la suite de la fonction.
+
+\medskip
+
+Pour savoir quel branche du \verb|Case| il faut exécuter, il suffit tout simplement de regarder
+l'identifiant du type du constructeur. Ainsi, si l'on veut exécuter du code pour les listes,
+il faut d'abord remplir les branches de \verb|False|, \verb|True| et \verb|Nil|.
+Il n'est pas nécessaire de remplir la branche pour les entiers si on considère qu'aucun entier
+ne sera jamais évalué dans ce \verb|Case|. Le cas échéant, l'interprète lance une erreur et le comportement
+du langage compilé en WASM est indéterminé.
+
+\medskip
+
+Le corps de fonction à la racine de la fonction, encapsulant tous les corps suivant, 
+est lui-même encapsulé dans la définition d'une fonction \verb|Fn| composée d'une liste (un vecteur en Rust) de variables \verb|Vec<Var>| ainsi que
+d'un corps de fonction \verb|FnBody|.
+
+\medskip
+
+Enfin, à la racine de notre AST, nous définissons un \verb|Program| en Rust comme une \verb|IndexMap<Const, Fn>| liant des constantes \verb|Const| à 
+des définitions de fonction \verb|Fn|.
+
+\bigskip
+
+\subsection{Interprétation}
+
+TODO : interprétation des différents éléments de l'AST
 
 \bigskip
 
