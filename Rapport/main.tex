@@ -209,14 +209,14 @@ une fois que l'on a l'adresse, obtenue à partir de la pile et de la chaîne de 
 
 Une expression peut être un appel de fonction (\verb|FnCall(Const, Vec<Var>)|), un appel de fonction partielle (\verb|PapCall(Var, Var)|),
 une fonction partielle (\verb|Pap(Const, Vec<Var>)|), un constructeur (\verb|Ctor(i32, Vec<Var>)|), 
-l'obtention d'un champ d'un objet ((\verb|Proj(i32, Var)|)), ou un entier (\verb|Num(i32)|).
+l'obtention d'un champ d'un objet (\verb|Proj(i32, Var)|), ou un entier (\verb|Num(i32)|).
 
 \medskip
 
 Chaque constructeur est défini par un entier différent, détaillé par les constantes globales ci-dessous.
 
 \begin{lstlisting}
-		CONST_FALSE : i32 = 0;
+		CONST_FALSE	: i32 = 0;
 		CONST_TRUE 	: i32 = 1;
 		CONST_NIL 	: i32 = 2;
 		CONST_LIST 	: i32 = 3;
