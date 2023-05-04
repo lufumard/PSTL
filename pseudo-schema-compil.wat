@@ -109,7 +109,7 @@ i32.store
 )
 
 
-compile_reuse (var:Var, ctor: i32, args: Vec<Var>)
+compile_reuse (var:Var, ctor: i32, args: Either<i32, Vec<Var>>)
 ---------------------
 compile_var(var)
 i32.eqz
@@ -118,29 +118,38 @@ if
     CONST_FALSE => compile_make_false(),
     CONST_TRUE => compile_make_true(),
     CONST_NIL => compile_make_nil(),
-    CONST_NUM => compile_make_num(args[0]),
-    CONST_LIST => compile_make_list(args[0], args[1]),
+    CONST_NUM => compile_make_num(args.Left),
+    CONST_LIST => compile_make_list(args.Right[0], args.Right[1]),
   }
   drop
 else
   match ctor {
-    CONST_NUM => panic!("comment ?"),
+    CONST_NUM => {
+      compile_reuse_no_arg(var, CONST_NUM)
+      compile_var(var)
+      i32.const 8
+      i32.add
+      i32.const {args.Left}
+      i32.store
+    },
     CONST_LIST => {
       compile_reuse_no_arg(var, CONST_LIST)
       compile_var(var)
       i32.const 8
       i32.add
-      compile_var(args[0])
+      compile_var(args.Right[0])
       i32.store
       compile_var(var)
       i32.const 12
       i32.add
-      compile_var(args[1])
+      compile_var(args.Right[1])
       i32.store
     },
     _ => compile_reuse_no_arg(var, ctor),
   }
 end
+compile_var(var)
+
 
 compile_reuse_no_arg (var:Var, ctor:i32)
 ---------------------

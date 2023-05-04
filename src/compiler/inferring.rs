@@ -133,7 +133,7 @@ mod tests_collect_o {
     use std::collections::{HashSet, HashMap};
 
     use crate::ast::{Var, Const};
-    use crate::compiler::ast_rc::{FnBodyRC, ExprRC, ConstWrapper};
+    use crate::compiler::ast_rc::{FnBodyRC, ExprRC, ConstWrapper, Either};
     use crate::compiler::inferring::collect_o;
 
     #[test]
@@ -161,7 +161,17 @@ mod tests_collect_o {
         let x = Var::Var(String::from("x"));
         let w = Var::Var(String::from("w"));
         let retour = Box::new(FnBodyRC::Ret(x.clone()));
-        let body = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Vec::new()) ,retour.clone());
+        let body = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Either::Right(Vec::new())) ,retour.clone());
+        let expected: HashSet<Var> = HashSet::new();
+        assert_eq!(expected, collect_o(body, HashMap::new()))
+    }
+
+    #[test]
+    fn test_reuse_num() {
+        let x = Var::Var(String::from("x"));
+        let w = Var::Var(String::from("w"));
+        let retour = Box::new(FnBodyRC::Ret(x.clone()));
+        let body = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Either::Left(5)) ,retour.clone());
         let expected: HashSet<Var> = HashSet::new();
         assert_eq!(expected, collect_o(body, HashMap::new()))
     }

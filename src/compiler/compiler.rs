@@ -25,6 +25,7 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
+use self::ast_rc::Either;
 use self::ast_rc::ExprRC;
 use self::ast_rc::FnBodyRC;
 use self::ast_rc::FnRC;
@@ -414,7 +415,7 @@ pub fn compile_reset(var: Var, out : &mut File)  {
     write_ln("call $__reset", out);
 }
 
-pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
+pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut File){
     compile_var(var.clone(), out);
     write_ln("i32.eqz", out);
     write_ln("if", out);
@@ -422,36 +423,57 @@ pub fn compile_reuse(var: Var, ctor: i32, args: Vec<Var>, out: &mut File){
         CONST_FALSE => make_false(out),
         CONST_TRUE => make_true(out),
         CONST_NIL => make_nil(out),
-        CONST_LIST => {
-            compile_var(args[0].to_owned(), out);
-            compile_var(args[1].to_owned(), out);
-            make_list(out);
+        CONST_LIST => match args.clone() {
+            Either::Left(_) => panic!("i32 as args of ctor other than num"),
+            Either::Right(vars) =>{
+                compile_var(vars[0].clone(), out);
+                compile_var(vars[1].clone(), out);
+                make_list(out);
+            },
+        },
+        CONST_NUM => match args {
+            Either::Left(n) => compile_value(n, out),
+            _ => panic!("vars as args of ctor other than num"),
         },
         _ => panic!("impossible")
     }
     write_ln("drop", out);
     write_ln("else", out);
     match ctor {
-        CONST_NUM => panic!("comment ?"),
-        CONST_LIST => {
-            compile_reuse_no_arg(var.clone(), CONST_LIST, out);
-            compile_var(var.clone(), out);
-            write_ln("i32.load", out);
-            write_ln("i32.const 8", out);
-            write_ln("i32.add", out);
-            compile_var(args[0].to_owned(), out);
-            write_ln("i32.store", out);
-            compile_var(var.clone(), out);
-            write_ln("i32.const 12", out);
-            write_ln("i32.add", out);
-            compile_var(args[1].to_owned(), out);
-            write_ln("i32.store", out);
+        CONST_NUM => match args {
+            Either::Left(n) => {
+                compile_reuse_no_arg(var.clone(), CONST_NUM, out);
+                compile_var(var.clone(), out);
+                write_ln("i32.load", out);
+                write_ln("i32.const 8", out);
+                write_ln("i32.add", out);
+                write_ln(&format!("i32.const {n}"), out);
+                write_ln("i32.store", out);
+            },
+            _ => panic!("vars as args of ctor other than num"),
         },
+        CONST_LIST => match args {
+                Either::Left(_) => panic!("i32 as args of ctor other than num"),
+                Either::Right(vars) => {
+                    compile_reuse_no_arg(var.clone(), CONST_LIST, out);
+                    compile_var(var.clone(), out);
+                    write_ln("i32.load", out);
+                    write_ln("i32.const 8", out);
+                    write_ln("i32.add", out);
+                    compile_var(vars[0].to_owned(), out);
+                    write_ln("i32.store", out);
+                    compile_var(var.clone(), out);
+                    write_ln("i32.const 12", out);
+                    write_ln("i32.add", out);
+                    compile_var(vars[1].to_owned(), out);
+                    write_ln("i32.store", out);
+                },
+            },
         _ => compile_reuse_no_arg(var.clone(), ctor, out),
     }
     write_ln("end", out);
     compile_var(var, out);
-} 
+}
 
 
 fn compile_reuse_no_arg (var:Var, ctor:i32, out: &mut File) {

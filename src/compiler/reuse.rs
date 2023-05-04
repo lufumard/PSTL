@@ -4,7 +4,7 @@ use crate::compiler::ast_rc::{ExprRC, FnBodyRC, FnRC, ProgramRC};
 
 use super::Const;
 use crate::ast::{CONST_FALSE, CONST_NIL, CONST_TRUE, CONST_LIST, CONST_NUM};
-use super::ast_rc::ConstWrapper;
+use super::ast_rc::{ConstWrapper, Either};
 use super::utils::{is_in_expr, is_in_fn};
 
 
@@ -119,10 +119,11 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
         },
         FnBodyRC::Let(var, expr, fnbody) => match expr {
             ExprRC::Ctor(ident, ref vars) => if vars.len() == n {
-                FnBodyRC::Let(var,ExprRC::Reuse(w,ident, vars.clone()), fnbody)
-            } else {
-                FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody)))
-            }
+                    FnBodyRC::Let(var,ExprRC::Reuse(w,ident, Either::Right(vars.clone())), fnbody)
+                } else {
+                    FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody)))
+                }
+            ExprRC::Num(n) => FnBodyRC::Let(var,ExprRC::Reuse(w, CONST_NUM, Either::Left(n)), fnbody),
             _ => FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody))),
         },
         FnBodyRC::Inc(_, fnbody) => S(w,n, *fnbody),
@@ -134,10 +135,11 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod tests {
-    use crate::compiler::ast_rc::{ExprRC, FnBodyRC, ProgramRC, FnRC};
+    use crate::compiler::ast_rc::{ExprRC, FnBodyRC, ProgramRC, FnRC, Either};
     use crate::ast::{Var, Expr, FnBody, Program};
     use crate::compiler::{Const, Fn, CONST_LIST, reader_rc};
     use crate::compiler::reuse::{D,R,S,W, insert_reuse};
+    use crate::interpreter::CONST_NUM;
     use crate::reader;
     use std::fs;
     use chumsky::Parser;
@@ -156,7 +158,18 @@ mod tests {
         let w = Var::Var(String::from("w"));
         let retour = Box::new(FnBodyRC::Ret(var.clone()));
         let body = FnBodyRC::Let(var.clone(),ExprRC::Ctor(0, Vec::new()) ,retour.clone());
-        let expected = FnBodyRC::Let(var.clone(),ExprRC::Reuse(w.clone(), 0, Vec::new()) ,retour.clone());
+        let expected = FnBodyRC::Let(var.clone(),ExprRC::Reuse(w.clone(), 0, Either::Right(Vec::new())) ,retour.clone());
+        assert_eq!(expected, S(w.clone(), 0, body))
+    }
+
+    /*Cas où il s'agit d'un nombre */    
+    #[test]
+    fn test_S_let_3() {
+        let var = Var::Var(String::from("x"));
+        let w = Var::Var(String::from("w"));
+        let retour = Box::new(FnBodyRC::Ret(var.clone()));
+        let body = FnBodyRC::Let(var.clone(),ExprRC::Num(5) ,retour.clone());
+        let expected = FnBodyRC::Let(var.clone(),ExprRC::Reuse(w.clone(), CONST_NUM, Either::Left(5)) ,retour.clone());
         assert_eq!(expected, S(w.clone(), 0, body))
     }
 
@@ -183,7 +196,7 @@ mod tests {
         let cases = vec![case1.clone(), case2.clone()];
         let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
 
-        let case1_expected = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Vec::new()) ,retour.clone());
+        let case1_expected = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Either::Right(Vec::new())) ,retour.clone());
         let cases_expected = vec![case1_expected.clone(), case2.clone()];
         let expected = FnBodyRC::Case(Var::Var("var".to_string()), cases_expected);
         assert_eq!(expected ,S(Var::Var(String::from("w")),0,body.clone()))
@@ -252,7 +265,7 @@ mod tests {
         let body = FnBodyRC::Case(Var::Var("var".to_string()), cases);
 
         let case1_expected = FnBodyRC::Let(w1.clone(), ExprRC::Reset(z.clone()),
-            Box::new(FnBodyRC::Let(x.clone(),ExprRC::Reuse(w1.clone(), 0, Vec::new()) ,retour.clone())));
+            Box::new(FnBodyRC::Let(x.clone(),ExprRC::Reuse(w1.clone(), 0, Either::Right(Vec::new())) ,retour.clone())));
         let cases_expected = vec![case1_expected.clone(), case2.clone()];
         let expected = FnBodyRC::Case(Var::Var("var".to_string()), cases_expected);
         let mut w = W::new(String::from("w"), 1);
@@ -317,7 +330,7 @@ mod tests {
             Box::new(FnBodyRC::Let(w1.clone(), ExprRC::Reset(xs.clone()), 
             Box::new(FnBodyRC::Let(y.clone(), ExprRC::FnCall(Const::Const(String::from("f")), vec![x.clone()]), 
             Box::new(FnBodyRC::Let(ys.clone(), ExprRC::FnCall(Const::Const(String::from("map")), vec![Var::Var(String::from("f")), s.clone()]),
-            Box::new(FnBodyRC::Let(r.clone(), ExprRC::Reuse(w1.clone(), CONST_LIST, vec![y.clone(), ys.clone()]), 
+            Box::new(FnBodyRC::Let(r.clone(), ExprRC::Reuse(w1.clone(), CONST_LIST, Either::Right(vec![y.clone(), ys.clone()])), 
             Box::new(FnBodyRC::Ret(r.clone()))))))))))))),
             FnBodyRC::Ret(xs.clone())]);
 

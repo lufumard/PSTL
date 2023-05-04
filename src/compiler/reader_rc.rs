@@ -8,6 +8,7 @@ use chumsky::{
     Parser,
 };
 
+use super::ast_rc::Either;
 use super::utils::wrap_const;
 
 pub(crate) fn var() -> impl Parser<char, Var, Error = Simple<char>> {
@@ -67,10 +68,22 @@ pub(crate) fn expr() -> impl Parser<char, ExprRC, Error = Simple<char>> {
     .padded()//.then_ignore(just(')'))
     .map(|((x, ident), vars)| {
         let i = ident.parse().expect("not an int in reuse");
-        ExprRC::Reuse(x, i, vars)
+        ExprRC::Reuse(x, i, Either::Right(vars))
     });
 
-    pap.or(ctor).or(proj).or(reuse).or(reset).or(fncall).or(num)
+    let reuse_num = keyword("reuse")
+    .padded()
+    .ignore_then(var()).padded()
+    .then_ignore(just("in ctor"))
+    .then(int(10)).padded()
+    .then(int(10))
+    .padded()//.then_ignore(just(')'))
+    .map(|((x, ident), num)| {
+        let i = ident.parse().expect("not an int in reuse");
+        ExprRC::Reuse(x, i, Either::Left(num.parse().expect("can't parse int")))
+    });
+
+    pap.or(ctor).or(proj).or(reuse).or(reset).or(reuse_num).or(fncall).or(num)
 }
 
 pub(crate) fn fnbody() -> impl Parser<char, FnBodyRC, Error = Simple<char>> {

@@ -25,7 +25,13 @@ pub enum ExprRC{
     Proj(i32, Var),
     Num(i32),
     Reset(Var),
-    Reuse(Var, i32, Vec<Var>),
+    Reuse(Var, i32, Either<i32, Vec<Var>>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Either<L,R> {
+    Left(L),
+    Right(R),
 }
 
 #[derive(Debug, Clone, PartialEq)]
