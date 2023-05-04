@@ -1,0 +1,54 @@
+liste = 
+    let n5 = 5;
+    let nil= ctor2;
+    let l5 = ctor3 n5 nil;
+    
+    let n4 = 4;
+    let l4 = ctor3 n4 l5;
+    
+    let n3 = 3;
+    let l3 = ctor3 n3 l4;
+    
+    let n2 = 2;
+    let l2 = ctor3 n2 l3;
+
+    let n1 = 1;
+    let l1 = ctor3 n1 l2;
+
+    ret l1
+
+head l =
+    let h = proj1 l;
+    ret h
+
+tail l =
+    let h = proj2 l;
+    ret h
+
+nil = let r = ctor2;
+    ret r
+
+length l = case l of
+    (let r = 1; ret r)
+    (let r = 1; ret r)
+    (let r = 0; ret r)
+    (
+        let h = head l;
+        let len1 = length h;
+        let t = tail l;
+        let len2 = length t;
+        let r = add len1 len2;
+        ret r
+    )
+    (let r = 1; ret r)
+
+liste1 =
+    let n1 = 1;
+    let nil = ctor2;
+    let l5 = ctor3 n1 nil;
+    let l4 = ctor3 n1 l5;
+    let l3 = ctor3 n1 l4;
+    let l2 = ctor3 n1 l3;
+    let l1 = ctor3 n1 l2;
+    let l0 = ctor3 n1 l1;
+    ret l0

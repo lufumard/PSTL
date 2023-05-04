@@ -1,4 +1,4 @@
-use super::{Var, Const,ast_rc::{ExprRC, FnBodyRC, ConstWrapper}};
+use super::{Var, Const,ast_rc::{ExprRC, FnBodyRC, ConstWrapper, Either}};
 
 /*Verifie si la variable z est dans l'expression e
 si z in e , true, sinon false
@@ -12,7 +12,10 @@ pub fn is_in_expr(z:Var, e: ExprRC) -> bool {
         ExprRC::Num(_) => false,
         ExprRC::PapCall(ident, var) => ident == var || var == z,
         ExprRC::Reset(var) => var == z,
-        ExprRC::Reuse(var, _, vars) => (var == z) || vars.into_iter().any(|x| x == z),
+        ExprRC::Reuse(var, _, vars) => (var == z) || match vars {
+                Either::Left(_) => false,
+                Either::Right(vs) => vs.into_iter().any(|x| x == z),
+            },
     }
     
 }

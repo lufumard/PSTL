@@ -1,0 +1,41 @@
+count a b = case a of
+    (
+        case b of
+            (let r = 10; ret r)
+            (let r = 11; ret r)
+            (let r = 12; ret r)
+            (let r = 13; ret r)
+            (let r = 14; ret r)
+    )
+    (
+        case b of
+            (let r = 20; ret r)
+            (let r = 21; ret r)
+            (let r = 22; ret r)
+            (let r = 23; ret r)
+            (let r = 24; ret r)
+    )
+    (
+        case b of
+            (let r = 30; ret r)
+            (let r = 31; ret r)
+            (let r = 32; ret r)
+            (let r = 33; ret r)
+            (let r = 34; ret r)
+    )
+    (
+        case b of
+            (let r = 40; ret r)
+            (let r = 41; ret r)
+            (let r = 42; ret r)
+            (let r = 43; ret r)
+            (let r = 44; ret r)
+    )
+    (
+        case b of
+            (let r = 50; ret r)
+            (let r = 51; ret r)
+            (let r = 52; ret r)
+            (let r = 53; ret r)
+            (let r = 54; ret r)
+    )

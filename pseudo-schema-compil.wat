@@ -24,12 +24,12 @@ compile_program (cste : Const, fun:Fn)
 ---------------------
 nom = string_of_const(cste)
 (func ${nom} (export "{nom}") 
-compile_fonction(fun)
+compile_fn(fun)
 )
 
 
 
-compile_fonction (nom : Const,  params :Vec<Var>, body : FnBody)
+compile_fn (nom : Const,  params :Vec<Var>, body : FnBody)
 ---------------------
 for param in params {
 (param $params[i] i32 )
@@ -37,25 +37,24 @@ for param in params {
 (result i32)
 ;; les lignes au dessus sont en une ligne avec la signature de la fonction 
 ;; sous la forme (func $ajout (export "ajout") (param $a i32) (param $b i32) (result i32)
-let vars = catch_vars(body)
-for v in vars {
-	compile_init_var(v)
+let vars : Vec<&String> = catch_var_names(body)
+for s in vars {
+  (local ${s} i32)
 }
 compile_fnbody(body)
 
-
-compile_init_var (var : Var)
----------------------
-let s = string_of_var(var)
-(local ${s} i32)
 
 
 compile_let (var:Var, expr: Expr, fnbody:FnBody)
 ---------------------
 compile_expr(expr)
-let v = string_of_var(var)
-local.set ${v}
-compile_fnbody(fnbody)
+if expr == Ret(var) {
+  return
+} else {
+  let v = string_of_var(var)
+  local.set ${v}
+  compile_fnbody(fnbody)
+}
 
 
 compile_return (var : Var)
@@ -66,15 +65,108 @@ return
 
 compile_inc (var:Var, fnbody:FnBody)
 ---------------------
-TODO
+get_ref_loc(var) ;; @ref
+get_ref_loc(var) ;; @ref @ref
+i32.load         ;; @ref #ref
+i32.const 1      ;; @ref #ref 1
+i32.add          ;; @ref #ref+1
+i32.store
 compile_fnbody(fnbody)
 
 
 compile_dec (var:Var, fnbody:FnBody)
 ---------------------
-TODO
+compile_dec_body(var)
 compile_fnbody(fnbody)
 
+
+compile_reset (var:Var)
+---------------------
+compile_var(var)
+call $__reset
+
+compile_dec_body(var:Var)
+---------------------
+get_ref_loc(var) ;; @ref
+get_ref_loc(var) ;; @ref @ref
+i32.load         ;; @ref #ref
+i32.const 1      ;; @ref #ref 1
+i32.sub          ;; @ref #ref-1
+i32.store
+
+
+(func $__reset (param $var i32) (result i32)
+  compile_dec_body(Var("var"))
+  get_ref_loc(Var("var"))
+  i32.load
+
+  i32.eqz
+  if
+    i32.const 0
+    return
+  end
+  local.get $var
+)
+
+
+compile_reuse (var:Var, ctor: i32, args: Either<i32, Vec<Var>>)
+---------------------
+compile_var(var)
+i32.eqz
+if
+  match ctor {
+    CONST_FALSE => compile_make_false(),
+    CONST_TRUE => compile_make_true(),
+    CONST_NIL => compile_make_nil(),
+    CONST_NUM => compile_make_num(args.Left),
+    CONST_LIST => compile_make_list(args.Right[0], args.Right[1]),
+  }
+  drop
+else
+  match ctor {
+    CONST_NUM => {
+      compile_reuse_no_arg(var, CONST_NUM)
+      compile_var(var)
+      i32.const 8
+      i32.add
+      i32.const {args.Left}
+      i32.store
+    },
+    CONST_LIST => {
+      compile_reuse_no_arg(var, CONST_LIST)
+      compile_var(var)
+      i32.const 8
+      i32.add
+      compile_var(args.Right[0])
+      i32.store
+      compile_var(var)
+      i32.const 12
+      i32.add
+      compile_var(args.Right[1])
+      i32.store
+    },
+    _ => compile_reuse_no_arg(var, ctor),
+  }
+end
+compile_var(var)
+
+
+compile_reuse_no_arg (var:Var, ctor:i32)
+---------------------
+compile_var(var)
+i32.const {ctor}
+i32.store
+compile_var(var)
+i32.const 4
+i32.add
+i32.const 1
+i32.store
+
+get_ref_loc(var:Var)
+---------------------
+compile_var(var)
+i32.const 4
+i32.add
 
 compile_var (var:Var)
 ---------------------
@@ -87,9 +179,6 @@ compile_value(n: i32)
 i32.const {n}
 make_num()
 
-
-compile_ctor (i: int, params : Vec<Loc>)
----------------------
 
 
 compile_get_num (var:Var)
@@ -178,6 +267,10 @@ crée un constructeur sans argument en wat
   i32.const 0 ;; 0
   i32.load    ;; x
 
+  ;; mise à jour de memory[0]
+  i32.const 8         ;; x 8
+  call $__offset_next ;; x
+  
   ;; la valeur en haut de la pile : x
 )
 
@@ -309,8 +402,7 @@ compile_case (var:Var, bodys:Vec<FnBody>)
 for n in 0..bodys.len() {
   ;; on crée un block pour chaque cas énuméré
   (block $__case{i}
-} 
-(block $__choice
+}
 ;; on charge le type de la variable
 compile_var(var)
 i32.load
@@ -318,13 +410,12 @@ i32.load
 ;; br renvoie à la fin du block indiqué, 
 ;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
 (br_table 
-for n in 1..bodys.len() {
-  $__case{i}
+for n in 0..bodys.len() {
+  $__case{len-1-i}
 }
-$__choice)
 )
 for body in bodys {
-compile_fnbody(body)
 )
+compile_fnbody(body)
 }
  

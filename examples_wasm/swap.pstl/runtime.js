@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "fichier.wasm";
+const fichier = "swap.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -105,10 +105,10 @@ const interprete = (loc, mem, dt) => {
             i+=4;
         }
     }
-    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
+    console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4-1} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (l, mem) => {
-        let loc = l / 4;
+        let loc = l/4;
         let type = mem[loc];
         let refs = mem[loc+1];
         switch (type) {
@@ -153,7 +153,9 @@ WebAssembly.instantiate(wasmBuffer, {
      * Init memory
      */
 
-
+    let a = createNum(1, mem);
+    let b = createNum(2, mem);
+    let l = createList(a, b, mem);
 
     /**
      * Execute function
@@ -161,10 +163,12 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { exported_func } = wasmModule.instance.exports;
+    const { swap } = wasmModule.instance.exports;
+
+    interprete(l, mem, deltaTime)
 
     var startTime = performance.now();
-    var loc = exported_func();
+    var loc = swap(l);
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 

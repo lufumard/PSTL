@@ -12,6 +12,9 @@
     ;; préparation de la valeur de retour
     i32.const 0 ;; 0
     i32.load    ;; x
+    ;; mise à jour de memory[0]
+    i32.const 8         ;; x 8
+    call $__offset_next ;; x
 )
 (func $__init_type (param $t i32)
     i32.const 0 ;; 0
@@ -38,7 +41,7 @@
 )
 (func $__make_num (param $a i32) (result i32)
     ;; stoque le type du constructeur
-    i32.const 4 ;; 4
+    i32.const 4
     call $__init_type
     ;; références
     i32.const 0 ;; 0
@@ -61,7 +64,7 @@
 )
 (func $__make_list (param $a i32) (param $b i32) (result i32)
     ;; stoque le type du constructeur
-    i32.const 3 ;; 3
+    i32.const 3
     call $__init_type
     ;; références
     i32.const 0 ;; 0
@@ -88,5 +91,50 @@
     ;; mise à jour de memory[0]
     i32.const 16        ;; x 16
     call $__offset_next ;; x
+)
+(func $fcase (export "fcase")(param $x i32) (result i32)
+(local $r i32)
+(block $__case0
+(block $__case1
+local.get $x
+i32.load
+(br_table 
+$__case1 $__case0 )
+)
+i32.const 0
+call $__make_num
+local.set $r
+local.get $r
+return
+)
+i32.const 1
+call $__make_num
+local.set $r
+local.get $r
+return
+)
+(func $mainf (export "mainf")(result i32)
+(local $x i32)
+(local $r i32)
+i32.const 0
+call $__make_no_arg
+local.set $x
+local.get $x
+call $fcase
+local.set $r
+local.get $r
+return
+)
+(func $maint (export "maint")(result i32)
+(local $r i32)
+(local $x i32)
+i32.const 1
+call $__make_no_arg
+local.set $x
+local.get $x
+call $fcase
+local.set $r
+local.get $r
+return
 )
 )

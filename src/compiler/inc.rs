@@ -2,7 +2,7 @@ use std::collections::{HashSet, HashMap};
 
 use indexmap::IndexMap;
 
-use super::{ast_rc::{FnBodyRC, ExprRC, ProgramRC, FnRC}, Var, Const};
+use super::{ast_rc::{FnBodyRC, ExprRC, ProgramRC, FnRC, Either}, Var, Const};
 
 pub fn insert_inc(prog: ProgramRC, beta: HashMap<Const,Vec<char>>) -> ProgramRC {
     let ProgramRC::Program(fun_dec) = prog;
@@ -68,9 +68,11 @@ pub fn FV_e(e: ExprRC) -> Vec<Var> {
         ExprRC::Proj(_, x) => vec![x],
         ExprRC::Num(_) => vec![],
         ExprRC::Reset(x) => vec![x],
-        ExprRC::Reuse(x, _, vars) => {
-            vec![x].into_iter().chain(vars.into_iter()).collect()
-        },
+        ExprRC::Reuse(x, _, vars) => 
+            match vars {
+                Either::Left(_) => vec![x],
+                Either::Right(vs) => vec![x].into_iter().chain(vs.into_iter()).collect(),
+            },
     }
 }
 /*retourne les variables non mortes de F */
@@ -131,9 +133,11 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
                     
                 },
                 ExprRC::Num(_) | ExprRC::Reset(_) => FnBodyRC::Let(x, e, Box::new(C(*F,beta_l, beta))),
-                ExprRC::Reuse(_, _, vars) => {
-                    C_app(vars.clone(), vec!['O'; vars.len()],
-                     FnBodyRC::Let(x, e, Box::new(C(*F, beta_l.clone(), beta))), beta_l)
+                ExprRC::Reuse(_, _, vars) => 
+                match vars {
+                    Either::Left(_) => FnBodyRC::Let(x, e, Box::new(C(*F,beta_l, beta))),
+                    Either::Right(vars) => C_app(vars.clone(), vec!['O'; vars.len()],
+                            FnBodyRC::Let(x, e, Box::new(C(*F, beta_l.clone(), beta))), beta_l),
                 },
             }
         },
