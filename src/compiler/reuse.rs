@@ -77,7 +77,7 @@ pub fn R(body: FnBody, w: &mut W) -> FnBodyRC {
     
     match body {
         FnBody::Ret(x) => FnBodyRC::Ret(x),
-        FnBody::Let(x, e, fnbody) => FnBodyRC::Let(x,expr_pure_rc(e), Box::new(R(*fnbody, w))),
+        FnBody::Let(x, e, fnbody) => FnBodyRC::Let(x, expr_pure_rc(e), Box::new(R(*fnbody, w))),
         FnBody::Case(x, bodys) => {
             FnBodyRC::Case(x.clone(), ((*bodys.iter().enumerate().map(|(i, fi)| 
                 D(x.clone(), get_nb_args_ctor(i.try_into().unwrap()), R(fi.clone(), w), w)).collect::<Vec<FnBodyRC>>())).to_vec())
@@ -99,7 +99,7 @@ pub fn D(z:Var, n:usize,body:FnBodyRC, w: &mut W) -> FnBodyRC {
                     let temp = S(w.val(),n,body.clone());
                     match temp.clone() != body.clone() {
                         true => {
-                            FnBodyRC::Let(w.get_and_inc(),ExprRC::Reset(z.clone()), Box::new(temp.clone()))
+                            FnBodyRC::Let(w.get_and_inc(),ExprRC::Reset(z.clone()), Box::new(temp))
                         },
                         false => body,
                     }
@@ -123,7 +123,11 @@ pub fn S(w:Var, n: usize, body:FnBodyRC) -> FnBodyRC {
                 } else {
                     FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody)))
                 }
-            ExprRC::Num(n) => FnBodyRC::Let(var,ExprRC::Reuse(w, CONST_NUM, Either::Left(n)), fnbody),
+            ExprRC::Num(nb) => if n == 1 {
+                    FnBodyRC::Let(var,ExprRC::Reuse(w, CONST_NUM, Either::Left(nb)), fnbody)
+                } else {
+                    FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody)))
+                },
             _ => FnBodyRC::Let(var, expr, Box::new(S(w, n, *fnbody))),
         },
         FnBodyRC::Inc(_, fnbody) => S(w,n, *fnbody),
@@ -170,7 +174,7 @@ mod tests {
         let retour = Box::new(FnBodyRC::Ret(var.clone()));
         let body = FnBodyRC::Let(var.clone(),ExprRC::Num(5) ,retour.clone());
         let expected = FnBodyRC::Let(var.clone(),ExprRC::Reuse(w.clone(), CONST_NUM, Either::Left(5)) ,retour.clone());
-        assert_eq!(expected, S(w.clone(), 0, body))
+        assert_eq!(expected, S(w.clone(), 1, body))
     }
 
     /*Cas où il n'ya pas de constructeur avec n paramètres */ 

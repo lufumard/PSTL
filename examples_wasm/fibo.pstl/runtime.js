@@ -138,7 +138,7 @@ const interprete = (loc, mem, dt) => {
 }
 
 
-const wasmBuffer = fs.readFileSync("fibo_num.pstl");
+const wasmBuffer = fs.readFileSync("fibo_num.wasm");
 WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
