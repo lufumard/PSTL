@@ -65,12 +65,13 @@ return
 
 compile_inc (var:Var, fnbody:FnBody)
 ---------------------
-get_ref_loc(var) ;; @ref
-get_ref_loc(var) ;; @ref @ref
-i32.load         ;; @ref #ref
-i32.const 1      ;; @ref #ref 1
-i32.add          ;; @ref #ref+1
-i32.store
+compile_var(var) ;; @var
+get_ref_loc(var) ;; @var @ref
+i32.load         ;; @var #ref
+i32.const 1      ;; @var #ref 1
+i32.add          ;; @var #ref+1
+call $__set_ref
+
 compile_fnbody(fnbody)
 
 
@@ -87,15 +88,16 @@ call $__reset
 
 compile_dec_body(var:Var)
 ---------------------
-get_ref_loc(var) ;; @ref
-get_ref_loc(var) ;; @ref @ref
-i32.load         ;; @ref #ref
-i32.const 1      ;; @ref #ref 1
-i32.sub          ;; @ref #ref-1
-i32.store
+compile_var(var) ;; @var
+get_ref_loc(var) ;; @var @ref
+i32.load         ;; @var #ref
+i32.const 1      ;; @var #ref 1
+i32.sub          ;; @var #ref-1
+call $__set_ref
 
 
 (func $__reset (param $var i32) (result i32)
+  (local $__intern_var i32)
   compile_dec_body(Var("var"))
   get_ref_loc(Var("var"))
   i32.load
@@ -112,40 +114,30 @@ i32.store
 compile_reuse (var:Var, ctor: i32, args: Either<i32, Vec<Var>>)
 ---------------------
 compile_var(var)
-i32.eqz
+;; teste si la variables est @0 (null) ou pas
+    
 
-;; soit types égaux
+    
+;; types égaux
 compile_var(var)
 i32.load
+local.set $__intern_var
+local.get $__intern_var
 i32.const {ctor}
 i32.eq
-
-;; soit types tous les deux <= à 3
-compile_var(var)
-i32.load
-i32.const 3
-i32.le_s
-
-if ctor <= 3 {
-i32.const 1
+if ctor.clone() <= 3 {
+  ;; types tous les deux <= à 3
+  local.get $__intern_var
+  i32.const 3
+  i32.le_s
+  i32.or ;; type var <= 3 OU types égaux
+  i32.and ;; ET @var != 0
 } else {
-i32.const 0
+  i32.and ;; types égaux ET @var != 0
 }
 
-i32.and
-i32.or
-i32.and
-
+;; si on peut réutiliser l'emplacement mémoire
 if
-  match ctor {
-    CONST_FALSE => compile_make_false(),
-    CONST_TRUE => compile_make_true(),
-    CONST_NIL => compile_make_nil(),
-    CONST_NUM => compile_make_num(args.Left),
-    CONST_LIST => compile_make_list(args.Right[0], args.Right[1]),
-  }
-  drop
-else
   match ctor {
     CONST_NUM => {
       compile_reuse_no_arg(var, CONST_NUM)
@@ -170,6 +162,21 @@ else
     },
     _ => compile_reuse_no_arg(var, ctor),
   }
+
+;; sinon, si on doit reprendre un espace mémoire
+else
+  match ctor {
+    CONST_FALSE => compile_make_false(),
+    CONST_TRUE => compile_make_true(),
+    CONST_NIL => compile_make_nil(),
+    CONST_NUM => compile_make_num(args.Left),
+    CONST_LIST => compile_make_list(args.Right[0], args.Right[1]),
+  }
+  ;; on n'oublie pas de remettre l'adresse dans la variable
+  let v = string_of_var(var)
+  local.set ${v}
+
+;; if ne doit rien laisser de plus sur la pile
 end
 compile_var(var)
 
@@ -180,10 +187,8 @@ compile_var(var)
 i32.const {ctor}
 i32.store
 compile_var(var)
-i32.const 4
-i32.add
 i32.const 1
-i32.store
+call $__set_ref
 
 get_ref_loc(var:Var)
 ---------------------

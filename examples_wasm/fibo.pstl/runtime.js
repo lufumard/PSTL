@@ -2,8 +2,8 @@ const fs = require('fs');
 const { performance } = require('perf_hooks');
 
 const memory = new WebAssembly.Memory({
-    initial: 10,
-    maximum: 100,
+    initial: 65536,
+    maximum: 65536,
 });
   
 const fichier = "fibo_num.wasm";
@@ -29,7 +29,7 @@ const createFalse = (mem) => {
     mem[loc] = CONST_CONTRUCTEURS.false;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -41,7 +41,7 @@ const createTrue = (mem) => {
     mem[loc] = CONST_CONTRUCTEURS.true;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -53,7 +53,7 @@ const createNil = (mem) => {
     mem[loc] = CONST_CONTRUCTEURS.nil;
     mem[loc+1] = 1; // une ref
     mem[0] += 2 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -67,7 +67,7 @@ const createNum = (num, mem) => {
     mem[loc+1] = 1;
     mem[loc+2] = num;
     mem[0] += 3 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -83,7 +83,7 @@ const createList = (loc1, loc2, mem) => {
     mem[loc+2] = loc1;
     mem[loc+3] = loc2;
     mem[0] += 4 * 4;
-    return loc;
+    return loc*4;
 }
 
 /**
@@ -92,7 +92,6 @@ const createList = (loc1, loc2, mem) => {
  * return void
  */ 
 const interprete = (loc, mem, dt) => {
-    console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
     while(i<mem[0]/4){
@@ -137,8 +136,7 @@ const interprete = (loc, mem, dt) => {
     return interprete_rec(loc, mem);
 }
 
-
-const wasmBuffer = fs.readFileSync("fibo_num.wasm");
+const wasmBuffer = fs.readFileSync("fibo_main.wasm");
 WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
@@ -162,21 +160,27 @@ WebAssembly.instantiate(wasmBuffer, {
 
     const { fibo } = wasmModule.instance.exports;
 
-    let n7 = createNum(0, mem);
+    for(n=10; n<= 50; n++){
 
-    var startTime = performance.now();
-    var res = fibo(n7);
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
+        console.log(`\n\n\nfibo_main.wasm fibo of ${n} `)
 
-    interprete(loc, mem, deltaTime)
-    
-    // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
+        var nb = createNum(n, mem);
+        var startTime = performance.now();
+        var res = fibo(nb);
+        var endTime = performance.now();
+        var deltaTime = endTime - startTime;
+        var loc = res/4;
+
+        interprete(loc, mem, deltaTime)
+        
+        // Réinitialise la mémoire
+        for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+        mem[0] = 4;
+    }
+
 });
 
+/*
 
 const wasmBuffer1 = fs.readFileSync("fibo.wasm");
 WebAssembly.instantiate(wasmBuffer1, {
@@ -197,12 +201,14 @@ WebAssembly.instantiate(wasmBuffer1, {
     /**
      * Execute function
      */
-
-    
+/*
+    console.log("\n\n\nfibo.wasm")
 
     const { fibo } = wasmModule.instance.exports;
 
-    let n7 = createNum(1, mem);
+    let n7 = createNum(7, mem);
+
+    console.log("Mémoire :", mem);
 
     var startTime = performance.now();
     var res = fibo(n7);
@@ -216,3 +222,4 @@ WebAssembly.instantiate(wasmBuffer1, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 });
+*/

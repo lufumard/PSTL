@@ -141,6 +141,7 @@ pub fn write_runtime(out :&mut File) {
     write_ln(")", out);
 
     write_ln("(func $__reset (param $var i32) (result i32)", out);
+    write_ln("    (local $__intern_var i32)", out);
     compile_dec_body(Var::Var("var".to_string()), out);
     get_ref_loc(Var::Var("var".to_string()), out);
     write_ln("    i32.load", out);
@@ -154,14 +155,18 @@ pub fn write_runtime(out :&mut File) {
     write_ln(")", out);
 }
 
+pub fn make_bool(out:&mut File) {
+    write_ln("call $__make_no_arg", out);
+}
+
 pub fn make_false(out:&mut File) {
     write_ln(&format!("i32.const {CONST_FALSE}"), out);
-    write_ln("call $__make_no_arg", out);
+    make_bool(out);
 }
 
 pub fn make_true(out:&mut File) {
     write_ln(&format!("i32.const {CONST_TRUE}"), out);
-    write_ln("call $__make_no_arg", out);
+    make_bool(out);
 }
 
 pub fn make_nil(out:&mut File) {
@@ -217,7 +222,8 @@ pub fn compile_expr(expr: ExprRC, out : &mut File) {
 }
 
 
-pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {   
+pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  { 
+    write_ln("\n;;fncall", out);  
     let nom = string_of_const(ident);
     
     if is_primitive(&nom) {
@@ -237,6 +243,7 @@ pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
 
 
 pub fn compile_ctor(n: i32, vars:Vec<Var>, out : &mut File)  {
+    write_ln("\n;;ctor", out);
     match n {
         CONST_FALSE => make_false(out),
         CONST_TRUE  => make_true(out),
@@ -258,6 +265,7 @@ pub fn compile_ctor(n: i32, vars:Vec<Var>, out : &mut File)  {
 
 // On commence à 1
 pub fn compile_proj(n: i32, var:Var, out : &mut File)  {
+    write_ln("\n;;proj", out);
     compile_var(var, out);
     // calcul de l'offset en ajoutant la case des références et sur alignement des entier 32 bits
     let arg = (n + 1) * 4; 
@@ -269,6 +277,7 @@ pub fn compile_proj(n: i32, var:Var, out : &mut File)  {
 }
 
 pub  fn compile_value(n: i32, out : &mut File)  {
+    write_ln("\n;;num", out);
     write_ln(&format!("i32.const {n}"), out);
     make_num(out); // création du nombre
 }
@@ -295,11 +304,13 @@ fn string_of_const(Const::Const(c):Const) -> String {
 }
 
 pub  fn compile_ret(var: Var, out : &mut File)  {
+    write_ln("\n;;ret", out);
     compile_var(var, out);
     write_ln("return", out);
 }
 
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
+    write_ln("\n;;let", out);
     compile_expr(expr, out);
     /*if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
         write_ln("return", out);
@@ -311,6 +322,7 @@ pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, out : &mut File)  {
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, out : &mut File)  {
+    write_ln("\n;;case", out);
     for i in 0..bodys.len() {
         write_ln(&format!("(block $__case{i}"), out);
     } 
@@ -387,67 +399,109 @@ fn get_ref_loc(var: Var, out : &mut File) {
 }
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, out : &mut File)  {
-    get_ref_loc(var.clone(), out);  // @ref
-    get_ref_loc(var, out);          // @ref @ref
+    write_ln("\n;;inc", out);
+    compile_var(var.clone(), out);  // @var
+    get_ref_loc(var.clone(), out);  // @var @ref
     write_ln("i32.load", out);   // @ref #ref
     write_ln("i32.const 1", out);// @ref #ref 1
     write_ln("i32.add", out);    // @ref #ref+1
-    write_ln("i32.store", out);  // 
+    write_ln("call $__set_ref", out);
     compile_fnbody(fnbody, out);
 }
 
 fn compile_dec_body(var : Var, out : &mut File){
-    get_ref_loc(var.clone(), out);  // @ref
-    get_ref_loc(var, out);          // @ref @ref
+    compile_var(var.clone(), out);  // @var
+    get_ref_loc(var.clone(), out);  // @var @ref
     write_ln("i32.load", out);   // @ref #ref
     write_ln("i32.const 1", out);// @ref #ref 1
     write_ln("i32.sub", out);    // @ref #ref-1
-    write_ln("i32.store", out);  // 
+    write_ln("call $__set_ref", out);
 }
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, out : &mut File)  {
+    write_ln("\n;;dec", out);
     compile_dec_body(var, out);
     compile_fnbody(fnbody, out);
 }
 
 
 pub fn compile_reset(var: Var, out : &mut File)  {
+    write_ln("\n;;reset", out);
     compile_var(var, out);
     write_ln("call $__reset", out);
 }
 
 pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut File){
-    compile_var(var.clone(), out);
-    write_ln("i32.eqz", out);
+    write_ln("\n;;reuse", out);
 
-    // soit types égaux
+    // @var != 0
+    compile_var(var.clone(), out);
+    
+    // ET
+    // types égaux
     compile_var(var.clone(), out);
     write_ln("i32.load", out);
+    write_ln("local.set $__intern_var", out); // var <-type
+    write_ln("local.get $__intern_var", out); // type <- var
     write_ln(&format!("i32.const {:?}", ctor.clone()), out);
     write_ln("i32.eq", out);
 
-    // soit types tous les deux <= à 3
-    compile_var(var.clone(), out);
-    write_ln("i32.load", out);
-    write_ln("i32.const 3", out);
-    write_ln("i32.le_s", out);
+    
 
     if ctor.clone() <= 3 {
-        write_ln("i32.const 1", out);
-    }else {
-        write_ln("i32.const 0", out);
+        // types tous les deux <= à 3
+        write_ln("local.get $__intern_var", out); // type <- var
+        write_ln("i32.const 3", out);
+        write_ln("i32.le_s", out);
+        write_ln("i32.or", out);  // type var <= 3 OU types égaux
+        write_ln("i32.and", out); // ET @var != 0
+    } else {
+        write_ln("i32.and", out); // types égaux ET @var != 0
     }
 
-    write_ln("i32.and", out);
-    write_ln("i32.or", out);
-    write_ln("i32.and", out);
-
+    // si on peut réutiliser l'emplacement mémoire
     write_ln("if", out);
+    match ctor {
+        CONST_NUM => match args.clone() {
+            Either::Left(n) => {
+                compile_reuse_no_arg(var.clone(), CONST_NUM, out);
+                compile_var(var.clone(), out);
+                write_ln("i32.load", out);
+                write_ln("i32.const 8", out);
+                write_ln("i32.add", out);
+                write_ln(&format!("i32.const {n}"), out);
+                write_ln("i32.store", out);
+            },
+            _ => panic!("vars as args of ctor other than num"),
+        },
+        CONST_LIST => match args.clone() {
+                Either::Left(_) => panic!("i32 as args of ctor other than num"),
+                Either::Right(vars) => {
+                    compile_reuse_no_arg(var.clone(), CONST_LIST, out);
+                    compile_var(var.clone(), out);
+                    write_ln("i32.load", out);
+                    write_ln("i32.const 8", out);
+                    write_ln("i32.add", out);
+                    compile_var(vars[0].to_owned(), out);
+                    write_ln("i32.store", out); // store vars[0] @ var+8
+                    compile_var(var.clone(), out);
+                    write_ln("i32.const 12", out);
+                    write_ln("i32.add", out);
+                    compile_var(vars[1].to_owned(), out);
+                    write_ln("i32.store", out); // store vars[1] @ var+12
+                },
+            },
+        _ => compile_reuse_no_arg(var.clone(), ctor, out),
+    }
+
+    // sinon, si on doit reprendre un espace mémoire
+    write_ln("else", out);
+
     match ctor {
         CONST_FALSE => make_false(out),
         CONST_TRUE => make_true(out),
         CONST_NIL => make_nil(out),
-        CONST_LIST => match args.clone() {
+        CONST_LIST => match args {
             Either::Left(_) => panic!("i32 as args of ctor other than num"),
             Either::Right(vars) =>{
                 compile_var(vars[0].clone(), out);
@@ -461,41 +515,11 @@ pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut
         },
         _ => panic!("impossible")
     }
-    write_ln("drop", out);
-    write_ln("else", out);
-    match ctor {
-        CONST_NUM => match args {
-            Either::Left(n) => {
-                compile_reuse_no_arg(var.clone(), CONST_NUM, out);
-                compile_var(var.clone(), out);
-                write_ln("i32.load", out);
-                write_ln("i32.const 8", out);
-                write_ln("i32.add", out);
-                write_ln(&format!("i32.const {n}"), out);
-                write_ln("i32.store", out);
-            },
-            _ => panic!("vars as args of ctor other than num"),
-        },
-        CONST_LIST => match args {
-                Either::Left(_) => panic!("i32 as args of ctor other than num"),
-                Either::Right(vars) => {
-                    compile_reuse_no_arg(var.clone(), CONST_LIST, out);
-                    compile_var(var.clone(), out);
-                    write_ln("i32.load", out);
-                    write_ln("i32.const 8", out);
-                    write_ln("i32.add", out);
-                    compile_var(vars[0].to_owned(), out);
-                    write_ln("i32.store", out);
-                    compile_var(var.clone(), out);
-                    write_ln("i32.const 12", out);
-                    write_ln("i32.add", out);
-                    compile_var(vars[1].to_owned(), out);
-                    write_ln("i32.store", out);
-                },
-            },
-        _ => compile_reuse_no_arg(var.clone(), ctor, out),
-    }
+    // on n'oublie pas de remettre l'adresse dans la variable
+    let v = string_of_var(var.clone());
+    write_ln(&format!("local.set ${v}"), out);
     write_ln("end", out);
+    // if ne doit rien laisser de plus sur la pile
     compile_var(var, out);
 }
 
@@ -504,9 +528,7 @@ fn compile_reuse_no_arg (var:Var, ctor:i32, out: &mut File) {
     compile_var(var.clone(), out);
     write_ln(&format!("i32.const {ctor}"), out);
     write_ln("i32.store", out);
-    compile_var(var, out);
-    write_ln("i32.const 4", out);
-    write_ln("i32.add", out);
+    get_ref_loc(var, out);
     write_ln("i32.const 1", out);
     write_ln("i32.store", out);
 }

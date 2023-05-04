@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use std::collections::HashMap;
+use std::time::SystemTime;
 pub use crate::ast::CONST_NUM;
 use crate::ast::Program;
 pub use crate::ast::Var;
@@ -188,13 +189,17 @@ pub fn interpreter (program : Program, call : &String) {
     let mut heap = empty_heap();
     let ctxt = empty_ctxt();
     let exec = Expr::FnCall(Const::Const(call.to_owned()), vec![]);
+
+    let start = SystemTime::now();
     let res = start_interpreter (program, exec, &ctxt, &mut heap);
+    let end = SystemTime::now();
+    let delta = end.duration_since(start);
 
     let nb_alloc = heap.nb_alloc();
     
     println!("Attention ! L'interpréteur implémente le langage pur, sans inc, dec, reset, reuse");
     println!("Nombre d'allocations : {nb_alloc}");
-    println!("Résultat : ");
+    println!("Résultat en {} ms : ", delta.unwrap_or_default().as_millis());
     debug_loc(res, &mut heap);
 }
 

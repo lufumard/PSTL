@@ -3,10 +3,9 @@ use std::fs::File;
 use crate::ast::Var;
 use crate::compiler::compile_var;
 use crate::compiler::make_num;
-use crate::compiler::make_true;
-use crate::compiler::make_false;
 
 
+use super::make_bool;
 use super::string_of_var;
 
 #[allow(dead_code)]
@@ -116,63 +115,30 @@ pub fn eq_fn(vars: Vec<Var>, out:&mut File) {
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.eq", out);
-    write_ln("(if (then ", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else ", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    make_bool(out);
 }
 
 pub fn and_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
     get_bool(vars[0].to_owned(), out);
-    write_ln("(if (then ", out);
     get_bool(vars[1].to_owned(), out);
-    write_ln("(if (then ", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else ", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))) (else ", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    write_ln("i32.and", out);
+    make_bool(out);
 }
 
 
 pub fn or_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
     get_bool(vars[0].to_owned(), out);
-    write_ln("(if (then ", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else ", out);
     get_bool(vars[1].to_owned(), out);
-    write_ln("(if (then ", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else ", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))))", out);
-    write_ln("local.get $__intern_var", out);
+    write_ln("i32.or", out);
+    make_bool(out);
 }
 
 pub fn not_fn(var : Var, out:&mut File) {
     get_bool(var, out);
-    write_ln("(if (then", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else ", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    write_ln("i32.eqz", out);
+    make_bool(out);
 }
 
 pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
@@ -180,14 +146,7 @@ pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.gt_s", out);
-    write_ln("(if (then", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    make_bool(out);
 }
 
 pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
@@ -195,29 +154,16 @@ pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.lt_s", out);
-    write_ln("(if (then", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    make_bool(out);
 }
 
 pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
+    dbg!(vars.clone());
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.ge_s", out);
-    write_ln("(if (then", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    make_bool(out);
 }
 
 pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
@@ -225,12 +171,5 @@ pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.le_s", out);
-    write_ln("(if (then", out);
-    make_true(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln(") (else", out);
-    make_false(out);
-    write_ln("local.set $__intern_var", out);
-    write_ln("))", out);
-    write_ln("local.get $__intern_var", out);
+    make_bool(out);
 }
