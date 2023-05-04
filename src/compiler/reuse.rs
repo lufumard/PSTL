@@ -350,13 +350,14 @@ mod tests {
         assert_eq!(expected, insert_reuse(prog));
     }
 
+    #[test]
     fn test_map() {
         let file_path = "./examples/map_pstl.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
         let prog = reader::program().parse(file_contents).expect("can't parse");
         
-        let file_path_rc = "./examples/map_reuse.pstl";
+        let file_path_rc = "./examples/map_pstl_reuse.pstl";
         let file_contents_rc = fs::read_to_string(file_path_rc)
             .expect(format!("unable to read file + {}", file_path_rc).as_str());
         let expected = reader_rc::program().parse(file_contents_rc).expect("can't parse");
@@ -371,7 +372,7 @@ mod tests {
             .expect(format!("unable to read file + {}", file_path).as_str());
         let prog = reader::program().parse(file_contents).expect("can't parse");
         
-        let file_path_rc = "./examples/swap_reuse.pstl";
+        let file_path_rc = "./examples/swap_pstl_reuse.pstl";
         let file_contents_rc = fs::read_to_string(file_path_rc)
             .expect(format!("unable to read file + {}", file_path_rc).as_str());
         let expected = reader_rc::program().parse(file_contents_rc).expect("can't parse");

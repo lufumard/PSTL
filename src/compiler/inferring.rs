@@ -307,7 +307,7 @@ mod tests_inferring {
 
     #[test]
     fn go_foward() {
-        let file_path = "./examples/goFoward_reuse.pstl";
+        let file_path = "./examples/goForward_reuse.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
         let prog = reader_rc::program().parse(file_contents).expect("can't parse");

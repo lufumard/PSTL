@@ -102,7 +102,7 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
         FnBodyRC::Let(x, e, F) => {
             match e.clone() {
                 ExprRC::FnCall(c, vars) => {
-                    let o = vec!['0'; vars.clone().len()];
+                    let o = vec!['O'; vars.clone().len()];
                     C_app(vars, beta.get(&c).unwrap_or(&o).clone(), FnBodyRC::Let(x, e,
                         Box::new(C(*F, beta_l.clone(), beta.clone()))), beta_l)
                 },
@@ -178,7 +178,7 @@ pub fn C_app(vars: Vec<Var>, status_var : Vec<char>, fnbody : FnBodyRC, beta_l :
             C_app(temp_vars, temp_status, FnBodyRC::Let(z, e, 
                 Box::new(o_moins_var(y.clone(), *F, beta_l.clone()))), beta_l)
         },
-        (Some(y), Some(_)) => panic!("status de {:?} est différent de B ou O", *y),
+        (Some(y), Some(c)) => panic!("status de {:?} est différent de B ou O: {}", *y, *c),
 
     }
         },
@@ -243,6 +243,7 @@ mod  tests {
     use crate::compiler::ast_rc::{FnBodyRC, ProgramRC, FnRC};
     use crate::ast::{Var};
     use crate::compiler::inc::{insert_inc, tail_call};
+    use crate::compiler::inferring::inferring_program;
     use crate::compiler::{reader_rc, Const};
 
     use super::FV;
@@ -631,17 +632,58 @@ mod  tests {
         let beta : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("f")), vec!['B'])]
             .into_iter().collect();
 
-        assert_eq!(expected, insert_inc(prog, beta));
+        assert_eq!(expected, insert_inc(prog.clone(), inferring_program(prog)));
         
     }
     #[test]
     fn test_map() {
+        let file_path = "./examples/map_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+
+        let file_path_inc = "./examples/map_inc.pstl";
+        let file_contents_inc = fs::read_to_string(file_path_inc)
+            .expect(format!("unable to read file + {}", file_path_inc).as_str());
+        let expected = reader_rc::program().parse(file_contents_inc).expect("can't parse");
+
+        let beta : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("map")), vec!['B', 'O'])]
+        .into_iter().collect();
+        assert_eq!(expected, insert_inc(prog, beta))
 
     }
 
     #[test]
     fn test_swap() {
-        
+        let file_path = "./examples/swap_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        let beta : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("swap")), vec!['O'])]
+            .into_iter().collect();  
+
+        let file_path_inc = "./examples/swap_inc.pstl";
+        let file_contents_inc = fs::read_to_string(file_path_inc)
+            .expect(format!("unable to read file + {}", file_path_inc).as_str());
+        let expected = reader_rc::program().parse(file_contents_inc).expect("can't parse");
+
+        assert_eq!(expected, insert_inc(prog, beta)) 
+    }
+
+    #[test]
+    fn go_forward() {
+        let file_path = "./examples/goForward_reuse.pstl";
+        let file_contents = fs::read_to_string(file_path)
+            .expect(format!("unable to read file + {}", file_path).as_str());
+        let prog = reader_rc::program().parse(file_contents).expect("can't parse");
+        let beta : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("goForward")), vec!['O'])]
+            .into_iter().collect();
+
+        let file_path_inc = "./examples/goForward_inc.pstl";
+        let file_contents_inc = fs::read_to_string(file_path_inc)
+            .expect(format!("unable to read file + {}", file_path_inc).as_str());
+        let expected = reader_rc::program().parse(file_contents_inc).expect("can't parse");
+        assert_eq!(expected, insert_inc(prog, beta))   
     }
 
 }

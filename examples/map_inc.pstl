@@ -1,6 +1,6 @@
 map f xs = case xs of
     (ret xs)
-    (let x = proj1 xs ; let s = proj2 xs ; 
+    (let x = proj1 xs ; inc x ; let s = proj2 xs ; inc s ;
     let w = reset xs ;
     let y = f x ; let ys = map f s ;
     let r = reuse w in ctor2 y ys ; ret r)
