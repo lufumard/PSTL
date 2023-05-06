@@ -6,7 +6,7 @@ const memory = new WebAssembly.Memory({
     maximum: 100,
 });
   
-const fichier = "fichier.wasm";
+const fichier = "types.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -160,10 +160,58 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { exported_func } = wasmModule.instance.exports;
+    const { num, mfalse, mtrue, nil, liste } = wasmModule.instance.exports;
 
     var startTime = performance.now();
-    var res = exported_func();
+    var res = num();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var res = mfalse();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var res = mtrue();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var res = nil();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var res = liste();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;

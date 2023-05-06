@@ -92,8 +92,34 @@
     i32.const 16        ;; x 16
     call $__offset_next ;; x
 )
-(func $addnum (export "addnum")(param $a i32) (param $b i32) (result i32)
+(func $__reset (param $var i32) (result i32)
+    (local $__intern_var i32)
+local.get $var
+local.get $var
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+call $__set_ref
+local.get $var
+i32.const 4
+i32.add
+    i32.load
+    i32.eqz
+    if
+        i32.const 0
+        return
+    end
+    local.get $var
+)
+(func $fun_addnum (export "addnum")(param $a i32) (param $b i32) (result i32)
+(local $__intern_var i32)
 (local $r i32)
+
+;;let
+
+;;fncall
 local.get $a
 i32.const 8
 i32.add
@@ -105,6 +131,8 @@ i32.load
 i32.add
 call $__make_num
 local.set $r
+
+;;ret
 local.get $r
 return
 )

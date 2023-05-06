@@ -92,8 +92,32 @@
     i32.const 16        ;; x 16
     call $__offset_next ;; x
 )
-(func $fcase (export "fcase")(param $x i32) (result i32)
+(func $__reset (param $var i32) (result i32)
+    (local $__intern_var i32)
+local.get $var
+local.get $var
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.sub
+call $__set_ref
+local.get $var
+i32.const 4
+i32.add
+    i32.load
+    i32.eqz
+    if
+        i32.const 0
+        return
+    end
+    local.get $var
+)
+(func $fun_fcase (export "fcase")(param $x i32) (result i32)
+(local $__intern_var i32)
 (local $r i32)
+
+;;case
 (block $__case0
 (block $__case1
 local.get $x
@@ -101,39 +125,73 @@ i32.load
 (br_table 
 $__case1 $__case0 )
 )
+
+;;let
+
+;;num
 i32.const 0
 call $__make_num
 local.set $r
+
+;;ret
 local.get $r
 return
 )
+
+;;let
+
+;;num
 i32.const 1
 call $__make_num
 local.set $r
+
+;;ret
 local.get $r
 return
 )
-(func $mainf (export "mainf")(result i32)
-(local $x i32)
+(func $fun_mainf (export "mainf")(result i32)
 (local $r i32)
+(local $x i32)
+(local $__intern_var i32)
+
+;;let
+
+;;ctor
 i32.const 0
 call $__make_no_arg
 local.set $x
+
+;;let
+
+;;fncall
 local.get $x
-call $fcase
+call $fun_fcase
 local.set $r
+
+;;ret
 local.get $r
 return
 )
-(func $maint (export "maint")(result i32)
-(local $r i32)
+(func $fun_maint (export "maint")(result i32)
 (local $x i32)
+(local $__intern_var i32)
+(local $r i32)
+
+;;let
+
+;;ctor
 i32.const 1
 call $__make_no_arg
 local.set $x
+
+;;let
+
+;;fncall
 local.get $x
-call $fcase
+call $fun_fcase
 local.set $r
+
+;;ret
 local.get $r
 return
 )

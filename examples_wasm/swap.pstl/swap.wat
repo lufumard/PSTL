@@ -93,16 +93,15 @@
     call $__offset_next ;; x
 )
 (func $__reset (param $var i32) (result i32)
+    (local $__intern_var i32)
 local.get $var
-i32.const 4
-i32.add
 local.get $var
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.sub
-i32.store
+call $__set_ref
 local.get $var
 i32.const 4
 i32.add
@@ -116,12 +115,15 @@ i32.add
 )
 (func $fun_swap (export "swap")(param $xs i32) (result i32)
 (local $w3 i32)
-(local $h i32)
 (local $w1 i32)
-(local $r i32)
+(local $__intern_var i32)
+(local $h i32)
 (local $t1 i32)
-(local $w4 i32)
 (local $w2 i32)
+(local $r i32)
+(local $w4 i32)
+
+;;case
 (block $__case0
 (block $__case1
 (block $__case2
@@ -132,30 +134,42 @@ i32.load
 (br_table 
 $__case4 $__case3 $__case2 $__case1 $__case0 )
 )
+
+;;ret
 local.get $xs
 return
 )
+
+;;ret
 local.get $xs
 return
 )
+
+;;ret
 local.get $xs
 return
 )
+
+;;let
+
+;;proj
 local.get $xs
 i32.const 12
 i32.add
 i32.load
 local.set $t1
+
+;;inc
 local.get $t1
-i32.const 4
-i32.add
 local.get $t1
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
-i32.store
+call $__set_ref
+
+;;case
 (block $__case0
 (block $__case1
 (block $__case2
@@ -166,32 +180,49 @@ i32.load
 (br_table 
 $__case4 $__case3 $__case2 $__case1 $__case0 )
 )
+
+;;let
+
+;;proj
 local.get $xs
 i32.const 8
 i32.add
 i32.load
 local.set $h
+
+;;inc
 local.get $h
-i32.const 4
-i32.add
 local.get $h
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
-i32.store
+call $__set_ref
+
+;;let
+
+;;reset
 local.get $xs
 call $__reset
 local.set $w1
+
+;;let
+
+;;reuse
 local.get $w1
-i32.eqz
+local.get $w1
+i32.load
+local.set $__intern_var
+local.get $__intern_var
+i32.const 3
+i32.eq
+local.get $__intern_var
+i32.const 3
+i32.le_s
+i32.or
+i32.and
 if
-local.get $t1
-local.get $h
-call $__make_list
-drop
-else
 local.get $w1
 i32.const 3
 i32.store
@@ -211,38 +242,62 @@ i32.const 12
 i32.add
 local.get $h
 i32.store
+else
+local.get $t1
+local.get $h
+call $__make_list
+local.set $w1
 end
 local.get $w1
 local.set $r
+
+;;ret
 local.get $r
 return
 )
+
+;;let
+
+;;proj
 local.get $xs
 i32.const 8
 i32.add
 i32.load
 local.set $h
+
+;;inc
 local.get $h
-i32.const 4
-i32.add
 local.get $h
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
-i32.store
+call $__set_ref
+
+;;let
+
+;;reset
 local.get $xs
 call $__reset
 local.set $w2
+
+;;let
+
+;;reuse
 local.get $w2
-i32.eqz
+local.get $w2
+i32.load
+local.set $__intern_var
+local.get $__intern_var
+i32.const 3
+i32.eq
+local.get $__intern_var
+i32.const 3
+i32.le_s
+i32.or
+i32.and
 if
-local.get $t1
-local.get $h
-call $__make_list
-drop
-else
 local.get $w2
 i32.const 3
 i32.store
@@ -262,51 +317,77 @@ i32.const 12
 i32.add
 local.get $h
 i32.store
+else
+local.get $t1
+local.get $h
+call $__make_list
+local.set $w2
 end
 local.get $w2
 local.set $r
+
+;;ret
 local.get $r
 return
 )
+
+;;dec
 local.get $t1
-i32.const 4
-i32.add
 local.get $t1
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.sub
-i32.store
+call $__set_ref
+
+;;ret
 local.get $xs
 return
 )
+
+;;let
+
+;;proj
 local.get $xs
 i32.const 8
 i32.add
 i32.load
 local.set $h
+
+;;inc
 local.get $h
-i32.const 4
-i32.add
 local.get $h
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
-i32.store
+call $__set_ref
+
+;;let
+
+;;reset
 local.get $xs
 call $__reset
 local.set $w3
+
+;;let
+
+;;reuse
 local.get $w3
-i32.eqz
+local.get $w3
+i32.load
+local.set $__intern_var
+local.get $__intern_var
+i32.const 3
+i32.eq
+local.get $__intern_var
+i32.const 3
+i32.le_s
+i32.or
+i32.and
 if
-local.get $t1
-local.get $h
-call $__make_list
-drop
-else
 local.get $w3
 i32.const 3
 i32.store
@@ -326,38 +407,62 @@ i32.const 12
 i32.add
 local.get $h
 i32.store
+else
+local.get $t1
+local.get $h
+call $__make_list
+local.set $w3
 end
 local.get $w3
 local.set $r
+
+;;ret
 local.get $r
 return
 )
+
+;;let
+
+;;proj
 local.get $xs
 i32.const 8
 i32.add
 i32.load
 local.set $h
+
+;;inc
 local.get $h
-i32.const 4
-i32.add
 local.get $h
 i32.const 4
 i32.add
 i32.load
 i32.const 1
 i32.add
-i32.store
+call $__set_ref
+
+;;let
+
+;;reset
 local.get $xs
 call $__reset
 local.set $w4
+
+;;let
+
+;;reuse
 local.get $w4
-i32.eqz
+local.get $w4
+i32.load
+local.set $__intern_var
+local.get $__intern_var
+i32.const 3
+i32.eq
+local.get $__intern_var
+i32.const 3
+i32.le_s
+i32.or
+i32.and
 if
-local.get $t1
-local.get $h
-call $__make_list
-drop
-else
 local.get $w4
 i32.const 3
 i32.store
@@ -377,12 +482,21 @@ i32.const 12
 i32.add
 local.get $h
 i32.store
+else
+local.get $t1
+local.get $h
+call $__make_list
+local.set $w4
 end
 local.get $w4
 local.set $r
+
+;;ret
 local.get $r
 return
 )
+
+;;ret
 local.get $xs
 return
 )
