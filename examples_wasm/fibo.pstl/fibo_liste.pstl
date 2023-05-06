@@ -1,0 +1,78 @@
+fibo_liste n l = let m1 = 1;
+    let a = inf n m1; case a of
+    (
+        let a = proj1 l;
+        let b = proj2 l;
+        let c = add a b;
+        let l = ctor3 b c;
+        let n = sub n m1;
+        let r = fibo_liste n l;
+        ret r
+    )
+    (
+        let r = proj1 l;
+        ret r
+    )
+
+
+fibo n = let m1 = 1;
+    let m0 = 0;
+    let l = ctor3 m0 m1;
+    let r = fibo_liste n l;
+    ret r
+    
+
+fibo25 =
+    let n = 25;
+    let r = fibo n;
+    ret r
+
+fibo50 =
+    let n = 50;
+    let r = fibo n;
+    ret r
+
+fibo75 =
+    let n = 75;
+    let r = fibo n;
+    ret r
+
+fibo100 =
+    let n = 100;
+    let r = fibo n;
+    ret r
+
+fibo40 =
+    let n = 40;
+    let r = fibo n;
+    ret r
+
+fibo41 =
+    let n = 41;
+    let r = fibo n;
+    ret r
+
+fibo42 =
+    let n = 42;
+    let r = fibo n;
+    ret r
+
+fibo43 =
+    let n = 43;
+    let r = fibo n;
+    ret r
+
+fibo44 =
+    let n = 44;
+    let r = fibo n;
+    ret r
+
+fibo45 =
+    let n = 45;
+    let r = fibo n;
+    ret r
+    
+fibo46 =
+    let n = 46;
+    let r = fibo n;
+    ret r
