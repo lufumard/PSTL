@@ -306,7 +306,8 @@ pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<
     let v = h.get(ct.get(x));
     let l = ct.get(y.to_owned());
     match v {
-        Value::Pap(c, mut vars) => {
+        Value::Pap(c, vrs) => {
+            let mut vars = vrs.clone();
             let Const::Const(name) = &c;
             vars.push(l);
             if is_primitive(&name) {
