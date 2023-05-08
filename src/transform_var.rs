@@ -89,8 +89,7 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
                 }
             } else {
                 match lfn.get(&ident) {
-                    Some(fun) => {
-                        let Fn::Fn(params, _);
+                    Some(Fn::Fn(params, _)) => {
                         if params.len() == vars.len() {
                             return Expr::FnCall(ident, vars);
                         } else if params.len() > vars.len() {
