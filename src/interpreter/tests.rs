@@ -242,11 +242,11 @@ fn test_fibo_of_7(){
         .expect(format!("unable to read file + {}", file_path).as_str());
     let parsed = transform_program(reader::program().parse(file_contents).expect("can't parse"));
     
-    // fibo 7  = 21
-    // fibo 10 = 89
+    // fibo 7  = 13
+    // fibo 10 = 55
 
     let n = 7;
-    let expected = 21;
+    let expected = 13;
     
     let mut heap = empty_heap();
     let ctxt = add_value(Var::Var("n".to_string()), make_num(n), 
@@ -265,11 +265,11 @@ fn test_fibo_of_10(){
         .expect(format!("unable to read file + {}", file_path).as_str());
     let parsed = transform_program(reader::program().parse(file_contents).expect("can't parse"));
     
-    // fibo 7  = 21
-    // fibo 10 = 89
+    // fibo 7  = 13
+    // fibo 10 = 55
 
     let n = 10;
-    let expected = 89;
+    let expected = 55;
     
     let mut heap = empty_heap();
     let ctxt = add_value(Var::Var("n".to_string()), make_num(n), 
@@ -288,11 +288,11 @@ fn test_fibo_num_of_10(){
         .expect(format!("unable to read file + {}", file_path).as_str());
     let parsed = transform_program(reader::program().parse(file_contents).expect("can't parse"));
     
-    // fibo 7  = 21
-    // fibo 10 = 89
+    // fibo 7  = 13
+    // fibo 10 = 55
 
     let n = 10;
-    let expected = 89;
+    let expected = 55;
     
     let mut heap = empty_heap();
     let ctxt = add_value(Var::Var("n".to_string()), make_num(n), empty_ctxt(), &mut heap);
@@ -310,11 +310,11 @@ fn test_fibo_num_of_7(){
         .expect(format!("unable to read file + {}", file_path).as_str());
     let parsed = transform_program(reader::program().parse(file_contents).expect("can't parse"));
     
-    // fibo 7  = 21
-    // fibo 10 = 89
+    // fibo 7  = 13
+    // fibo 10 = 55
 
     let n = 7;
-    let expected = 21;
+    let expected = 13;
     
     let mut heap = empty_heap();
     let ctxt = add_value(Var::Var("n".to_string()), make_num(n), empty_ctxt(), &mut heap);
