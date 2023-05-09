@@ -17,4 +17,7 @@ Constructeur :
         - "0 2" représente la valeur FALSE référencée 2 fois
         - "3 2 56 84" représente la liste dont le premier élément est à la position 56 dans la table et l'élément à la position 84 dans la table représente la suite de cette liste
 
-Nous ne faisons pas les applications partielles pour le moment.
+
+
+Pap : 5 <nb_ref> <id_fun> <nb_args> [args]
+
