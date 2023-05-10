@@ -1,4 +1,3 @@
- //#![allow(dead_code)]
 
 pub mod ast_rc;
 pub mod inferring;
@@ -212,62 +211,68 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
 
    write_ln("
 (func $__copy_pap (param $var i32) (result i32)
-(local $pap i32)
-(local $args_rest i32)
-(local $loc_arg_var i32)
-(local $loc_arg_pap i32)
-;; make new pap
-(i32.add (local.get $var) (i32.const 8))
-call $__make_pap
-
-local.set $pap
-
-;; copy nb_args
-(i32.add (local.get $pap) (i32.const 12))
-(i32.add (local.get $var) (i32.const 12))  
-i32.load
-local.tee $args_rest
-
-i32.store
-
-;; copy args
-(i32.add (local.get $var) (i32.const 16))
-local.set $loc_arg_var
-
-(i32.add (local.get $pap) (i32.const 16))  
-local.set $loc_arg_pap
-
-(loop $set_arg
-  local.get $loc_arg_pap
-  local.get $loc_arg_var
-  i32.store
-
-  (i32.add (local.get $loc_arg_pap) (i32.const 4))    
-  local.set $loc_arg_pap
-  
-  (i32.add (local.get $loc_arg_var) (i32.const 4))
-  local.set $loc_arg_var
-
-  (i32.sub (local.get $args_rest) (i32.const 1))
-  local.set $args_rest
-  local.get $args_rest
-  br_if $set_arg
+   (local $pap i32)
+   (local $args_rest i32)
+   (local $loc_arg_var i32)
+   (local $loc_arg_pap i32)
+   ;; make new pap
+   (i32.add (local.get $var) (i32.const 8))
+   i32.load
+   call $__make_pap
+   
+   local.set $pap
+ 
+   ;; copy nb_args
+   (i32.add (local.get $pap) (i32.const 12))
+   (i32.add (local.get $var) (i32.const 12))  
+   i32.load
+   
+   local.tee $args_rest
+   i32.store
+ 
+   ;; copy args
+   (i32.add (local.get $var) (i32.const 16))
+   local.set $loc_arg_var
+   
+   (i32.add (local.get $pap) (i32.const 16))  
+   local.set $loc_arg_pap
+ 
+   local.get $args_rest
+   if
+     (loop $set_arg
+       local.get $loc_arg_pap
+       local.get $loc_arg_var
+       i32.load
+       i32.store
+ 
+       (i32.add (local.get $loc_arg_pap) (i32.const 4))    
+       local.set $loc_arg_pap
+       
+       (i32.add (local.get $loc_arg_var) (i32.const 4))
+       local.set $loc_arg_var
+ 
+       (i32.sub (local.get $args_rest) (i32.const 1))
+       local.tee $args_rest
+       br_if $set_arg
+     )
+   end
+   local.get $pap
 )
-local.get $pap
-) 
    ", out);
 
 
-   write_ln("
-    (func $__exec_pap (param $pap i32) (result i32)
-    (local $p_0 i32)
-    (local $p_1 i32)", out);
+    write_ln("(func $__exec_pap (param $pap i32) (result i32)", out);
+    write_ln("(local $p_0 i32)", out);
+    write_ln("(local $p_1 i32)", out);
     for i in 0..=fn_desc.len() {
         //on crée un block pour chaque cas énuméré
         write_ln(&format!("(block $__case{i}"), out);
     }
     // on charge le type de la variable
-    compile_get_pap_id(Var::Var("pap".to_string()), out);
+    write_ln("local.get $pap", out);
+    write_ln("i32.const 8", out);
+    write_ln("i32.add", out);
+    write_ln("i32.load", out);
     // br_table choisi un enbranchement selon la valeur du type de la variable
     // br renvoie à la fin du block indiqué, 
     // donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
@@ -493,7 +498,7 @@ pub fn compile_pap(ident_wrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Co
             if vars.len() > desc.nb_args {
                 panic!("Trop d'arguments dans la construction d'une pap");
             }
-            dbg!(desc.clone());
+            
             let id = desc.id;
             write_ln(&format!("i32.const {id}"), out);
             write_ln("call $__make_pap", out);  
@@ -570,71 +575,57 @@ pub  fn compile_value(n: i32, out : &mut File)  {
     make_num(out); // création du nombre
 }
 
-fn compile_get_pap_id(var:Var, out : &mut File) {
-    compile_var(var, out);
-    write_ln("i32.const 8", out);
-    write_ln("i32.add", out);
-    write_ln("i32.load", out);
-}
 
-fn compile_get_loc_pap_nb_args(var:Var, out : &mut File) {
+pub fn compile_papcall(var:Var, arg:Var, out : &mut File) {
     compile_var(var, out);
+    write_ln("call $__copy_pap", out);
+    
+    write_ln("local.tee $__intern_var", out);
+    // une copie de la variable pap a été créée
+    
     write_ln("i32.const 12", out);
     write_ln("i32.add", out);
-}
-
-fn compile_get_pap_nb_args(var:Var, out : &mut File) {
-    compile_get_loc_pap_nb_args(var, out);
-    write_ln("i32.load", out);
-}
-
-fn compile_get_pap_loc_new_arg(var:Var, out : &mut File) {
-    // aller à l'emplacement des arguments
-    compile_var(var.clone(), out);
-    write_ln("i32.const 16", out);
-    write_ln("i32.add", out);
-
-    // ajouter le nombre d'arguments * 4
-    compile_get_pap_nb_args(var, out);
-    write_ln("i32.const 4", out);
-    write_ln("i32.mul", out);
     
-}
-
-fn compile_add_pap_arg(var:Var, arg:Var, out : &mut File) {
-    compile_get_pap_loc_new_arg(var.clone(), out);
-    compile_var(arg, out);
-    write_ln("i32.store", out);
-
-    compile_get_loc_pap_nb_args(var.clone(), out);
-
-    compile_get_pap_nb_args(var, out);
+    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    write_ln("i32.load", out);
+    
     write_ln("i32.const 1", out);
     write_ln("i32.add", out);
-
+    
     write_ln("i32.store", out);
-}
-
-pub fn compile_papcall(var: Var, arg:Var, out : &mut File)  {
-    write_ln("\n;;papcall", out);
-
-    compile_var(var.clone(), out);
-    write_ln("call $__copy_pap", out);
-
-    compile_add_pap_arg(var.clone(), arg, out);
-    compile_get_pap_nb_args(var.clone(), out);
-    compile_get_pap_id(var.clone(), out);
-    write_ln("call $__nb_args", out); 
+    
+    // nb_args ++
+    
+    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    write_ln("i32.load", out);
+    
+    write_ln("i32.const 4", out);
+    write_ln("i32.mul", out);
+    write_ln("local.get $__intern_var", out);
+    write_ln("i32.add", out);
+    write_ln("i32.const 12", out);
+    write_ln("i32.add", out);
+    //emplacement nouvel argument
+    
+    compile_var(arg, out);
+    write_ln("i32.store", out);
+    
+    // si il y a tous les arguments, exec_pap
+    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    write_ln("i32.load", out);
+    
+    write_ln("(i32.add (local.get $__intern_var) (i32.const 8))", out);
+    write_ln("i32.load", out);
+    write_ln("call $__nb_args", out);
+    
     write_ln("i32.eq", out);
-
+    
     write_ln("if", out);
-    compile_var(var.clone(), out);
-    write_ln("call $__exec_pap", out); 
-    write_ln("local.set $__intern_var", out);
-    write_ln("else", out);
-    compile_var(var, out);
-    write_ln("local.set $__intern_var", out);
+    write_ln("    local.get $__intern_var", out);
+    write_ln("    call $__exec_pap", out);
+    write_ln("    local.set $__intern_var", out);
     write_ln("end", out);
+    // retourne le nouvel objet pap
     write_ln("local.get $__intern_var", out);
 }
 

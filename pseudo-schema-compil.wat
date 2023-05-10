@@ -43,6 +43,30 @@ for s in vars {
 }
 compile_fnbody(body)
 
+compile_make_false
+---------------------
+i32.const {CONST_FALSE}
+call $__make_no_arg
+
+compile_make_true
+---------------------
+i32.const {CONST_TRUE}
+call $__make_no_arg
+
+compile_make_nil
+---------------------
+i32.const {CONST_NIL}
+call $__make_no_arg
+
+compile_make_num
+;; pre : le nombre à créer est en haut de la pile
+---------------------
+call $__make_num
+
+compile_make_list
+;; pre : les arguments sont en haut de la pile
+---------------------
+call $__make_list
 
 
 compile_let (var:Var, expr: Expr, fnbody:FnBody)
@@ -54,6 +78,29 @@ if expr == Ret(var) {
   let v = string_of_var(var)
   local.set ${v}
   compile_fnbody(fnbody)
+}
+
+
+compile_case (var:Var, bodys:Vec<FnBody>)
+---------------------
+for n in 0..bodys.len() {
+  ;; on crée un block pour chaque cas énuméré
+  (block $__case{i}
+}
+;; on charge le type de la variable
+compile_var(var)
+i32.load
+;; br_table choisi un enbranchement selon la valeur du type de la variable
+;; br renvoie à la fin du block indiqué, 
+;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
+(br_table 
+for n in 0..bodys.len() {
+  $__case{len-1-i}
+}
+)
+for body in bodys {
+)
+compile_fnbody(body)
 }
 
 
@@ -237,44 +284,6 @@ i32.sub
 compile_make_num()
 ;; valeur en haut de la pile : l'adresse de l'objet
 ...
-
-compile_and (vars:Vec!<Var>)
----------------------
-compile_get_bool(vars[0]);
-(if (then
-compile_get_bool(vars[1])
-(if (then
-compile_make_true()
-) (else
-compile_make_false()
-))) (else
-compile_make_false()
-))
-;; valeur en haut de la pile : l'adresse de l'objet
-
-compile_or (vars:Vec!<Var>)
----------------------
-compile_get_bool(vars[0])
-(if (then
-compile_make_true()
-) (else
-compile_get_bool(vars[1])
-(if (then
-compile_make_true()
-) (else
-compile_make_false()
-))))
-;; valeur en haut de la pile : l'adresse de l'objet
-
-compile_not (var:Var)
----------------------
-compile_get_bool(var)
-(if (then
-compile_make_false()
-) (else
-compile_make_true()
-))
-;; valeur en haut de la pile : l'adresse de l'objet
 
 
 crée un constructeur sans argument en wat
@@ -512,6 +521,7 @@ crée un constructeur de nombre en wat
   (local $loc_arg_pap i32)
   ;; make new pap
   (i32.add (local.get $var) (i32.const 8))
+  i32.load
   call $__make_pap
   
   local.set $pap
@@ -531,71 +541,122 @@ crée un constructeur de nombre en wat
   (i32.add (local.get $pap) (i32.const 16))  
   local.set $loc_arg_pap
 
-  (loop $set_arg
-    local.get $loc_arg_pap
-    local.get $loc_arg_var
-    i32.store
+  local.get $args_rest
+  if
+    (loop $set_arg
+      local.get $loc_arg_pap
+      local.get $loc_arg_var
+      i32.load
+      i32.store
 
-    (i32.add (local.get $loc_arg_pap) (i32.const 4))    
-    local.set $loc_arg_pap
-    
-    (i32.add (local.get $loc_arg_var) (i32.const 4))
-    local.set $loc_arg_var
+      (i32.add (local.get $loc_arg_pap) (i32.const 4))    
+      local.set $loc_arg_pap
+      
+      (i32.add (local.get $loc_arg_var) (i32.const 4))
+      local.set $loc_arg_var
 
-    (i32.sub (local.get $args_rest) (i32.const 1))
-    local.tee $args_rest
-    br_if $set_arg
-  )
+      (i32.sub (local.get $args_rest) (i32.const 1))
+      local.tee $args_rest
+      br_if $set_arg
+    )
+  end
   local.get $pap
 )
 
 
-
-
-compile_make_false
+compile_pap (cste : Const, vars : Vec<Var>)
 ---------------------
-i32.const {CONST_FALSE}
-call $__make_no_arg
+match fn_desc.get(&cste) {
+  Some(desc) => {
+    if vars.len() > desc.nb_args {
+      panic!("Trop d'arguments dans la construction d'une pap");
+    }
+    i32.const {desc.id}
+    call $__make_pap
+    local.set $__intern_var
+    
+    if vars.len() > 0 {
+      for i in 0..vars.len() {
+          
+        local.get $__intern_var
+        i32.const {16 + 4*i}
+        i32.add 
+        compile_var(vars[i])
+        i32.store
+      }
 
-compile_make_true
----------------------
-i32.const {CONST_TRUE}
-call $__make_no_arg
+      local.get $__intern_var
+      i32.const 12
+      i32.add
 
-compile_make_nil
----------------------
-i32.const {CONST_NIL}
-call $__make_no_arg
+      i32.const {vars.len()}
+      i32.store
+    }
 
-compile_make_num
-;; pre : le nombre à créer est en haut de la pile
----------------------
-call $__make_num
+    local.get $__intern_var
+  },
+  _ => panic("Pas une fonction")
+} 
 
-compile_make_list
-;; pre : les arguments sont en haut de la pile
----------------------
-call $__make_list
 
-compile_case (var:Var, bodys:Vec<FnBody>)
+compile_papcall (var:Var, arg:Var)
 ---------------------
-for n in 0..bodys.len() {
-  ;; on crée un block pour chaque cas énuméré
-  (block $__case{i}
-}
-;; on charge le type de la variable
 compile_var(var)
+call $__copy_pap
+
+local.tee $__intern_var
+;; une copie de la variable pap a été créée
+
+i32.const 12
+i32.add
+
+local.get $__intern_var
+i32.const 12
+i32.add
 i32.load
-;; br_table choisi un enbranchement selon la valeur du type de la variable
-;; br renvoie à la fin du block indiqué, 
-;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
-(br_table 
-for n in 0..bodys.len() {
-  $__case{len-1-i}
-}
-)
-for body in bodys {
-)
-compile_fnbody(body)
-}
- 
+
+i32.const 1
+i32.add
+
+i32.store
+
+;; nb_args ++
+
+local.get $__intern_var
+i32.const 12
+i32.add
+i32.load
+
+i32.const 4
+i32.mul
+local.get $__intern_var
+i32.add
+i32.const 12
+i32.add
+;;emplacement nouvel argument
+
+compile_var(arg)
+i32.store
+
+;; si il y a tous les arguments, exec_pap
+local.get $__intern_var
+i32.const 12
+i32.add
+i32.load
+
+local.get $__intern_var
+i32.const 8
+i32.add
+i32.load
+call $__nb_args
+
+i32.eq
+
+if
+  local.get $__intern_var
+  call $__exec_pap
+  local.set $__intern_var
+end
+
+;; retourne le nouvel objet pap
+local.get $__intern_var
