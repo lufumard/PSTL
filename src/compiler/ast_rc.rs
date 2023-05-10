@@ -43,3 +43,6 @@ pub enum FnRC {
 pub enum ProgramRC {
     Program(IndexMap<Const, FnRC>),
 }
+
+
+pub const CONST_PAP : i32 = 5;
