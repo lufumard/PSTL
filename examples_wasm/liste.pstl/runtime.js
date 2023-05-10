@@ -250,7 +250,7 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
     
-    console.log("\n papbool of [True, False, True, False] = [False, True, False, True]")
+    console.log("\n papbool of [True, True, False] = [False, False, True]")
     //res : Loc
     var startTime = performance.now();
     var res = papbool();
