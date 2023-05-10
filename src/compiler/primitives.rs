@@ -9,7 +9,7 @@ use super::make_bool;
 use super::string_of_var;
 
 #[allow(dead_code)]
-pub const PRIMITIVES: [&str; 13]  = [
+const PRIMITIVES: [&str; 13]  = [
         "add", "sub", "mul", "div", "mod",
         "and", "or", "not",
         "eq", "sup", "inf", "sup_eq", "inf_eq"
@@ -19,15 +19,12 @@ pub fn is_primitive(nom: &String) -> bool {
     PRIMITIVES.contains(&nom.as_str())
 }
 
-pub fn nb_args(nom : &str) -> usize {
-    if nom == "not" {
-        return 1;
-    } else {
-        return 2;
+pub fn has_args(nom : &String, length:usize) -> usize {
+    if nom.clone().eq("not") {
+        return length - 1;
     }
+    return length - 2;
 }
-
-
 
 pub fn compile_fncall_primitive(nom: String, vars:Vec<Var>, out:&mut File) {  
     match nom.as_str() {
@@ -162,6 +159,7 @@ pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
 
 pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
+    dbg!(vars.clone());
     get_num(vars[0].to_owned(), out);
     get_num(vars[1].to_owned(), out);
     write_ln("i32.ge_s", out);
