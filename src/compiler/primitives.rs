@@ -20,7 +20,7 @@ pub fn is_primitive(nom: &String) -> bool {
 }
 
 pub fn nb_args(nom : &str) -> usize {
-    if nom == "not" {
+    if nom.eq("not") {
         return 1;
     } else {
         return 2;
