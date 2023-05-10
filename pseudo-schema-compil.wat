@@ -444,6 +444,8 @@ crée un constructeur de nombre en wat
   i32.const 16     ;; x 16
   local.get $id    ;; x 16 id
   call $__nb_args  ;; x 16 nb_args
+  i32.const 4      ;; x 16 nb_args 4
+  i32.mul          ;; x 16 nb_args*4
   i32.add          ;; x offset
   call $__offset_next ;; x
 
@@ -528,9 +530,8 @@ crée un constructeur de nombre en wat
   (i32.add (local.get $pap) (i32.const 12))
   (i32.add (local.get $var) (i32.const 12))  
   i32.load
+  
   local.tee $args_rest
-
-
   i32.store
 
   ;; copy args
