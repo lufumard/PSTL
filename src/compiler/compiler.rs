@@ -167,7 +167,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
         wr(out);
     write_ln("    ;; stoque l'id de la fonction", out);
         wa1(out);
-    write_ln("    ;; stoque le nombre d'arguments", out);
+    write_ln("    ;; stoque la deuxième adresse", out);
     write_ln("    i32.const 0 ;; 0", out);
     write_ln("    i32.load    ;; x", out);
     write_ln("    i32.const 12;; x 12", out);
@@ -178,9 +178,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    ;; mise à jour de memory[0]", out);
     write_ln("    i32.const 16        ;; x 16", out);
     write_ln("    local.get $a        ;; x 16 a", out);
-    write_ln("    call $__nb_args     ;; x 16 nb_args", out);
-    write_ln("    i32.const 4         ;; x 16 nb_args 4", out);
-    write_ln("    i32.mul             ;; x 16 nb_args*4", out);
+    write_ln("    call $__nb_args     ;; x nb_args", out);
     write_ln("    i32.add             ;; x offset", out);
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
@@ -343,6 +341,16 @@ pub fn compile(program: Program, out : &mut File){
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let ProgramRC::Program(fun_dec) = prog_inc.clone();
     let fn_desc = &make_fun_desc(fun_dec.clone());
+    for (cste, fun) in fun_dec.clone() {
+        let FnRC::Fn(vars, _) = fun;
+        let s = string_of_const(cste);
+        write_out(&format!("(func $fun_{s} (export \"{s}\") "), out);
+        for var in vars {
+            let s = string_of_var(var);
+            write_out(&format!("(param ${s} i32) "), out);
+        }
+        write_ln(&format!("(result i32))"), out);
+    }
     write_runtime(fn_desc, out);
     compile_program(prog_inc, fn_desc, out);
     write_ln(")", out);
@@ -527,8 +535,6 @@ pub fn compile_pap(identWrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Con
             write_ln("i32.const 1", out);
             write_ln("i32.add", out);
             write_ln("i32.store", out);
-
-            write_ln("local.get $__intern_var", out);
         },
         None => {
             let nom = string_of_const(ident);
