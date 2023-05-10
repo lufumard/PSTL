@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+
 use crate::ast::{FnBody, Var, Expr, Fn, Program};
 use crate::compiler::ast_rc::{ExprRC, FnBodyRC, FnRC, ProgramRC};
 

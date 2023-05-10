@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-
-use std::collections::HashMap;
-
 use indexmap::IndexMap;
 
 
@@ -11,7 +7,6 @@ use crate::ast::Expr;
 use crate::ast::FnBody;
 use crate::ast::Fn;
 use crate::ast::Const;
-use crate::compiler::reader_rc::var;
 use crate::interpreter::primitives::has_args;
 use crate::interpreter::primitives::is_primitive;
 

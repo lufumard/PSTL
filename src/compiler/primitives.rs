@@ -8,7 +8,6 @@ use crate::compiler::make_num;
 use super::make_bool;
 use super::string_of_var;
 
-#[allow(dead_code)]
 pub const PRIMITIVES: [&str; 13]  = [
         "add", "sub", "mul", "div", "mod",
         "and", "or", "not",

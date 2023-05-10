@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+
 
 mod ast;
 use chumsky::Parser;

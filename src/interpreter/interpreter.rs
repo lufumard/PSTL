@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::collections::HashMap;
 use std::time::SystemTime;
 pub use crate::ast::CONST_NUM;
@@ -45,8 +43,7 @@ pub struct Heap{
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value{
     Ctor (i32, Vec<Loc>),
-    Pap (Const, Vec<Loc>),
-    Null
+    Pap (Const, Vec<Loc>)
 }
 
 impl Ctxt {
@@ -133,10 +130,6 @@ pub  fn make_num(num : i32) -> Value {
     return Value::Ctor(CONST_NUM, vec![Loc::Loc(num)]);
 }
 
-pub  fn throw() {
-    panic!("Evaluation non défini pour ce type");
-}
-
 
 pub fn start_interpreter (prog : Program, exec: Expr, ctxt: &Ctxt, heap: &mut Heap) -> Loc {
     let Program::Program(fun_dec) = prog;
@@ -180,7 +173,6 @@ pub fn debug_loc(loc : Loc, h : &mut Heap){
             println!("Loc : {l}; valeur : Pap {nom}, {nb} arg:");
             ls.iter().map(|l| debug_loc(*l, h)).count();
         },
-        Value::Null => println!("Loc : {l}; valeur : Null"),
     }
     
 }
@@ -245,10 +237,6 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
         Expr::Num(n) => eval_value(n, ct, h, lfn),
         Expr::PapCall(ident, var) => eval_pap_fncall(ident, var, ct, h, lfn),
     }
-}
-
-pub  fn eval_fun(_:Fn, _: &Ctxt, _:&mut Heap, _:&mut HashMap<String, Fn>) -> Loc {
-    panic!("Pas possible d'évaluer une fonction")
 }
 
 
@@ -433,27 +421,3 @@ pub  fn eval_case(var: Var, bodys: Vec<FnBody>, ct: &Ctxt, h:&mut Heap, lfn:&mut
         panic!("Case sur autre qu'un constructeur")
     }
 }
-
-
-pub fn eval_program(prog : Program, _: &Ctxt, _:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    let Program::Program(fun_dec) = prog;
-    for (cste, fun) in fun_dec {
-        let Const::Const(nom) = cste;
-        lfn.insert(nom.clone(), fun);    
-    }    
-    return Loc::Loc(0);
-}
-
-
-/*
-pub fn eval_inc(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    h.inc(ct.get(var));
-    return eval_fnbody(fnbody, ct, h, lfn);
-}
-
-pub fn eval_dec(var: Var, fnbody: FnBody, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
-    h.dec(ct.get(var));
-    return eval_fnbody(fnbody, ct, h, lfn);
-}
-
-*/
