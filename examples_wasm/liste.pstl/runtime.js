@@ -164,7 +164,7 @@ WebAssembly.instantiate(wasmBuffer, {
      */
 
 
-    const { liste, liste1, head, tail, first, last, length } = wasmModule.instance.exports;
+    const { liste, liste1, head, tail, first, last, length, papadd1, papbool } = wasmModule.instance.exports;
 
     console.log("\nList [1,2,3,4,5]")
     //res : Loc
@@ -226,6 +226,34 @@ WebAssembly.instantiate(wasmBuffer, {
     //res : Loc
     var startTime = performance.now();
     var res = length(liste());
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\npapadd1 of List1 = [2, 2, 2, 2, 2, 2]")
+    //res : Loc
+    var startTime = performance.now();
+    var res = papadd1();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    
+    console.log("\n papbool of [True, False, True, False] = [False, True, False, True]")
+    //res : Loc
+    var startTime = performance.now();
+    var res = papbool();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;

@@ -111,6 +111,9 @@ const interprete = (loc, mem, dt) => {
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (l, mem) => {
+        if (l == 0){
+            return console.log(null)
+        }
         let loc = l / 4;
         let type = mem[loc];
         let refs = mem[loc+1];
@@ -175,7 +178,7 @@ WebAssembly.instantiate(wasmBuffer, {
     const { getpap, main, notpap } = wasmModule.instance.exports;
 
     var startTime = performance.now();
-    var loc = getpap();
+    var loc = main();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 

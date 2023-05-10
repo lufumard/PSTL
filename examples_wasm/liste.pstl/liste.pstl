@@ -52,3 +52,33 @@ liste1 =
     let l1 = ctor3 n1 l2;
     let l0 = ctor3 n1 l1;
     ret l0
+
+fmap f l = case l of
+    (let r = f l; ret r)
+    (let r = f l; ret r)
+    (ret l)
+    (
+        let h = head l;
+        let fh = fmap f h;
+        let t = tail l;
+        let ft = fmap f t;
+        let rl = ctor3 fh ft;
+        ret rl
+    )
+    (let r = f l; ret r)
+
+papadd1 =
+    let n = 1;
+    let f = add n;
+    let l = liste1;
+    let r = fmap f l;
+    ret r
+
+papbool =
+    let f = ctor0;
+    let t = ctor1;
+    let l2 = ctor3 t f;
+    let l1 = ctor3 t l2;
+    let fun = not;
+    let r = fmap fun l1;
+    ret r

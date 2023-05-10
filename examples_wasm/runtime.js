@@ -13,7 +13,8 @@ const CONST_CONTRUCTEURS = {
     true  : 1,
     nil   : 2,
     list  : 3,
-    num   : 4
+    num   : 4,
+    pap   : 5
 }
 
 /**
@@ -101,6 +102,8 @@ const interprete = (loc, mem, dt) => {
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
             i+=3;
+        }else if (mem[i] == CONST_CONTRUCTEURS.pap){
+            i+= mem[i+2] + 2;
         }else{
             i+=4;
         }
@@ -108,6 +111,9 @@ const interprete = (loc, mem, dt) => {
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (l, mem) => {
+        if (l == 0){
+            return console.log(null)
+        }
         let loc = l / 4;
         let type = mem[loc];
         let refs = mem[loc+1];
@@ -129,6 +135,14 @@ const interprete = (loc, mem, dt) => {
                 else interprete_rec(loc1, mem)
                 if(l === loc2) console.log("Liste infinie !");
                 else interprete_rec(loc2, mem)
+                return
+            case CONST_CONTRUCTEURS.pap:
+                let id = mem[loc+2];
+                let nb_args = mem[loc+3];
+                console.log(`loc : @${l}; refs : ${refs} ; valeur : PAP of ${id}, ${nb_args} args`)
+                for (i=0; i<nb_args; i++){
+                    interprete_rec(mem[loc+i+4], mem)
+                }
                 return
             default:
                 return console.log("Loc : ", l, "type inconnu :", type)
