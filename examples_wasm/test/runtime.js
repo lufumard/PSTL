@@ -175,7 +175,7 @@ WebAssembly.instantiate(wasmBuffer, {
     const { getpap, main, notpap } = wasmModule.instance.exports;
 
     var startTime = performance.now();
-    var loc = getpap();
+    var loc = notpap();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 

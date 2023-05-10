@@ -13,8 +13,7 @@ main = let n = 5;
 
 getpap =
     let n = 1;
-    let a = add;
-    let r = a n;
+    let r = add n;
     ret r
 
 notpap =
