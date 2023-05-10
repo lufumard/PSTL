@@ -2,6 +2,7 @@
 pub mod ast_rc;
 pub mod inferring;
 pub mod reuse;
+#[allow(non_snake_case)]
 pub mod inc;
 pub mod reader_rc;
 
@@ -9,6 +10,7 @@ pub mod utils;
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt::format;
 use std::fs::File;
 use crate::compiler::primitives::get_num;
 
@@ -164,7 +166,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
         wr(out);
     write_ln("    ;; stoque l'id de la fonction", out);
         wa1(out);
-    write_ln("    ;; stoque le nombre d'arguments", out);
+    write_ln("    ;; stoque la deuxième adresse", out);
     write_ln("    i32.const 0 ;; 0", out);
     write_ln("    i32.load    ;; x", out);
     write_ln("    i32.const 12;; x 12", out);
@@ -175,9 +177,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    ;; mise à jour de memory[0]", out);
     write_ln("    i32.const 16        ;; x 16", out);
     write_ln("    local.get $a        ;; x 16 a", out);
-    write_ln("    call $__nb_args     ;; x 16 nb_args", out);
-    write_ln("    i32.const 4         ;; x 16 nb_args 4", out);
-    write_ln("    i32.mul             ;; x 16 nb_args*4", out);
+    write_ln("    call $__nb_args     ;; x nb_args", out);
     write_ln("    i32.add             ;; x offset", out);
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
@@ -346,6 +346,16 @@ pub fn compile(program: Program, out : &mut File){
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let ProgramRC::Program(fun_dec) = prog_inc.clone();
     let fn_desc = &make_fun_desc(fun_dec.clone());
+    for (cste, fun) in fun_dec.clone() {
+        let FnRC::Fn(vars, _) = fun;
+        let s = string_of_const(cste);
+        write_out(&format!("(func $fun_{s} (export \"{s}\") "), out);
+        for var in vars {
+            let s = string_of_var(var);
+            write_out(&format!("(param ${s} i32) "), out);
+        }
+        write_ln(&format!("(result i32))"), out);
+    }
     write_runtime(fn_desc, out);
     compile_program(prog_inc, fn_desc, out);
     write_ln(")", out);
@@ -364,6 +374,7 @@ use primitives::PRIMITIVES;
 
 fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
     let mut res = IndexMap::new();
+    let mut index = 0;
     let index = map.iter().fold(0, |index, (cste, fun)| {
         let Const::Const(nom) = cste.clone();
         let FnRC::Fn(params, _) = fun;
@@ -463,7 +474,7 @@ pub fn compile_expr(expr: ExprRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut
         ExprRC::Ctor(n, vars) => compile_ctor(n, vars, out),
         ExprRC::Proj(n, var) => compile_proj(n, var, out),
         ExprRC::Num(n) => compile_value(n, out),
-        ExprRC::PapCall(pap, arg) => compile_papcall(pap, arg, out),
+        ExprRC::PapCall(pap, arg) => compile_papcall(pap, arg, fn_desc, out),
         ExprRC::Reset(var) => compile_reset(var, out),
         ExprRC::Reuse(var, i, args) => compile_reuse(var, i, args, out),
     }
@@ -489,9 +500,15 @@ pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
 }
 
 
-pub fn compile_pap(ident_wrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Const, FnDesc>, out : &mut File)  { 
-    let ConstWrapper::ConstWrapper(_, ident) = ident_wrap;
+pub fn compile_pap(identWrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Const, FnDesc>, out : &mut File)  { 
+    let ConstWrapper::ConstWrapper(_, ident) = identWrap;
     write_ln("\n;;pap", out);  
+    
+    fn compile_add_pap_arg(var:Var, out : &mut File) {
+        // Précondition : l'emplacement de l'argument est en haut de la pile
+        compile_var(var, out);
+        write_ln("i32.store", out);
+    }
     
     match fn_desc.get(&ident) {
         Some(desc) => {
@@ -504,28 +521,26 @@ pub fn compile_pap(ident_wrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Co
             write_ln("call $__make_pap", out);  
             write_ln("local.set $__intern_var", out); 
             
-            if vars.len() > 0 {
-                for i in 0..vars.len() {
-                    // charge l'emplacement de l'argument
-                    let loc = 16 + 4*i;
-                    write_ln("local.get $__intern_var", out);  
-                    write_ln(&format!("i32.const {loc}"), out);  
-                    write_ln("i32.add", out);  
-                    compile_var(vars[i].to_owned(), out);
-                    write_ln("i32.store", out);
-                }
-
-                write_ln("local.get $__intern_var", out);
-                write_ln("i32.const 12", out);
-                write_ln("i32.add", out);
-
-                let nb = vars.len();
-                write_ln(&format!("i32.const {nb}"), out);
-                write_ln("i32.store", out);
+            for i in 0..vars.len() {
+                // charge l'emplacement de l'argument
+                let loc = 16 + 4*i;
+                write_ln("local.get $__intern_var", out);  
+                write_ln(&format!("i32.const {loc}"), out);  
+                write_ln("i32.add", out);  
+                compile_add_pap_arg(vars[i].to_owned(), out);
             }
-            
+            write_ln("local.get $__intern_var", out);
+            write_ln("i32.const 12", out);
+            write_ln("i32.add", out);
 
             write_ln("local.get $__intern_var", out);
+            write_ln("i32.const 12", out);
+            write_ln("i32.add", out);
+            write_ln("i32.load", out);
+
+            write_ln("i32.const 1", out);
+            write_ln("i32.add", out);
+            write_ln("i32.store", out);
         },
         None => {
             let nom = string_of_const(ident);
