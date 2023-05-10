@@ -540,18 +540,18 @@ call $__make_no_arg
 return
 )
 (func $fun_liste (export "liste")(result i32)
-(local $l2 i32)
-(local $n2 i32)
-(local $l1 i32)
-(local $l5 i32)
-(local $n3 i32)
-(local $n4 i32)
-(local $__intern_var i32)
-(local $l3 i32)
-(local $l4 i32)
 (local $nil i32)
-(local $n1 i32)
+(local $n4 i32)
+(local $l5 i32)
+(local $n2 i32)
+(local $n3 i32)
+(local $l3 i32)
+(local $__intern_var i32)
+(local $l2 i32)
 (local $n5 i32)
+(local $n1 i32)
+(local $l1 i32)
+(local $l4 i32)
 
 ;;let
 
@@ -709,13 +709,13 @@ local.get $r
 return
 )
 (func $fun_length (export "length")(param $l i32) (result i32)
-(local $r i32)
-(local $len2 i32)
+(local $t i32)
+(local $len1 i32)
 (local $h i32)
 (local $__intern_var i32)
-(local $len1 i32)
-(local $t i32)
 (local $w1 i32)
+(local $r i32)
+(local $len2 i32)
 
 ;;case
 (block $__case0
@@ -900,15 +900,15 @@ local.get $r
 return
 )
 (func $fun_liste1 (export "liste1")(result i32)
-(local $l4 i32)
-(local $n1 i32)
 (local $l2 i32)
-(local $l0 i32)
-(local $nil i32)
-(local $l5 i32)
 (local $l1 i32)
+(local $l0 i32)
+(local $l5 i32)
+(local $n1 i32)
 (local $l3 i32)
+(local $nil i32)
 (local $__intern_var i32)
+(local $l4 i32)
 
 ;;let
 
@@ -1027,14 +1027,14 @@ local.get $l0
 return
 )
 (func $fun_fmap (export "fmap")(param $f i32) (param $l i32) (result i32)
-(local $r i32)
-(local $t i32)
-(local $w1 i32)
 (local $h i32)
-(local $__intern_var i32)
-(local $fh i32)
+(local $t i32)
 (local $ft i32)
 (local $rl i32)
+(local $fh i32)
+(local $__intern_var i32)
+(local $r i32)
+(local $w1 i32)
 
 ;;case
 (block $__case0
@@ -1270,8 +1270,8 @@ return
 (func $fun_papadd1 (export "papadd1")(result i32)
 (local $r i32)
 (local $f i32)
-(local $n i32)
 (local $__intern_var i32)
+(local $n i32)
 (local $l i32)
 
 ;;let
@@ -1319,12 +1319,12 @@ local.get $r
 return
 )
 (func $fun_papbool (export "papbool")(result i32)
-(local $__intern_var i32)
-(local $fun i32)
+(local $f i32)
 (local $l1 i32)
+(local $__intern_var i32)
 (local $l2 i32)
 (local $r i32)
-(local $f i32)
+(local $fun i32)
 (local $t i32)
 
 ;;let
