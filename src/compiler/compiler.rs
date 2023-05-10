@@ -3,7 +3,6 @@
 pub mod ast_rc;
 pub mod inferring;
 pub mod reuse;
-#[allow(non_snake_case)]
 pub mod inc;
 pub mod reader_rc;
 
@@ -11,7 +10,6 @@ pub mod utils;
 
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::fmt::format;
 use std::fs::File;
 use crate::compiler::primitives::get_num;
 
@@ -361,7 +359,6 @@ use primitives::PRIMITIVES;
 
 fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
     let mut res = IndexMap::new();
-    let mut index = 0;
     let index = map.iter().fold(0, |index, (cste, fun)| {
         let Const::Const(nom) = cste.clone();
         let FnRC::Fn(params, _) = fun;
@@ -461,7 +458,7 @@ pub fn compile_expr(expr: ExprRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut
         ExprRC::Ctor(n, vars) => compile_ctor(n, vars, out),
         ExprRC::Proj(n, var) => compile_proj(n, var, out),
         ExprRC::Num(n) => compile_value(n, out),
-        ExprRC::PapCall(pap, arg) => compile_papcall(pap, arg, fn_desc, out),
+        ExprRC::PapCall(pap, arg) => compile_papcall(pap, arg, out),
         ExprRC::Reset(var) => compile_reset(var, out),
         ExprRC::Reuse(var, i, args) => compile_reuse(var, i, args, out),
     }
@@ -487,46 +484,41 @@ pub fn compile_fncall(ident: Const, vars:Vec<Var>, out : &mut File)  {
 }
 
 
-pub fn compile_pap(identWrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Const, FnDesc>, out : &mut File)  { 
-    let ConstWrapper::ConstWrapper(_, ident) = identWrap;
+pub fn compile_pap(ident_wrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Const, FnDesc>, out : &mut File)  { 
+    let ConstWrapper::ConstWrapper(_, ident) = ident_wrap;
     write_ln("\n;;pap", out);  
-    
-    fn compile_add_pap_arg(var:Var, out : &mut File) {
-        // Précondition : l'emplacement de l'argument est en haut de la pile
-        compile_var(var, out);
-        write_ln("i32.store", out);
-    }
     
     match fn_desc.get(&ident) {
         Some(desc) => {
             if vars.len() > desc.nb_args {
                 panic!("Trop d'arguments dans la construction d'une pap");
             }
+            dbg!(desc.clone());
             let id = desc.id;
             write_ln(&format!("i32.const {id}"), out);
             write_ln("call $__make_pap", out);  
             write_ln("local.set $__intern_var", out); 
             
-            for i in 0..vars.len() {
-                // charge l'emplacement de l'argument
-                let loc = 16 + 4*i;
-                write_ln("local.get $__intern_var", out);  
-                write_ln(&format!("i32.const {loc}"), out);  
-                write_ln("i32.add", out);  
-                compile_add_pap_arg(vars[i].to_owned(), out);
+            if vars.len() > 0 {
+                for i in 0..vars.len() {
+                    // charge l'emplacement de l'argument
+                    let loc = 16 + 4*i;
+                    write_ln("local.get $__intern_var", out);  
+                    write_ln(&format!("i32.const {loc}"), out);  
+                    write_ln("i32.add", out);  
+                    compile_var(vars[i].to_owned(), out);
+                    write_ln("i32.store", out);
+                }
+
+                write_ln("local.get $__intern_var", out);
+                write_ln("i32.const 12", out);
+                write_ln("i32.add", out);
+
+                let nb = vars.len();
+                write_ln(&format!("i32.const {nb}"), out);
+                write_ln("i32.store", out);
             }
-            write_ln("local.get $__intern_var", out);
-            write_ln("i32.const 12", out);
-            write_ln("i32.add", out);
-
-            write_ln("local.get $__intern_var", out);
-            write_ln("i32.const 12", out);
-            write_ln("i32.add", out);
-            write_ln("i32.load", out);
-
-            write_ln("i32.const 1", out);
-            write_ln("i32.add", out);
-            write_ln("i32.store", out);
+            
 
             write_ln("local.get $__intern_var", out);
         },
@@ -612,6 +604,7 @@ fn compile_get_pap_loc_new_arg(var:Var, out : &mut File) {
 fn compile_add_pap_arg(var:Var, arg:Var, out : &mut File) {
     compile_get_pap_loc_new_arg(var.clone(), out);
     compile_var(arg, out);
+    write_ln("i32.store", out);
 
     compile_get_loc_pap_nb_args(var.clone(), out);
 
@@ -622,7 +615,7 @@ fn compile_add_pap_arg(var:Var, arg:Var, out : &mut File) {
     write_ln("i32.store", out);
 }
 
-pub fn compile_papcall(var: Var, arg:Var, fn_desc:&IndexMap<Const, FnDesc>, out : &mut File)  {
+pub fn compile_papcall(var: Var, arg:Var, out : &mut File)  {
     write_ln("\n;;papcall", out);
 
     compile_var(var.clone(), out);

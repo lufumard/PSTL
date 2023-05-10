@@ -520,9 +520,8 @@ crée un constructeur de nombre en wat
   (i32.add (local.get $pap) (i32.const 12))
   (i32.add (local.get $var) (i32.const 12))  
   i32.load
+  
   local.tee $args_rest
-
-
   i32.store
 
   ;; copy args
