@@ -510,7 +510,52 @@ de regrouper des instructions récurentes en fonctions, ce qui simplifie la lect
 
 \subsubsection{Formation des objets dans la mémoire}
 
+\_\_make\_num, \_\_make\_no\_arg, \_\_make\_list, \_\_make\_pap
+
+\subsubsection{Compilation des fonctions}
+
+Pour compiler une fonction, il faut d'abord récolter le nom de toutes les variables utilisées afin de les 
+déclarer et on y ajoute une variale utile à certains scenarios de compilation, \verb|$__intern_var|.
+Ensuite, nous changeons le nom interne de la fonction pour ajouter "fun\_" devant pour éviter les 
+redéfinitions de fonctions internes.
+Il suffit enfin d'écrire la signature de la fonction, en n'oubliant pas d'exporter au nom original.
+
+Puis, on compile le corps de la fonction, et on ajoute derrière une parenthèse fermante pour fermer la fonction.
+
+Ainsi, la structure de la fonction \verb|fibo| de la figure~\ref*{listing:fibo_naif} est la suivante :
+\begin{figure}
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  (func $fun_fibo (export "fibo") (param $n i32) (result i32)
+    (local $__intern_var i32)
+    (local $m1 i32)
+    (local $m2 i32)
+    (local $a i32)
+    (local $r i32)
+    (local $y i32)
+    (local $x i32)
+    (local $m i32)
+    ;; corps de la fonction
+  )
+	\end{lstlisting}
+	\caption{Compilation de la signature de la fonction fibo}
+	\label{listing:signature_fibo}
+\end{figure}
+
 \subsubsection{Let}
+
+Le \verb|let| est très simple à compiler, en effet, il faut compiler l'expression en premier pour mettre la valeur de retour 
+dans la variable, et compiler le reste de la fonction. Pour une variable \verb|x|, le code est donc le suivant
+
+\begin{figure}
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  ;; expression
+  local.set x
+  ;; corps de fonction suivant
+	\end{lstlisting}
+	\caption{Compilation d'un let}
+	\label{listing:compile_let}
+\end{figure}
+
 
 \subsubsection{Case}
 
