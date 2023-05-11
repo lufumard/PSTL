@@ -72,6 +72,8 @@ Au cours de l’exécution, l’espace mémoire peut grandir.
 	\includegraphics[scale=0.65]{logos/model_memory_wasm.png}	
 	\caption{WebAssembly Architecture \cite{noauthor_wasmati_nodate}}
 \end{figure}
+\FloatBarrier 
+
 \section{Cahier des charges}
 Les tâches que nous avons identifiées sont les suivantes :
 
@@ -87,9 +89,8 @@ Les tâches que nous avons identifiées sont les suivantes :
 
 - Programmer un compilateur du langage agrandi vers WASM
 
-\section{Tâches Réalisées}
 
-\subsection{Lecture de l'article}
+\section{Lecture de l'article}
 Le langage fonctionnel décrit dans l'article\cite{ullrich_counting_2020} alloue ses constructeurs dans la pile et manipule des 
 adresses vers ces emplacements mémoire alloués. Il est donc primordial d'avoir un système d'allocation et réutilisation de 
 mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution faible.
@@ -107,6 +108,11 @@ $\lambda_{RC}$ est une extension de $\lambda_{pure}$ auquel on a ajouté les ins
 \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
 Notre interpréteur implémentera $\lambda_{pure}$.
 
+
+\section{AST}
+
+Concernant la grammaire du langage, nous reprenons celle qui est définie dans la section 3 de l'article et retranscrit dans la Figure ~\ref{fig:grammaire pure} ci-dessous.
+
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[scale=0.65]{logos/grammaire.png}
@@ -115,84 +121,6 @@ Notre interpréteur implémentera $\lambda_{pure}$.
 \end{figure}
 \FloatBarrier
 
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[scale=0.40]{logos/grammaire_RC.png}
-	\caption{Grammaire du langage $\lambda_{RC}$}
-	\label{fig:grammaire RC}
-\end{figure}
-\FloatBarrier 
-
-\subsection{Parser/reader}
-Concernant la grammaire du langage, nous reprenons celle qui est définie dans la section 3 de l'article et retranscrit dans la Figure ~\ref{fig:grammaire pure}.
-
-
-Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
-variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
-tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
-
-C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
-fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
-Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
-
-\subsection{Interpréteur}
-
-Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire, 
-dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|).
-
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}
-	\caption{Structures de gestion de la mémoire}
-\end{figure}
-\FloatBarrier 
-
-
-\verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans le tas. C'est la valeur de retour de toutes les sémantiques 
-du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
-Contrairement à l'article, nous avons choisi de ne pas retourner un nouveau tas à chaque fois, mais de garder un même tas que 
-l'on modifie par effet de bord.
-
-\medskip
-
-\subsection{Pile}
-
-La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, 
-l'emplacement de la variable dans le tas, ainsi que la suite de la pile. 
-On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
-de la nouvelle variable ainsi que l'ancienne pile. 
-
-Nous ne transmettons pas la pile crée à l'appelant, ainsi la pile est automatiquement dépilée lorsque l'on quitte le 
-block d'affectation de variable.
-
-Pour chercher une variable, nous parcourons la pile de l'exterieur vers l'intérieur de façon récursive jusqu'à obtenir la variable 
-souhaitée ou arriver à la fin de la pile, dans quel cas l'interpréteur produit une erreur.
-
-Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d'une pile.
-
-\medskip
-
-\subsection{Tas}
-
-Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
-et non passé en sortie de block afin de rendre une seule valeur de retour.
-
-Ce tas \verb|Heap| est une structure contenant le nombre totale d'allocations ainsi qu'une table de hashage d'un entier 
-vers un \verb|Value|.
-
-Cette structure permet de lier des emplacements et les valeurs et fonctionne avec \verb|Ctxt|. 
-
-Les auteurs de l'artice stockent un couple \verb|(Valeur, entier)|, où l'entier est le nombre de références de l'objet. Nous l'implémentons dans
-le compilateur, mais comme l'interpréteur n'adapte que la partie pure du langage, le nombre de références n'est jamais modifié. De ce 
-fait, nous avons préféré enlevé la présence de ce nombre dans l'interpréteur pour simplifier la lecture du code.
-
-\medskip
-
-Ainsi, \verb|Ctxt| permet de prendre une référence associée à un nom de variable et \verb|Heap| permet de prendre la valeur associée à cette référence.
-
-\bigskip
-
-\subsection{AST}
 Nous avons implémenté en Rust l'AST du langage proposé par les auteurs, en en étendant les 
 expression (\verb|Expr|) pour ajouter la notion d'entiers à notre interpréteur,
 sou la forme \verb|Expr::Num(i32)| en Rust afin de tester concrètement notre interpréteur à partir de
@@ -215,14 +143,26 @@ l'obtention d'un champ d'un objet (\verb|Proj(i32, Var)|), ou un entier (\verb|N
 
 Chaque constructeur est défini par un entier différent, détaillé par les constantes globales ci-dessous.
 
-\begin{lstlisting}
-		CONST_FALSE	: i32 = 0;
-		CONST_TRUE 	: i32 = 1;
-		CONST_NIL 	: i32 = 2;
-		CONST_LIST 	: i32 = 3;
-		CONST_NUM 	: i32 = 4;
-\end{lstlisting}
-
+\begin{figure}[H]
+\begin{equation*}
+CONST\_FALSE = 0
+\end{equation*}
+\begin{equation*}
+CONST\_TRUE = 1
+\end{equation*}
+\begin{equation*}
+CONST\_NIL = 2
+\end{equation*}
+\begin{equation*}
+CONST\_LIST = 3
+\end{equation*}
+\begin{equation*}
+CONST\_NUM = 4
+\end{equation*}
+\caption{Type des constructeurs dans le langage $\lambda{pure}$}
+\label{listing:types_ctor}
+\end{figure}
+\FloatBarrier 
 Ainsi, nous avons défini les booléens \verb|False| et \verb|True| par les entiers \verb|0| et \verb|1| respectivement.
 
 Nous utilisons des identifiants plutôt qu'une énumération où l'on pourrait définir chaque type proprement car 
@@ -272,43 +212,338 @@ des définitions de fonction \verb|Fn|.
 
 \bigskip
 
-\subsection{Interprétation}
+\section{Parser/reader}
 
-TODO : interprétation des différents éléments de l'AST
+Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
+variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
+tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
+
+C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
+fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
+Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
+
+C'est aussi avec ce transformateur que l'on transforme les applications en applicaations partielles si il n'y a pas assez d'arguments
+pour exécuter la fonction.
+
+Ainsi, nous obtenus un AST bien formé et correct, où une constante est réellement une constante et une application
+complète est aussi réellement une application complète.
+
+\section{Interpréteur}
+
+La première étape de notre projet était de créer un interpréteur du langage $\lambda{pure}$, sans instruction de gestion de références.
+
+\subsection{Mémoire}
+
+Afin d'implémenter un interpréteur du langage décrit, il nous a d'abord fallu implémenter les structures permettant d'accéder à la mémoire, 
+dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|), comme définies par les auteurs de l'article selon la Figure ~\ref{fig:memory} ci-dessous.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}
+	\caption{Structures de gestion de la mémoire} 
+	\label{fig:memory}
+\end{figure}
+\FloatBarrier 
+
+
+\verb|Loc| est l'adresse de la case mémoire allouée pour la valeur dans le tas. C'est la valeur de retour de toutes les sémantiques 
+du langage, tel que définies dans la figure 1 de l'article\cite{ullrich_counting_2020}.
+Contrairement à l'article, nous avons choisi de ne pas retourner un nouveau tas à chaque fois, mais de garder un même tas que 
+l'on modifie par effet de bord.
+
+\medskip
+
+\subsubsection{Pile}
+
+La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, 
+l'emplacement de la variable dans le tas, ainsi que la suite de la pile. 
+On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
+de la nouvelle variable ainsi que l'ancienne pile. 
+
+Nous ne transmettons pas la pile crée à l'appelant, ainsi la pile est automatiquement dépilée lorsque l'on quitte le 
+block d'affectation de variable.
+
+Pour chercher une variable, nous parcourons la pile de l'exterieur vers l'intérieur de façon récursive jusqu'à obtenir la variable 
+souhaitée ou arriver à la fin de la pile, dans quel cas l'interpréteur produit une erreur.
+
+Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d'une pile.
+
+\medskip
+
+\subsubsection{Tas}
+
+Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
+et non passé en sortie de block afin de rendre une seule valeur de retour.
+
+Ce tas \verb|Heap| est une structure contenant le nombre totale d'allocations ainsi qu'une table de hashage d'un entier 
+vers un \verb|Value|. Pour la compilation, nous allons réserver la première case pour stocker le nombre d'allocations totales,
+ainsi, cette case est définie à 1 dans un tas vide.
+
+Cette structure permet de lier des emplacements et les valeurs et fonctionne avec \verb|Ctxt|. 
+
+Les auteurs de l'artice stockent un couple \verb|(Valeur, entier)|, où l'entier est le nombre de références de l'objet. Nous l'implémentons dans
+le compilateur, mais comme l'interpréteur n'adapte que la partie pure du langage, le nombre de références n'est jamais modifié. De ce 
+fait, nous avons préféré enlevé la présence de ce nombre dans l'interpréteur pour simplifier la lecture du code.
+
+\medskip
+
+Ainsi, \verb|Ctxt| permet de prendre une référence associée à un nom de variable et \verb|Heap| permet de prendre la valeur associée à cette référence.
 
 \bigskip
 
-Nous avons testé cet interpréteur en créant plusieurs tests unitaires sur les sémantiques, mais aussi quelques programmes simples, 
-tels que le calcul de fibonacci, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
+\subsection{Interprétation}
 
-\subsection{Compilateur}
+Une fois le programme parsé et transformé, nous pouvons interpréter le programme, c'est à dire exécuter une expression dans le 
+contexte du programme. Toutes les fonctions de l'interpréteur s'exécutent avec une pile et un tas. Ainsi, nous créons une pile vierge
+et un tas vide que nous passons en référence à chaque fonction de l'interpréteur.
 
-WebAssembly ne possède que des types numériques (i32, f32, i64, f64) ainsi, il est compliqué d'implémenter les applications partielles. 
-Ainsi, nous nous réservons le droit de ne pas les implémenter.
+Ensuite, il nous suffit d'interpréter les instructions en respectant les règles sémantiques du langage telles que définies par les auteurs, 
+selon la Figure ~\ref{fig:semantics} ci-dessous.
 
-Afin d'implémenter le tas en WebAssembly, nous utilisons une \verb|Table| qui nous permet de définir une table dans la mémoire que 
-nous pouvons manipuler de WebAssembly ainsi que de JavaScript. Cette table nous permettra de réaliser des diagnostics ainsi que 
-des évaluations de l'empreinte mémoire.
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[scale=0.70]{logos/semantics.png}
+	\caption{Sémantiques du langage $\lambda_{pure}$}
+	\label{fig:semantics}
+\end{figure}
+\FloatBarrier 
+
+
+\bigskip
+
+
+Il est à noter que, comme indiqué précédemment, nous ne renvoyons pas le nouveau tas à chaque instruction, comme les auteurs, 
+mais seulement l'emplacement de l'objet dans la mémoire, car nous avons préféré modifier le tas par effet de bord.
+
+Nous n'avons pas non plus implémenté les instructions \verb|inc|, \verb|dec|, \verb|reset|, et \verb|reuse|, et donc la notion
+de références dans cet interpréteur car ces instructions ne font pas partie du langage $\lambda_{pure}$, mais du $\lambda_{RC}$.
+Nous les implémentons donc dans le compilateur, qui compile le langage $\lambda_{RC}$ étendu.
+
+Ainsi, hormis le tas et les l'apparition des instructions \verb|inc| et \verb|dec|, nous avons strictement respecté les 
+règles sémantiques du langage $\lambda_{pure}$.
+
+\medskip
+
+Ainsi, pour interpréter un \verb|let|, nous interprétons d'abord l'expression associée, qui renvoie un emplacement dans le tas
+de la valeur interprétée, et nous lions cet emplacement à la variable du \verb|let| en étendant la pile, qui nous passons dans 
+la suite du programme.
+
+\medskip
+
+Pour un \verb|case|, il suffit de récupérer le type de la valeur dans le tas de dont l'emplacement a été lié dans la pile à la variable 
+donnée, puis interpréter la suite de l'AST stocké dans un vecteur selon le type du constructeur (voir Figure~\ref{listing:types_ctor}).
+Une fois le type de la variable récupéré, il s'agit donc d'un simple accès à un vecteur.
+
+\medskip
+
+Pour un \verb|proj|, nous récupérons la valeur à travers la pile puis le tas, puis, si l'index du champ demandé ne dépasse pas la 
+taille du vecteur des champs du constructeur, nous renvoyons l'emplacement stocké.
+
+\medskip
+
+Pour l'interprétation des applications de constantes, il faut d'abord savoir si il s'agit d'une primitive ou d'une fonction 
+définie par l'utilisateur, puis nous fixons les arguments aux noms des paramètres de la fonctions puis nous exécutons le corps de la fonction.
+Il n'y a pas besoin de vérifier que le nombre d'arguments soit exact, car le transformateur s'est occupé de transformer celles-ci
+en définitions d'applications partielles sur des constantes.
+
+\medskip
+
+Enfin, s'il s'agit d'une application partielle, nous vérifions le nombre d'arguments puis nous exécutons une routine similaire,
+en interprétant le corps de la fonction demandée avec les arguments fixés si le nombre d'arguments correspond, ou
+nous renvoyons une nouvelle application partielle étendue du nouvel argument appliqué si il n'y en a pas assez.
+
+\bigskip
+
+Nous avons par ailleurs défini un certain nombre de primitives arithmétiques et booléennes qui nous permettent d'écrire et 
+de tester des programmes dans le langage $\lambda_{pure}$.
+
+\begin{figure}[H]
+	\begin{itemize}
+		\item Fonctions arithmétiques (\verb|add|, \verb|sub|, \verb|mul|, \verb|div|, \verb|mod|)
+		\item Fonctions booléennes sur booléens (\verb|and|, \verb|or|, \verb|not|)
+		\item Fonctions booléennes sur nombres (\verb|eq|, \verb|sup|, \verb|inf|, \verb|sup_eq|, \verb|inf_eq|)
+	\end{itemize}
+	\label{primitives}
+	\caption{Liste des primitives implémentées}
+\end{figure}
+
+\bigskip
+
+Nous avons testé cet interpréteur en créant plusieurs tests sur les sémantiques, mais aussi quelques programmes simples, 
+tels que le calcul de fibonacci.
+%, ou le programme \verb|swap| défini à la page 5 de l'article\cite{ullrich_counting_2020}.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+	fibo n = let m1 = 1; let m2 = 2;
+		let a = inf_eq n m2; case a of
+		(let x = sub n m1; let y = sub n m2; 
+			let m = fibo x; let n = fibo y;
+			let r = add m n; ret r)
+		(ret m1)
+	\end{lstlisting}
+	\caption{Implémentation d'un algorithme naïf de calcul de fibonacci}
+	\label{listing:fibo_naif}
+\end{figure}
+\FloatBarrier 
+
+\section{Compilateur}
+
+La dernière étape de notre projet était de créer un compilateur du langage $\lambda{RC}$. Pour cela, il faut insérer les 
+instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire était
+d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers le langage $\lambda{RC}$.
+
+\subsection{AST}
+
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[scale=0.40]{logos/grammaire_RC.png}
+	\caption{Grammaire du langage $\lambda_{RC}$}
+	\label{fig:grammaire RC}
+\end{figure}
+\FloatBarrier 
+
+\subsection{Insertion des instructions de références}
+
+
+\subsection{Environnement d'exécution}
+
+Notre compilateur génère du code sous le format WAT, le format texte du langage WebAssembly. Ainsi, nous avons besoin
+du ompilateur \verb|wat2wasm| pour créer du code WASM compilé.
+
+Pour être exécuté, un module WASM a besoin d'être appelé par un script JavaScript. Ainsi, nous avons créer un fichier 
+\verb|runtime.js| qui regroupe toutes les fonctions necéssaires à l'exécution d'un module WASM ainsi que l'interprétation
+du résultat obtenu. Nous avons aussi ajouté des fonctions de création de constructeurs de façon à créer et ajouter des objets 
+dans la mémoire avant d'appeler une fonction du module WASM.
+
+\subsection{Structure de la mémoire en WASM}
+
+Pour implémenter le langage en WASM, nous avons besoin de deux structures essentielles : le tas et la pile.
+
+\medskip
+
+Pour la pile, nous n'implémentons pas de structure particulière, nous utilisons la pile de WASM lors de l'appel d'une fonction.
+
+\medskip
+
+Afin d'implémenter le tas en WebAssembly, nous utilisons une structure \verb|Memory| qui nous permet de définir une mémoire que 
+nous pouvons manipuler de WebAssembly ainsi que de JavaScript.
+C'est dans cette mémoire que nous stockons les objets que nous créons
+L'accès à cette mémoire nous permettra de réaliser des diagnostics ainsi que des évaluations de l'empreinte mémoire.
 Nous avons commencé à définir le schéma du tas du code compilé :
 La case mémoire 0 est réservée pour indiquer le prochain espace mémoire libre.
 Ensuite, chaque constructeur suit le format suivant : \verb|<type> <nb_ref> <args>|. Ainsi, un constructeur \verb|FALSE| référencé 
 deux fois est représenté sous la forme "0 2" dans la mémoire. Un entier 10 référencé 3 fois sous la forme "4 3 10".
 
-\section{Tâches Restantes}
 
-Il nous faut choisir un schéma de mémoire pour les objets dans la mémoire.
-Il nous faut implémenter \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
-Il nous faut faire le compilateur en WASM
+\subsection{Applications partielles}
 
-WASM n'a qu'un seul type de variable : les nombres (entiers ou flottant, 32 bit ou 64 bit). 
-Ainsi, il faut que l'on interprète différemment ces nombres selon le contexte dans lequel on les prend. 
-Dans la mémoire, nos constructeurs et applications partielles seront stockés sous la forme \verb|<type> <nombre de références> <arguments>|. 
-Par exemple, une application partielle est sous la forme \verb|6 1 7 2 12 13| où 6 est le type "application partielle", 
+Pour le sapplications partielles, nous avons décider de les stocker dans le tas de la même façon que toutes les autres valeurs.
+Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de charactères, car WebAssembly
+ne supporte pas ce type. Ainsi, nous avons décidé de donner à chaque fonction, primitive ou définie par l'utilisateur, un identifiant
+sous forme d'un entier, qui nous servira à choisir quelle fonction appeler lors de l'exécution de l'application partielle.
+Il nous faut aussi définir un nouveau nombre définissant le type des applications partielles, étendant les types déjà définis
+par à la Figure~\ref{listing:types_ctor}.
+
+\medskip
+
+Ainsi, nous définissons ces types selon la figure suivante.
+
+
+\begin{figure}[H]
+	\begin{equation*}
+	CONST\_FALSE = 0
+	\end{equation*}
+	\begin{equation*}
+	CONST\_TRUE = 1
+	\end{equation*}
+	\begin{equation*}
+	CONST\_NIL = 2
+	\end{equation*}
+	\begin{equation*}
+	CONST\_LIST = 3
+	\end{equation*}
+	\begin{equation*}
+	CONST\_NUM = 4
+	\end{equation*}
+	\begin{equation*}
+	CONST\_PAP = 5
+	\end{equation*}
+	\caption{Type des constructeurs dans le langage $\lambda{RC}$ en WASM}
+	\label{listing:types_ctor_wasm}
+	\end{figure}
+	\FloatBarrier 
+
+\medskip
+
+Dans la mémoire, nos applications partielles sont stockés sous la forme 
+\verb|<type>| \verb|<nombre| \verb|de références>| \verb|<identifiant| \verb|de la fonction>| \verb|<nombre| \verb|d'arguments| \verb|fixés>| \verb|<arguments>|. 
+Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 13 0| où 5 est le type "application partielle", 
 1 est le nombre de références à cette application partielle, 
 7 est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
 2 est le nombre d'arguments fixés et 12 et 13 sont les arguments fixés.
+0 est l'emplacement des arguments non fixés que la fonction peut accepter.
 
-Dû à la difficulté d'une telle tâche, nous laissons l'implémentation des applications partielles pour plus tard.
+\subsection{Schéma mémoire}
+
+Voici donc le schéma de stockage des objets dans la mémoire.
+
+
+\begin{figure}[h]
+	\begin{itemize}
+		\item False : 0 <\#refs>
+		\item True  : 1 <\#refs>
+		\item Nil   : 2 <\#refs>
+		\item List  : 3 <\#refs> <@arg1> <@arg2>
+		\item Num   : 4 <\#refs> <entier>
+		\item Pap   : 5 <\#refs> <id fonction> <\#arguments fixés> <@arg1> <@arg2> ...
+	\end{itemize}
+	\caption{Schéma mémoire}
+	\ref{listing:memoiry_wasm}
+\end{figure}
+
+\subsection{Compilation des instructions en WAT}
+
+Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
+de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur.
+
+\subsubsection{Formation des objets dans la mémoire}
+
+\subsubsection{Let}
+
+\subsubsection{Case}
+
+Avec \verb|block| et \verb|br_table| qui permet de choisi un embranchement selon la valeur en haut de la pile
+
+\subsubsection{Proj}
+
+\subsubsection{Application complète}
+
+\subsubsection{Application partielle}
+
+\subsubsection{Inc et dec}
+
+\subsubsection{Reset et reuse}
+
+\section{Comparaisons}
+
+En testant notre interpréteur et notre compilateur sur une implémentation de la fonction de fibonacci 
+(voir Figure~\ref{listing:fibo_naif}), l'on s'apperçoit que le code compilé est à beaucoup plus rapide que le code interprété,
+mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter.
+
+TODO : Tableau de Comparaisons
+
+\section{Améliorations possibles}
+
+Memory dans le module WAT et exportée, et non l'inverse.
+
+Applications partielles sont remplies puis exécutées. 
+Tester le nombre d'arguments avant de les copier rendrait le tout plus performant.
+
+Enlever la variable \verb|$__intern_var| et remplacer par des fonctions.
+
+\section{Conclusion}
 
 \printbibliography
 \end{document}

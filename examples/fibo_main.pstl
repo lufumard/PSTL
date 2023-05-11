@@ -1,8 +1,8 @@
 fibo n = let m1 = 1; let m2 = 2;
     let a = inf_eq n m2; case a of
     (let x = sub n m1; let y = sub n m2; 
-    let m = fibo x; let n = fibo y;
-    let r = add m n; ret r)
+        let m = fibo x; let n = fibo y;
+        let r = add m n; ret r)
     (ret m1)
 
 main10 = let n = 10; 
