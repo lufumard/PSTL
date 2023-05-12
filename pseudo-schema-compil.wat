@@ -298,6 +298,15 @@ compile_var(var)
 i32.const 4
 i32.add
 
+compile_proj (var:Var, n:i32)
+---------------------
+compile_var(var)
+;; calcul de l'offset en ajoutant la case des références et sur alignement des entier 32 bits
+;; sur liste : 3 4 123 456, proj1 => 123 (offset de 8) et proj2 => 456 (offset de 12)
+i32.const {(n + 1) * 4}
+i32.add ;; calcul de l'adresse à récupérer
+i32.load ;; chargement du nième argument
+
 compile_var (var:Var)
 ---------------------
 let s = string_of_var(var)
