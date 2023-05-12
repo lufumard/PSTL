@@ -137,36 +137,54 @@ compile_fnbody(fnbody)
   i32.const 1;; @ref #ref 1
   i32.sub    ;; @ref #ref-1
   call $__set_ref
-  local.get $var
-  i32.load ;; type
-  i32.const {CONST_PAP}
-  i32.eq ;; est type PAP
   (i32.add (local.get $var) (i32.const 8)) ;; @ref
   i32.load   ;; #ref
   i32.eqz   ;; #ref est 0
-  i32.and   ;; si type PAP et #ref = 0
+  
+  if   ;; si #ref = 0
+    ;; alors
+    local.get $var
+    i32.load ;; type
+    i32.const {CONST_PAP}
+    i32.eq ;; est type PAP
 
-  if   ;; alors
-    (i32.add (local.get $var) (i32.const 12)) ;; @#args
-    i32.load   ;; #args
-    local.set $args_left 
-    (i32.add (local.get $var) (i32.const 16)) ;; @arg1
-    local.set $var 
-    (block $dec_end   
-      (loop $dec_loop   
+    if ;; si de type PAP
+  
+      (i32.add (local.get $var) (i32.const 12)) ;; @#args
+      i32.load   ;; #args
+      local.set $args_left 
+      (i32.add (local.get $var) (i32.const 16)) ;; @arg1
+      local.set $var 
+      (block $dec_end   
+        (loop $dec_loop   
 
-        local.get $var
-        call $__dec
+          local.get $var
+          call $__dec
 
-        (i32.sub (local.get $args_left) (i32.const 1))
-        local.tee $args_left ;; #args--
-    
-        i32.eqz
-        br_if $dec_end
+          (i32.sub (local.get $args_left) (i32.const 1))
+          local.tee $args_left ;; #args--
+      
+          i32.eqz
+          br_if $dec_end
 
-        br $dec_loop
+          br $dec_loop
+        )
       )
-    )
+    end
+
+    local.get $var
+    i32.load ;; type
+    i32.const {CONST_LIST}
+    i32.eq ;; est type LIST
+
+    if ;; si de type LIST
+      (i32.add (local.get $var) (i32.const 8)) ;; @@arg 1
+      i32.load   ;; @arg 1
+      call $__dec;; dec arg 1
+      (i32.add (local.get $var) (i32.const 12)) ;; @@arg 2
+      i32.load   ;; @arg 2
+      call $__dec;; dec arg 2
+    end
   end
     
 )

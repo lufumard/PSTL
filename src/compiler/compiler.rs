@@ -316,36 +316,53 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("  i32.const 1", out);// @ref #ref 1
     write_ln("  i32.sub", out);    // @ref #ref-1
     write_ln("  call $__set_ref", out);
-    write_ln("  local.get $var", out);
-    write_ln("  i32.load", out); // type
-    write_ln(&format!("  i32.const {CONST_PAP}"), out);
-    write_ln("  i32.eq", out); // est type PAP
     write_ln("  (i32.add (local.get $var) (i32.const 8))", out); // @ref
     write_ln("  i32.load", out);   // #ref
     write_ln("  i32.eqz", out);   // #ref est 0
-    write_ln("  i32.and", out);   // si type PAP et #ref = 0
 
     write_ln("  if", out);   // alors
-    write_ln("    (i32.add (local.get $var) (i32.const 12))", out); // @#args
-    write_ln("    i32.load", out);   // #args
-    write_ln("    local.set $args_left", out); 
-    write_ln("    (i32.add (local.get $var) (i32.const 16))", out); // @arg1
-    write_ln("    local.set $var", out); 
-    write_ln("    (block $dec_end", out);   
-    write_ln("      (loop $dec_loop", out);   
-
-    write_ln("        local.get $var", out);
-    write_ln("        call $__dec", out);
-
-    write_ln("        (i32.sub (local.get $args_left) (i32.const 1))", out);
-    write_ln("        local.tee $args_left", out); // #args--
     
-    write_ln("        i32.eqz", out);
-    write_ln("        br_if $dec_end", out);
+    write_ln("    local.get $var", out);
+    write_ln("    i32.load", out); // type
+    write_ln(&format!("    i32.const {CONST_PAP}"), out);
+    write_ln("    i32.eq", out); // est type PAP
 
-    write_ln("        br $dec_loop", out);
+    write_ln("    if", out);
+    write_ln("      (i32.add (local.get $var) (i32.const 12))", out); // @#args
+    write_ln("      i32.load", out);   // #args
+    write_ln("      local.set $args_left", out); 
+    write_ln("      (i32.add (local.get $var) (i32.const 16))", out); // @arg1
+    write_ln("      local.set $var", out); 
+    write_ln("      (block $dec_end", out);   
+    write_ln("        (loop $dec_loop", out);   
+
+    write_ln("          local.get $var", out);
+    write_ln("          call $__dec", out);
+
+    write_ln("          (i32.sub (local.get $args_left) (i32.const 1))", out);
+    write_ln("          local.tee $args_left", out); // #args--
+    
+    write_ln("          i32.eqz", out);
+    write_ln("          br_if $dec_end", out);
+
+    write_ln("          br $dec_loop", out);
+    write_ln("        )", out);
     write_ln("      )", out);
-    write_ln("    )", out);
+    write_ln("    end", out);
+
+    write_ln("    local.get $var", out);
+    write_ln("    i32.load", out); // type
+    write_ln(&format!("    i32.const {CONST_LIST}"), out);
+    write_ln("    i32.eq", out); // est type LIST
+
+    write_ln("    if ;; si de type LIST", out);
+    write_ln("      (i32.add (local.get $var) (i32.const 8)) ;; @@arg 1", out);
+    write_ln("      i32.load   ;; @arg 1", out);
+    write_ln("      call $__dec;; dec arg 1", out);
+    write_ln("      (i32.add (local.get $var) (i32.const 12)) ;; @@arg 2", out);
+    write_ln("      i32.load   ;; @arg 2", out);
+    write_ln("      call $__dec;; dec arg 2", out);
+    write_ln("    end", out);
     write_ln("  end", out);
     
     write_ln(")", out);
