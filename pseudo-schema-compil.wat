@@ -124,8 +124,55 @@ compile_fnbody(fnbody)
 
 compile_dec (var:Var, fnbody:FnBody)
 ---------------------
-compile_dec_body(var)
+compile_var(var)
+call $__dec
 compile_fnbody(fnbody)
+
+
+(func $__dec (param $var i32)
+  (local $args_left i32)
+  local.get $var ;; @var
+  (i32.add (local.get $var) (i32.const 8)) ;; @var @ref
+  i32.load   ;; @ref #ref
+  i32.const 1;; @ref #ref 1
+  i32.sub    ;; @ref #ref-1
+  call $__set_ref
+  local.get $var
+  i32.load ;; type
+  i32.const {CONST_PAP}
+  i32.eq ;; est type PAP
+  (i32.add (local.get $var) (i32.const 8)) ;; @ref
+  i32.load   ;; #ref
+  i32.eqz   ;; #ref est 0
+  i32.and   ;; si type PAP et #ref = 0
+
+  if   ;; alors
+    (i32.add (local.get $var) (i32.const 12)) ;; @#args
+    i32.load   ;; #args
+    local.set $args_left 
+    (i32.add (local.get $var) (i32.const 16)) ;; @arg1
+    local.set $var 
+    (block $dec_end   
+      (loop $dec_loop   
+
+        local.get $var
+        call $__dec
+
+        (i32.sub (local.get $args_left) (i32.const 1))
+        local.tee $args_left ;; #args--
+    
+        i32.eqz
+        br_if $dec_end
+
+        br $dec_loop
+      )
+    )
+  end
+    
+)
+
+
+
 
 
 compile_reset (var:Var)
@@ -133,19 +180,12 @@ compile_reset (var:Var)
 compile_var(var)
 call $__reset
 
-compile_dec_body(var:Var)
----------------------
-compile_var(var) ;; @var
-get_ref_loc(var) ;; @var @ref
-i32.load         ;; @var #ref
-i32.const 1      ;; @var #ref 1
-i32.sub          ;; @var #ref-1
-call $__set_ref
 
 
-(func $__reset (param $var i32) (result i32)
+(func $__reset (param $var_var i32) (result i32)
   (local $__intern_var i32)
-  compile_dec_body(Var("var"))
+  local.get $var_var
+  call $__dec
   get_ref_loc(Var("var"))
   i32.load
 
@@ -154,7 +194,7 @@ call $__set_ref
     i32.const 0
     return
   end
-  local.get $var
+  local.get $var_var
 )
 
 
@@ -162,9 +202,7 @@ compile_reuse (var:Var, ctor: i32, args: Either<i32, Vec<Var>>)
 ---------------------
 compile_var(var)
 ;; teste si la variables est @0 (null) ou pas
-    
 
-    
 ;; types égaux
 compile_var(var)
 i32.load
@@ -245,7 +283,7 @@ i32.add
 compile_var (var:Var)
 ---------------------
 let s = string_of_var(var)
-local.get ${s}
+local.get $var_{s}
 
 
 compile_value(n: i32)
@@ -475,14 +513,17 @@ crée un constructeur de nombre en wat
 )
 
 (func $__exec_pap (param $pap i32) (result i32)
-  (local $p_0 i32)
-  (local $p_1 i32)
+  (local $var_p_0 i32)
+  (local $var_p_1 i32)
   for i in 0..fn_desc.len() {
     ;; on crée un block pour chaque cas énuméré
     (block $__case{i}
   }
-  ;; on charge le type de la variable
-  get_pap_id(Var("pap"))
+  ;; on charge l'index de la fonction de la pap
+  local.get $pap
+  i32.const 8
+  i32.add
+  i32.load
   ;; br_table choisi un enbranchement selon la valeur du type de la variable
   ;; br renvoie à la fin du block indiqué, 
   ;; donc si on veut éxécuter la suite du code de block $__case1, il faut faire br $__case2
@@ -498,7 +539,7 @@ crée un constructeur de nombre en wat
         (i32.add (local.get $pap) (i32.const {16+i*4}))
         i32.load
         
-        local.set $p_{i}
+        local.set $var_p_{i}
       }
 
       let vars = vec![Var("p_0"), Var("p_1")];
