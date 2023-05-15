@@ -131,14 +131,20 @@ compile_fnbody(fnbody)
 
 (func $__dec (param $var i32)
   (local $args_left i32)
+  (local $ref i32)
+  
+  (i32.add (local.get $var) (i32.const 4)) ;; @ref
+  i32.load   ;; #ref
+  local.tee $ref
+  if
+  
   local.get $var ;; @var
-  (i32.add (local.get $var) (i32.const 8)) ;; @var @ref
-  i32.load   ;; @ref #ref
+  
+  local.get $ref;; @ref #ref
   i32.const 1;; @ref #ref 1
   i32.sub    ;; @ref #ref-1
   call $__set_ref
-  (i32.add (local.get $var) (i32.const 8)) ;; @ref
-  i32.load   ;; #ref
+  local.get $ref ;; #ref
   i32.eqz   ;; #ref est 0
   
   if   ;; si #ref = 0
@@ -187,6 +193,7 @@ compile_fnbody(fnbody)
     end
   end
     
+  end
 )
 
 
@@ -339,6 +346,11 @@ compile_get_num(vars[0])
 compile_get_num(vars[1])
 i32.add
 compile_make_num()
+;; il ne faut pas oublier de consommer les objets
+compile_get_num(vars[0])
+call $__dec
+compile_get_num(vars[1])
+call $__dec
 ;; valeur en haut de la pile : l'adresse de l'objet
 
 compile_sub (vars:Vec!<Var>)

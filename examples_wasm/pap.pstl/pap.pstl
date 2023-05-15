@@ -3,10 +3,14 @@ papcall n =
     let pa = pa n;
     ret pa
 
-main = let n = 5;
+mainpapcall f =
     let m = 2;
-    let r = papcall n;
-    let r = r m;
+    let r = f m;
+    ret r
+
+main = let n = 5;
+    let f = papcall n;
+    let r = mainpapcall f;
     ret r
 
 

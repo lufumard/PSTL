@@ -157,9 +157,13 @@ i32.add
     (block $__case11
     (block $__case12
     (block $__case13
+    (block $__case14
     local.get $id
   (br_table 
-$__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__case5 $__case4 $__case3 $__case2 $__case1 $__case0 )
+$__case14 $__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__case5 $__case4 $__case3 $__case2 $__case1 $__case0 )
+)
+    i32.const 1 
+    return
 )
     i32.const 1 
     return
@@ -238,19 +242,7 @@ $__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__c
        local.get $loc_arg_var
        i32.load
        i32.store
-
-       local.get $loc_arg_var
-       i32.load
-       local.get $loc_arg_var
-       i32.load
-
-       i32.const 4
-       i32.add
-       i32.load
-       i32.const 1
-       i32.add
-       call $__set_ref
-
+ 
        (i32.add (local.get $loc_arg_pap) (i32.const 4))    
        local.set $loc_arg_pap
        
@@ -283,18 +275,22 @@ $__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__c
 (block $__case12
 (block $__case13
 (block $__case14
+(block $__case15
 local.get $pap
 i32.const 8
 i32.add
 i32.load
 br_table 
-$__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__case5 $__case4 $__case3 $__case2 $__case1 $__case0 )
+$__case14 $__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__case6 $__case5 $__case4 $__case3 $__case2 $__case1 $__case0 )
 )
 (i32.add (local.get $pap) (i32.const 16))
 i32.load
 call $fun_papcall
-local.get $pap
-call $__dec
+return
+)
+(i32.add (local.get $pap) (i32.const 16))
+i32.load
+call $fun_mainpapcall
 return
 )
 (i32.add (local.get $pap) (i32.const 16))
@@ -313,7 +309,9 @@ i32.add
 i32.load
 i32.add
 call $__make_num
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -333,7 +331,9 @@ i32.add
 i32.load
 i32.sub
 call $__make_num
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -353,7 +353,9 @@ i32.add
 i32.load
 i32.mul
 call $__make_num
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -373,7 +375,9 @@ i32.add
 i32.load
 i32.div_s
 call $__make_num
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -393,7 +397,9 @@ i32.add
 i32.load
 i32.rem_s
 call $__make_num
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -409,7 +415,9 @@ local.get $var_p_1
 i32.load
 i32.and
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -425,7 +433,9 @@ local.get $var_p_1
 i32.load
 i32.or
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -436,7 +446,7 @@ local.get $var_p_0
 i32.load
 i32.eqz
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
 call $__dec
 return
 )
@@ -456,7 +466,9 @@ i32.add
 i32.load
 i32.eq
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -476,7 +488,9 @@ i32.add
 i32.load
 i32.gt_s
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -496,7 +510,9 @@ i32.add
 i32.load
 i32.lt_s
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -516,7 +532,9 @@ i32.add
 i32.load
 i32.ge_s
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
@@ -536,20 +554,25 @@ i32.add
 i32.load
 i32.le_s
 call $__make_no_arg
-local.get $pap
+local.get $var_p_0
+call $__dec
+local.get $var_p_1
 call $__dec
 return
 )
 (func $__dec (param $var i32)
-  (local $args_left i32)
+ (local $args_left i32)
+ (local $ref i32)
+ (i32.add (local.get $var) (i32.const 4))
+ i32.load
+ local.tee $ref
+ if
   local.get $var
-  (i32.add (local.get $var) (i32.const 8))
-  i32.load
+  local.get $ref
   i32.const 1
   i32.sub
   call $__set_ref
-  (i32.add (local.get $var) (i32.const 8))
-  i32.load
+  local.get $ref
   i32.eqz
   if
     local.get $var
@@ -587,6 +610,7 @@ return
       call $__dec;; dec arg 2
     end
   end
+ end
 )
 (func $fun_papcall (export "papcall")(param $var_n i32) (result i32)
 (local $var_pa i32)
@@ -595,7 +619,7 @@ return
 ;;let
 
 ;;pap
-i32.const 2
+i32.const 3
 call $__make_pap
 local.set $__intern_var
 local.get $__intern_var
@@ -650,18 +674,10 @@ local.set $var_pa
 local.get $var_pa
 return
 )
-(func $fun_main (export "main")(result i32)
-(local $var_n i32)
+(func $fun_mainpapcall (export "mainpapcall")(param $var_f i32) (result i32)
 (local $__intern_var i32)
 (local $var_r i32)
 (local $var_m i32)
-
-;;let
-
-;;num
-i32.const 5
-call $__make_num
-local.set $var_n
 
 ;;let
 
@@ -670,16 +686,9 @@ i32.const 2
 call $__make_num
 local.set $var_m
 
-;;let
-
-;;fncall
-local.get $var_n
-call $fun_papcall
-local.set $var_r
-
 ;;inc
-local.get $var_r
-local.get $var_r
+local.get $var_f
+local.get $var_f
 i32.const 4
 i32.add
 i32.load
@@ -688,7 +697,7 @@ i32.add
 call $__set_ref
 
 ;;let
-local.get $var_r
+local.get $var_f
 call $__copy_pap
 local.tee $__intern_var
 i32.const 12
@@ -726,10 +735,41 @@ local.set $var_r
 local.get $var_r
 return
 )
-(func $fun_getpap (export "getpap")(result i32)
-(local $var_a i32)
+(func $fun_main (export "main")(result i32)
+(local $var_f i32)
 (local $var_n i32)
+(local $var_r i32)
 (local $__intern_var i32)
+
+;;let
+
+;;num
+i32.const 5
+call $__make_num
+local.set $var_n
+
+;;let
+
+;;fncall
+local.get $var_n
+call $fun_papcall
+local.set $var_f
+
+;;let
+
+;;fncall
+local.get $var_f
+call $fun_mainpapcall
+local.set $var_r
+
+;;ret
+local.get $var_r
+return
+)
+(func $fun_getpap (export "getpap")(result i32)
+(local $__intern_var i32)
+(local $var_n i32)
+(local $var_a i32)
 
 ;;let
 
@@ -741,7 +781,7 @@ local.set $var_n
 ;;let
 
 ;;pap
-i32.const 1
+i32.const 2
 call $__make_pap
 local.set $__intern_var
 local.get $__intern_var
@@ -768,7 +808,7 @@ return
 ;;let
 
 ;;pap
-i32.const 8
+i32.const 9
 call $__make_pap
 local.set $__intern_var
 local.get $__intern_var

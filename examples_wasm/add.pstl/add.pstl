@@ -3,3 +3,9 @@ addnum a b = let r = add a b; ret r
 add55 = let n = 5;
     let r = add n n;
     ret r
+
+liste = let n =3;
+    let m = 4;
+    let a1 = add m n;
+    let r = ctor3 n a1;
+    ret r

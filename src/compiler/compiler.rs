@@ -309,15 +309,22 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln(")", out);
 
     write_ln("(func $__dec (param $var i32)", out);
-    write_ln("  (local $args_left i32)", out);
+    write_ln(" (local $args_left i32)", out);
+    write_ln(" (local $ref i32)", out);
+    
+    write_ln(" (i32.add (local.get $var) (i32.const 4))", out); // @ref
+    write_ln(" i32.load", out);   // #ref
+    write_ln(" local.tee $ref", out);
+    
+    write_ln(" if", out);   // #ref
+    
+
     write_ln("  local.get $var", out); // @var
-    write_ln("  (i32.add (local.get $var) (i32.const 8))", out); // @var @ref
-    write_ln("  i32.load", out);   // @ref #ref
+    write_ln("  local.get $ref", out);   // @ref #ref
     write_ln("  i32.const 1", out);// @ref #ref 1
     write_ln("  i32.sub", out);    // @ref #ref-1
     write_ln("  call $__set_ref", out);
-    write_ln("  (i32.add (local.get $var) (i32.const 8))", out); // @ref
-    write_ln("  i32.load", out);   // #ref
+    write_ln("  local.get $ref", out);   // #ref
     write_ln("  i32.eqz", out);   // #ref est 0
 
     write_ln("  if", out);   // alors
@@ -364,7 +371,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("      call $__dec;; dec arg 2", out);
     write_ln("    end", out);
     write_ln("  end", out);
-    
+    write_ln(" end", out);
     write_ln(")", out);
     
 }
