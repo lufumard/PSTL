@@ -74,20 +74,6 @@ Au cours de l’exécution, l’espace mémoire peut grandir.
 \end{figure}
 \FloatBarrier 
 
-\section{Cahier des charges}
-Les tâches que nous avons identifiées sont les suivantes :
-
-- Analyser le fonctionnement de WASM et étudier son écosystème.
-
-- Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
-
-- Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
-
-- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
-
-- Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
-
-- Programmer un compilateur du langage agrandi vers WASM
 
 
 \section{Lecture de l'article}
@@ -106,8 +92,24 @@ dont l'exécution est optimisée. Ils définissent un langage source $\lambda_{p
 Qui, après une étape de compilation, deviendra $\lambda_{RC}$, notre langage de destination.
 $\lambda_{RC}$ est une extension de $\lambda_{pure}$ auquel on a ajouté les instructions de gestion de la mémoire : 
 \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|.
-Notre interpréteur implémentera $\lambda_{pure}$.
+Notre interpréteur implémentera le langage $\lambda_{pure}$ et notre compilateur, le langage $\lambda_{RC}$.
 
+
+Les tâches que nous avons identifiées sont les suivantes :
+
+- Analyser le fonctionnement de WASM et étudier son écosystème.
+
+- Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
+
+- Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
+
+- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
+
+- Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
+
+- Programmer un compilateur du langage agrandi vers WASM
+
+Comme dans l'article, nous partons du principe que le typage a déjà été vérifié et que les \verb|let| inutiles ont été enlevés.
 
 \section{AST}
 
@@ -404,7 +406,7 @@ d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers 
 \end{figure}
 \FloatBarrier 
 
-\subsection{Insertion des instructions de références}
+\subsection{Insertion des instructions de références} \label{insert_inc_dec}
 
 
 \subsection{Environnement d'exécution}
@@ -508,7 +510,9 @@ Voici donc le schéma de stockage des objets dans la mémoire.
 \subsection{Compilation des instructions en WAT}
 
 Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
-de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur.
+de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur. Cependant, nous utilisons
+quelques fois dans la compilation et dans ce rapport un style semblable à du Lisp, les instructions enballées dans des parenthèses.
+Ces deux styles sont strictement valables en WebAssembly.
 
 \subsubsection{Formation des objets dans la mémoire}
 
@@ -585,7 +589,7 @@ Pour compiler une fonction, il faut d'abord récolter le nom de toutes les varia
 déclarer et on y ajoute une variale utile à certains scenarios de compilation, \verb|$__intern_var|.
 Ensuite, nous changeons le nom interne de la fonction pour ajouter "fun\_" devant pour éviter les 
 redéfinitions de fonctions internes.
-Nous ajoutons également "var\_" à toutes les variables définies.
+Nous ajoutons également "var\_" à toutes les variables définies pour éviter de les méler à la variable interne \verb|__intern_var|.
 Il suffit enfin d'écrire la signature de la fonction, en n'oubliant pas d'exporter au nom original.
 
 Puis, on compile le corps de la fonction, et on ajoute derrière une parenthèse fermante pour fermer la fonction.
@@ -627,7 +631,29 @@ dans la variable, et compiler le reste de la fonction. Pour une variable \verb|x
 
 \subsubsection{Case}
 
-Avec \verb|block| et \verb|br_table| qui permet de choisi un embranchement selon la valeur en haut de la pile
+Pour compiler les \verb|case|, nous avons besoin d'une structure nous permettant d'exécuter une branche du code suivant la valeur du 
+type de la variable donnée. Ainsi, nous utilisons la combinaison de \verb|block| et \verb|br_table| aussi utilisée pour l'exécution
+d'une application partielle, comme montré sur la figure~\ref*{listing:example_block_br_table}.
+
+Le code d'une instruction \verb|case| à deux embranchements sur la variable \verb|x| définie par l'utilisateur 
+se compile ainsi de la manière suivante
+
+
+\begin{figure}[H]
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  (block $__case0
+    (block $__case1
+      local.get $var_x
+      i32.load
+      (br_table $_case1 $_case0)
+	)
+    ;; suite si type False
+  )
+  ;; suite si type True
+	\end{lstlisting}
+	\caption{Compilation d'un case}
+	\label{listing:compile_case}
+\end{figure}
 
 \subsubsection{Proj}
 
@@ -656,12 +682,61 @@ Ainsi, pour une variable \verb|x| de type liste définie par l'utilisateur, la c
 
 \subsubsection{Application complète}
 
+Pour l'application complète d'une fonction définie par l'utilisateur, il faut charger tous les arguments donnés puis appeler 
+l'équivalent de la fonction en compilé. Ainsi, l'application des variables \verb|x| et \verb|y| définiées par l'utilisateur sur 
+la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref*{listing:compile_app_comp_const}.
+
+\begin{figure}[H]
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  local.get $var_x
+  local.get $var_y
+  call $fun_f
+	\end{lstlisting}
+	\caption{Compilation d'une application complète}
+	\label{listing:compile_app_comp_const}
+\end{figure}
+
+Si la fonction est une primitive, nous appliquons les arguments sur la définition de la primitive en WebAssembly.
+Voici par exemple dans la figure~\ref*{listing:compile_add} la compilation de la primitive \verb|add| appliquée aux variables 
+\verb|x| et \verb|y| définies par l'utilisateur.
+
+\begin{figure}[H]
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  ;; decallage de deux entiers, la place de la valeur du nombre
+  (i32.load (i32.add (local.get $var_x) (i32.const 8)))
+  (i32.load (i32.add (local.get $var_y) (i32.const 8)))
+  i32.add
+  call $__make_num
+  
+  (call $__dec (local.get $var_x))
+  (call $__dec (local.get $var_y))
+	\end{lstlisting}
+	\caption{Compilation d'une application sur une primitive}
+	\label{listing:compile_add}
+\end{figure}
+
+Il ne faut pas oublier de décrémenter les références des objet, car leur des \verb|inc| ont été ajoutés, comme spécifié dans la 
+section~\ref{call $__dec} lors de l'application sur \verb|add| dans l'expression \verb|add x y|.
+
 \subsubsection{Application partielle}
+
+L'application d'une variable sur une application partielle est délicat. En effet, nous avons choisi d'implémenter les applications 
+partielles en stockant toutes les variables appliquées dans la mémoire. Cependant, cela signifie que nous devons copier l'application
+partielle avant d'y fixer la nouvelle variable et incrémenter le nombre d'arguments. Nous appelons donc la fonction 
+\verb|__copy_pap| qui crée une nouvelle application partielle du même type et copie les arguments un à un.
+
+Puis, si il y a assez de variables fixées d'après \verb|__nb_args|, nous appelons la fonction \verb|__exec_pap|, qui charge les 
+variables une à une sur la pile d'exécution de WebAssembly avec une \verb|loop| puis nous appelons la fonction ou nous compilons 
+la primitive selon ce sur quoi l'application partielle est basée. 
+
+De la même manière qu'avec la compilation de \verb|case|, nous savons quelle branche appeler grâce à la 
+combinaison des instructions \verb|block| et \verb|br_table| .Une fois le code compilé, cette fonction est assez longue, 
+car elle contient toutes les primitives définies ainsi que tous les appels des fonctions définies par l'utilisateur.
 
 \subsubsection{Inc et dec}
 
 La compilation d'un \verb|inc| est très simple. En effet, nous ajoutons \verb|1| aux nombre de références de l'objet. 
-Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code de sortie est le suivant.
+Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé est le suivant.
 
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
@@ -701,7 +776,36 @@ charger et chacun des objets du \verb|pap| et y appliquer la fonction \verb|$__d
 
 \subsubsection{Reset et reuse}
 
+La fonction \verb|__reset| décrémente le nombre de références de la variable donnée et renvoie \verb|0| si la variable est 
+effectivement détruite ou l'adresse de la variable si elle est encore en vie. Voici le code WebAssembly de cette fonction.
 
+\begin{figure}[H]
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  (func $__reset (param $var_var i32) (result i32)
+    (call $__dec (local.get $var_var))
+    (i32.add (local.get $var_var) (i32.const 4))
+    i32.load
+    i32.eqz
+    if
+      i32.const 0
+      return
+    end
+    local.get $var_var
+  )
+	\end{lstlisting}
+	\caption{La fonction reset}
+	\label{listing:compile_reset}
+\end{figure}
+
+Il suffit ensuite de charger la variable concernée et d'appeler cette fonction \verb|__reset|.
+
+\medskip
+
+L'instruction \verb|reset| est toujours suivie d'une instruction \verb|reuse|. Celle ci teste si l'adresse de la variable donnée, 
+soit le résultat de l'instruction \verb|reset|, nul puis si il y a assez de place dans l'ancienne variable. Si le résultat de ces
+tests est \verb|1|, on peut copier les arguments donnés après \verb|reuse| dans l'emplacement mémoire de l'ancienne variable.
+
+Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 
 \section{Comparaisons}
 
@@ -715,10 +819,8 @@ TODO : Tableau de Comparaisons
 
 Memory dans le module WAT et exportée, et non l'inverse.
 
-Applications partielles sont remplies puis exécutées. 
-Tester le nombre d'arguments avant de les copier rendrait le tout plus performant.
+Améliorer les applications partielles.
 
-Enlever la variable \verb|$__intern_var| et remplacer par des fonctions.
 
 \section{Conclusion}
 
