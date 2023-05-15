@@ -95,13 +95,17 @@ const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
+    var alive = 0;
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
+            if (mem[i+1] > 0) alive++;
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
+            if (mem[i+1] > 0) alive++;
             i+=3;
         }else{
+            if (mem[i+1] > 0) alive++;
             i+=4;
         }
     }
@@ -160,15 +164,11 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { addnum } = wasmModule.instance.exports;
+    const { add55 } = wasmModule.instance.exports;
 
-    let a = createNum(1, mem);
-    let b = createNum(2, mem);
-
-    console.log(a, b)
 
     var startTime = performance.now();
-    var res = addnum(a, b);
+    var res = add55();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;

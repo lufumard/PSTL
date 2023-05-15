@@ -1,21 +1,19 @@
-papcall n m = 
+papcall n = 
     let pa = sub;
     let pa = pa n;
-    let pa = pa m;
     ret pa
 
 main = let n = 5;
     let m = 2;
-    let r1 = papcall n;
-    let r2 = r1 m;
-    ret r2
+    let r = papcall n;
+    let r = r m;
+    ret r
 
 
 getpap =
     let n = 1;
-    let a = add;
-    let r = a n;
-    ret r
+    let a = add n;
+    ret a
 
 notpap =
     let r = not;

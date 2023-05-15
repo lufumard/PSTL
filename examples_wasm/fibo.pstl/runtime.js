@@ -94,17 +94,22 @@ const createList = (loc1, loc2, mem) => {
 const interprete = (loc, mem, dt) => {
     var nb_alloc = 0;
     var i=1;
+    var alive = 0;
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
+            if (mem[i+1] > 0) alive++;
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
+            if (mem[i+1] > 0) alive++;
             i+=3;
         }else{
+            if (mem[i+1] > 0) alive++;
             i+=4;
         }
     }
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
+    console.log("En vie : ", alive);
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (loc, mem) => {
         let type = mem[loc];
@@ -225,13 +230,13 @@ WebAssembly.instantiate(wasmBuffer1, {
 */
 
 
-const wasmBuffer = fs.readFileSync("fibo_liste.wasm");
+const wasmBuffer = fs.readFileSync("fibo_main.wasm");
 WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
 
     // Initialisation de la mémoire
-    const mem = new Uint32Array(memory.buffer);
+    const mem = new Int32Array(memory.buffer);
     mem[0] = 4;
 
 
@@ -247,23 +252,24 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { fibo45 } = wasmModule.instance.exports;
-
+    const { main10 } = wasmModule.instance.exports;
 
     console.log(`\n\n\nfibo_main.wasm fibo of 10 `)
 
     //var nb = createNum(25, mem);
     var startTime = performance.now();
-    var res = fibo45();
+    var res = main10();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
+    console.log("Mémoire :", mem);
+    
     interprete(loc, mem, deltaTime)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-    
+
 
 });

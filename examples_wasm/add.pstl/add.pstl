@@ -1,1 +1,5 @@
 addnum a b = let r = add a b; ret r
+
+add55 = let n = 5;
+    let r = add n n;
+    ret r
