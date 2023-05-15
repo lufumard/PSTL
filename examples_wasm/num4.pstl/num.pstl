@@ -1,2 +1,0 @@
-num = let n = 4;
-    ret n

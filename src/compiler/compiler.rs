@@ -405,7 +405,7 @@ pub fn compile(program: Program, out : &mut File){
     write_ln("(module", out);
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let ProgramRC::Program(fun_dec) = prog_inc.clone();
-    let fn_desc = &make_fun_desc(fun_dec.clone());
+    let fn_desc = &make_fun_desc(fun_dec);
     write_runtime(fn_desc, out);
     compile_program(prog_inc, fn_desc, out);
     write_ln(")", out);
