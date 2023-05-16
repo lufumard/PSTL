@@ -392,11 +392,13 @@ tels que le calcul de fibonacci.
 \section{Compilateur}
 
 La dernière étape de notre projet était de créer un compilateur du langage $\lambda{RC}$. Pour cela, il faut insérer les 
-instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire était
+instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire est
 d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers le langage $\lambda{RC}$.
 
 \subsection{AST}
 
+Ainsi, nous étendons l'AST du langage $\lambda{pure}$ en suivant l'extension faite par les auteurs de l'article\cite{ullrich_counting_2020},
+selon la figure~\ref{fig:grammaire RC}.
 
 \begin{figure}[hbt!]
 	\centering
@@ -594,7 +596,7 @@ Il suffit enfin d'écrire la signature de la fonction, en n'oubliant pas d'expor
 
 Puis, on compile le corps de la fonction, et on ajoute derrière une parenthèse fermante pour fermer la fonction.
 
-Ainsi, la structure de la fonction \verb|fibo| de la figure~\ref*{listing:fibo_naif} est la suivante :
+Ainsi, la structure de la fonction \verb|fibo| de la figure~\ref{listing:fibo_naif} est la suivante :
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
   (func $fun_fibo (export "fibo") (param $n i32) (result i32)
@@ -633,7 +635,7 @@ dans la variable, et compiler le reste de la fonction. Pour une variable \verb|x
 
 Pour compiler les \verb|case|, nous avons besoin d'une structure nous permettant d'exécuter une branche du code suivant la valeur du 
 type de la variable donnée. Ainsi, nous utilisons la combinaison de \verb|block| et \verb|br_table| aussi utilisée pour l'exécution
-d'une application partielle, comme montré sur la figure~\ref*{listing:example_block_br_table}.
+d'une application partielle, comme montré sur la figure~\ref{listing:example_block_br_table}.
 
 Le code d'une instruction \verb|case| à deux embranchements sur la variable \verb|x| définie par l'utilisateur 
 se compile ainsi de la manière suivante
@@ -684,7 +686,7 @@ Ainsi, pour une variable \verb|x| de type liste définie par l'utilisateur, la c
 
 Pour l'application complète d'une fonction définie par l'utilisateur, il faut charger tous les arguments donnés puis appeler 
 l'équivalent de la fonction en compilé. Ainsi, l'application des variables \verb|x| et \verb|y| définiées par l'utilisateur sur 
-la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref*{listing:compile_app_comp_const}.
+la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref{listing:compile_app_comp_const}.
 
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
@@ -697,7 +699,7 @@ la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref*
 \end{figure}
 
 Si la fonction est une primitive, nous appliquons les arguments sur la définition de la primitive en WebAssembly.
-Voici par exemple dans la figure~\ref*{listing:compile_add} la compilation de la primitive \verb|add| appliquée aux variables 
+Voici par exemple dans la figure~\ref{listing:compile_add} la compilation de la primitive \verb|add| appliquée aux variables 
 \verb|x| et \verb|y| définies par l'utilisateur.
 
 \begin{figure}[H]
