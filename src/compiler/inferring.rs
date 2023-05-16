@@ -20,7 +20,7 @@ pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var
         FnBodyRC::Let(z, e, f) => match e {
             ExprRC::FnCall(c, vars) => {
                 if beta.clone().contains_key(&c) {
-                    let beta_c = beta.clone().get(&c).unwrap().clone();
+                    let beta_c = beta.clone().get(&c).unwrap_or(&vec!['O';vars.len()]).clone();
                     assert_eq!(beta_c.clone().len(), vars.len());
                     collect_o(*f, beta)
                     .union(&vars

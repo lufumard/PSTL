@@ -131,9 +131,9 @@ langages lus de fichiers.
 \bigskip
 
 Les énumérateurs feuilles dans notre AST sont les variables \verb|Var| et les constantes \verb|Const|,
-qui contiennent chacunes une chaîne de charactère décrivant le nom de la fonction pour les constantes et 
+qui contiennent chacune une chaîne de caractère décrivant le nom de la fonction pour les constantes et 
 le nom de la variable pour les variables. La valeur de la variable peut être récupérée dans le tas
-une fois que l'on a l'adresse, obtenue à partir de la pile et de la chaîne de charactère.
+une fois que l'on a l'adresse, obtenue à partir de la pile et de la chaîne de caractère.
 
 \medskip
 
@@ -171,20 +171,20 @@ Nous utilisons des identifiants plutôt qu'une énumération où l'on pourrait d
 c'est comme cela que nous allons stocker les types en mémoire en WASM.
 
 Une fois le contructeur créé, nous pouvons accéder aux champs du contructeur avec \verb|Proj|.
-Il est à noter que seules les listes ont des champs, car ce sont les seuls constructeur qui prennent
+Il est à noter que seules les listes ont des champs, car ce sont les seuls constructeurs qui prennent
 des variables en paramètres pour être créés.
 
 \medskip
 
 Une application partielle \verb|Pap| est un appel de fonction dans lequel il manque des arguments, 
 et un appel de fonction partiel \verb|PapCall| est une application partielle désignée par une variable
-à laquelle nous ajoutons une autre variable, augmentant le nombre d'arguments de un. 
+à laquelle nous ajoutons une autre variable, augmentant le nombre d'arguments d'un. 
 Une fois qu'il y a assez d'arguments dans le vecteur d'arguments de l'application partielle,
 la fonction désignée est exécutée, avec tous les arguments.
 
 \bigskip
 
-En remonttant dans l'AST, nous trouvons les corps de fonction qui peuvent être le retour de fonction d'une variable \verb|Ret(Var)|, 
+En remontant dans l'AST, nous trouvons les corps de fonction qui peuvent être le retour de fonction d'une variable \verb|Ret(Var)|, 
 une affectation de variable \verb|Let(Var, Expr, Box<FnBody>)| ou un match du type d'une variable 
 \verb|Case(Var, Vec<FnBody>)|.
 
@@ -194,7 +194,7 @@ dans la suite de la fonction.
 
 \medskip
 
-Pour savoir quel branche du \verb|Case| il faut exécuter, il suffit tout simplement de regarder
+Pour savoir quelle branche du \verb|Case| il faut exécuter, il suffit tout simplement de regarder
 l'identifiant du type du constructeur. Ainsi, si l'on veut exécuter du code pour les listes,
 il faut d'abord remplir les branches de \verb|False|, \verb|True| et \verb|Nil|.
 Il n'est pas nécessaire de remplir la branche pour les entiers si on considère qu'aucun entier
@@ -224,10 +224,10 @@ C'est pourquoi nous avons besoin de transformer certaines constantes et certains
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
 Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
 
-C'est aussi avec ce transformateur que l'on transforme les applications en applicaations partielles si il n'y a pas assez d'arguments
+C'est aussi avec ce transformateur que l'on transforme les applications en applications partielles s'il n'y a pas assez d'arguments
 pour exécuter la fonction.
 
-Ainsi, nous obtenus un AST bien formé et correct, où une constante est réellement une constante et une application
+Ainsi, nous avons obtenu un AST bien formé et correct, où une constante est réellement une constante et une application
 complète est aussi réellement une application complète.
 
 \section{Interpréteur}
@@ -259,13 +259,13 @@ l'on modifie par effet de bord.
 
 La pile est implémentée par un énumérateur \verb|Ctxt| contenant les champs pour le nom de la variable, 
 l'emplacement de la variable dans le tas, ainsi que la suite de la pile. 
-On agrandi cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
+On agrandit cette pile en l'englobant dans un nouvel énumérateur \verb|Ctxt| contenant les champs 
 de la nouvelle variable ainsi que l'ancienne pile. 
 
 Nous ne transmettons pas la pile crée à l'appelant, ainsi la pile est automatiquement dépilée lorsque l'on quitte le 
 block d'affectation de variable.
 
-Pour chercher une variable, nous parcourons la pile de l'exterieur vers l'intérieur de façon récursive jusqu'à obtenir la variable 
+Pour chercher une variable, nous parcourons la pile de l'extérieur vers l'intérieur de façon récursive jusqu'à obtenir la variable 
 souhaitée ou arriver à la fin de la pile, dans quel cas l'interpréteur produit une erreur.
 
 Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d'une pile.
@@ -277,15 +277,15 @@ Ainsi, nous obtenons une structure de type FILO caractérisant le comportement d
 Nous avons choisi de diverger un peu de l'article\cite{ullrich_counting_2020} en introduisant un tas changé par effet de bord, 
 et non passé en sortie de block afin de rendre une seule valeur de retour.
 
-Ce tas \verb|Heap| est une structure contenant le nombre totale d'allocations ainsi qu'une table de hashage d'un entier 
+Ce tas \verb|Heap| est une structure contenant le nombre total d'allocations ainsi qu'une table de hachage d'un entier 
 vers un \verb|Value|. Pour la compilation, nous allons réserver la première case pour stocker le nombre d'allocations totales,
 ainsi, cette case est définie à 1 dans un tas vide.
 
 Cette structure permet de lier des emplacements et les valeurs et fonctionne avec \verb|Ctxt|. 
 
-Les auteurs de l'artice stockent un couple \verb|(Valeur, entier)|, où l'entier est le nombre de références de l'objet. Nous l'implémentons dans
+Les auteurs de l'article stockent un couple \verb|(Valeur, entier)|, où l'entier est le nombre de références de l'objet. Nous l'implémentons dans
 le compilateur, mais comme l'interpréteur n'adapte que la partie pure du langage, le nombre de références n'est jamais modifié. De ce 
-fait, nous avons préféré enlevé la présence de ce nombre dans l'interpréteur pour simplifier la lecture du code.
+fait, nous avons préféré enlever la présence de ce nombre dans l'interpréteur pour simplifier la lecture du code.
 
 \medskip
 
@@ -295,7 +295,7 @@ Ainsi, \verb|Ctxt| permet de prendre une référence associée à un nom de vari
 
 \subsection{Interprétation}
 
-Une fois le programme parsé et transformé, nous pouvons interpréter le programme, c'est à dire exécuter une expression dans le 
+Une fois le programme parsé et transformé, nous pouvons interpréter le programme, c'est-à-dire exécuter une expression dans le 
 contexte du programme. Toutes les fonctions de l'interpréteur s'exécutent avec une pile et un tas. Ainsi, nous créons une pile vierge
 et un tas vide que nous passons en référence à chaque fonction de l'interpréteur.
 
@@ -317,12 +317,10 @@ selon la Figure ~\ref{fig:semantics} ci-dessous.
 Il est à noter que, comme indiqué précédemment, nous ne renvoyons pas le nouveau tas à chaque instruction, comme les auteurs, 
 mais seulement l'emplacement de l'objet dans la mémoire, car nous avons préféré modifier le tas par effet de bord.
 
-Nous n'avons pas non plus implémenté les instructions \verb|inc|, \verb|dec|, \verb|reset|, et \verb|reuse|, et donc la notion
-de références dans cet interpréteur car ces instructions ne font pas partie du langage $\lambda_{pure}$, mais du $\lambda_{RC}$.
+Nous n'avons pas non plus implémenté les instructions \verb|inc|, \verb|dec|, \verb|reset|, et \verb|reuse|, et donc la notion de références dans cet interpréteur car ces instructions ne font pas partie du langage $\lambda_{pure}$, mais du $\lambda_{RC}$.
 Nous les implémentons donc dans le compilateur, qui compile le langage $\lambda_{RC}$ étendu.
 
-Ainsi, hormis le tas et les l'apparition des instructions \verb|inc| et \verb|dec|, nous avons strictement respecté les 
-règles sémantiques du langage $\lambda_{pure}$.
+Ainsi, hormis le tas et l'apparition des instructions \verb|inc| et \verb|dec|, nous avons strictement respecté les règles sémantiques du langage $\lambda_{pure}$.
 
 \medskip
 
@@ -343,16 +341,16 @@ taille du vecteur des champs du constructeur, nous renvoyons l'emplacement stock
 
 \medskip
 
-Pour l'interprétation des applications de constantes, il faut d'abord savoir si il s'agit d'une primitive ou d'une fonction 
-définie par l'utilisateur, puis nous fixons les arguments aux noms des paramètres de la fonctions puis nous exécutons le corps de la fonction.
+Pour l'interprétation des applications de constantes, il faut d'abord savoir s'il s'agit d'une primitive ou d'une fonction 
+définie par l'utilisateur, puis nous fixons les arguments aux noms des paramètres de la fonction, puis nous exécutons le corps de la fonction.
 Il n'y a pas besoin de vérifier que le nombre d'arguments soit exact, car le transformateur s'est occupé de transformer celles-ci
 en définitions d'applications partielles sur des constantes.
 
 \medskip
 
-Enfin, s'il s'agit d'une application partielle, nous vérifions le nombre d'arguments puis nous exécutons une routine similaire,
+Enfin, s'il s'agit d'une application partielle, nous vérifions le nombre d'arguments, puis nous exécutons une routine similaire,
 en interprétant le corps de la fonction demandée avec les arguments fixés si le nombre d'arguments correspond, ou
-nous renvoyons une nouvelle application partielle étendue du nouvel argument appliqué si il n'y en a pas assez.
+nous renvoyons une nouvelle application partielle étendue du nouvel argument appliqué s'il n'y en a pas assez.
 
 \bigskip
 
@@ -408,15 +406,48 @@ d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers 
 
 \subsection{Insertion des instructions de références} \label{insert_inc_dec}
 
+Cette section correspond à la section 5 de l'article \cite{ullrich_counting_2020}.
+L'insertion des instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| va se faire en trois étapes :
+\begin{enumerate}
+    \item Insérer \verb|reset| et \verb|reuse|
+    \item Inférer les paramètres des fonctions
+    \item Insérer \verb|inc| et \verb|dec|
+\end{enumerate}
+
+\subsubsection{Insertion de reset et reuse}
+En utilisant ces deux instructions, on peut réduire la quantité de mémoire allouée et libérée en réutilisant les cellules mémoire lorsque les valeurs ne sont pas partagées. Cela permet d'économiser des ressources et d'optimiser les performances en évitant des opérations coûteuses d'allocation et de 
+libération de mémoire.
+
+Ces deux instructions sont utilisées ensemble. Si x est une valeur partagée, alors y est initialisé avec une référence spéciale,  et l'instruction reuse alloue simplement une nouvelle valeur de constructeur \verb|ctor|. 
+Si x n'est pas partagé, alors reset décrémente les compteurs de références des composants de x, et y est initialisé à x. 
+Ensuite, reuse réutilise la cellule mémoire utilisée par x pour stocker la valeur d'un constructeur \verb|ctor|. Pour savoir si x est une variable partagée, on vérifie son compteur de références.
+
+On introduit la fonction $\lambda_{reuse}$ qui se charge d'insérer les instructions \verb|inc| et \verb|dec| dans une fonction. Pour cela, elle fait appel à la fonction \textit{R} sur le corps de la fonction.
+%La fonction \textit{R} utilise deux fonctions \textit{D} et \textit{S}.
+Pour chaque case, R tente d'insérer des instructions \verb|reset|\textbackslash \verb|reuse| pour la variable correspondant au case. Cela est fait en utilisant \textit{D} dans chaque bras du case.
+\par La fonction \textit{D} cherche les variables mortes. Elle prend en paramètre la variable z à réutiliser et l'arité n du constructeur correspondant. 
+\textit{D} recherche le premier emplacement où z où n'est pas utilisé dans le reste du corps de la fonction, puis fait appel à \textit{S} en lui donnant une nouvelle variable. 
+Dans notre implémentation, on garde un compteur qu'on incrémente à chaque fois qu'on a besoin d'une nouvelle variable. Et on passe à \textit{S} une variable de la forme w\_compteur. Pour s'assurer qu'on utilise toujours une nouvelle variable, on interdit le fait qu'une variable puisse avoir un nom de la forme w\_nombre. Si aucune instruction \verb|ctor| correspondante ne peut être trouvée, \textit{D} ne modifie pas le corps de la fonction. Sinon, on insère un \verb|reuse|.
+La fonction \textit{S} réalise les substitutions. \textit{S} prend en argument une variable, une arité et une partie du corps de la fonction. Si S trouve un constructeur dont l'arité est n. \textit{S} remplace ce constructeur par \verb|reuse|.
+
+
+\subsubsection{Inférence}
+Dans cette partie, on veut créer une map $\beta(c)$ qui associe à chaque fonction une liste qui donne le status des paramètres : Owned ou Borrowed.
+Un paramètre est owned si une de ses projections est owned ou s'il est passé en argument à une fonction qui prend un paramètre owned.
+\textit{collect\_O} qui retourne les variables qui ne doivent pas owned.
+
+Pour déduire la valeur de $\beta(c)$ on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_(b). Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour n'est effectuée sur  $\beta(c)$. 
+
+\subsubsection{Insertion de inc et dec}
 
 \subsection{Environnement d'exécution}
 
 Notre compilateur génère du code sous le format WAT, le format texte du langage WebAssembly. Ainsi, nous avons besoin
-du ompilateur \verb|wat2wasm| pour créer du code WASM compilé.
+du compilateur \verb|wat2wasm| pour créer du code WASM compilé.
 
-Pour être exécuté, un module WASM a besoin d'être appelé par un script JavaScript. Ainsi, nous avons créer un fichier 
-\verb|runtime.js| qui regroupe toutes les fonctions necéssaires à l'exécution d'un module WASM ainsi que l'interprétation
-du résultat obtenu. Nous avons aussi ajouté des fonctions de création de constructeurs de façon à créer et ajouter des objets 
+Pour être exécuté, un module WASM a besoin d'être appelé par un script JavaScript. Ainsi, nous avons créé un fichier 
+\verb|runtime.js| qui regroupe toutes les fonctions nécessaires à l'exécution d'un module WASM ainsi que l'interprétation
+du résultat obtenu. Nous avons aussi ajouté des fonctions de création de constructeurs de façon à créer et à ajouter des objets 
 dans la mémoire avant d'appeler une fonction du module WASM.
 
 \subsection{Structure de la mémoire en WASM}
@@ -442,7 +473,7 @@ deux fois est représenté sous la forme "0 2" dans la mémoire. Un entier 10 r�
 
 \subsection{Applications partielles}
 
-Pour les applications partielles, nous avons décider de les stocker dans le tas de la même façon que toutes les autres valeurs.
+Pour les applications partielles, nous avons décidé de les stocker dans le tas de la même façon que toutes les autres valeurs.
 Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de charactères, car WebAssembly
 ne supporte pas ce type. Ainsi, nous avons décidé de donner à chaque fonction, primitive ou définie par l'utilisateur, un identifiant
 sous forme d'un entier, qui nous servira à choisir quelle fonction appeler lors de l'exécution de l'application partielle.
@@ -517,11 +548,11 @@ Ces deux styles sont strictement valables en WebAssembly.
 \subsubsection{Formation des objets dans la mémoire}
 
 Pour créer les objets dans la mémoire, nous avons écrit quelques fonctions en WebAssembly.
-Ces fonctions, \verb|__make_num|, \verb|__make_no_arg|, \verb|__make_list| et \verb|__make_pap|, modifie la mémoire
-pour y former un objet du type demandé. Puis, ces fonctions modifie l'emplacement 0 de la mémoire, pour y écrire le
+Ces fonctions, \verb|__make_num|, \verb|__make_no_arg|, \verb|__make_list| et \verb|__make_pap|, modifient la mémoire
+pour y former un objet du type demandé. Puis, ces fonctions modifient l'emplacement 0 de la mémoire, pour y écrire le
 prochain emplacement libre. 
 
-Chaque fonction implémentent dans la mémoire un des quatre stockages différents définis dans le schéma de la 
+Chaque fonction implémente dans la mémoire un des quatre stockages différents définis dans le schéma de la 
 mémoire à la figure~\ref{listing:memory_wasm}.
 
 \bigskip
@@ -538,7 +569,7 @@ Ainsi, l'objet est créé et la prochaine adresse disponible est définie comme 
 \bigskip
 
 Les fonctions \verb|__make_num| et \verb|__make_list| ont un fonctionnement similaire, mais prennent en paramètres non pas le 
-l'objet mais les arguments de l'objet à créer, soit l'entier à créer pour \verb|__make_num|, et les adresses des objets composant la tête et la 
+l'objet, mais les arguments de l'objet à créer, soit l'entier à créer pour \verb|__make_num|, et les adresses des objets composant la tête et la 
 queue de la liste pour \verb|__make_list|. La valeur de la case 0 est incrémentée de 12 et de 16 respectivement.
 
 \bigskip
@@ -567,26 +598,26 @@ L'utilisation de ces deux instructions est la suivante.
   i32.const 1 (*@ \label{ex_br_table_1}@*)
   return
 	\end{lstlisting}
-	\caption{Example d'utilisation de block et br\_table en WebAssembly}
+	\caption{Exemple d'utilisation de block et br\_table en WebAssembly}
 	\label{listing:example_block_br_table}
 \end{figure}
 
 Des \verb|block|s avec un label \verb|$l| peuvent être définis. L'on peut sortir du \verb|block| en enbranchant au label du 
 \verb|block| avec une instruction du type \verb|br $l|.
 
-La \verb|br_table| est une table permettant d'effectuer un enbranchement selon la valeur en haut de la pile.
-La valeur 0 enbranchera sur la branche d'index 0, la valeur 1 enbranchera sur la branche d'index 1, etc\dots
-Il est à noter qu'une valeur supérieure à la taille de la table enbranchera sur la dernière branche de la table.
+La \verb|br_table| est une table permettant d'effectuer un embranchement selon la valeur en haut de la pile.
+La valeur 0 embranchera sur la branche d'index 0, la valeur 1 embranchera sur la branche d'index 1, etc.
+Il est à noter qu'une valeur supérieure à la taille de la table embranchera sur la dernière branche de la table.
 
 Ainsi, en associant les deux, et avec la figure~\ref{listing:example_block_br_table} comme exemple, si la valeur x (ligne~\ref{ex_br_table_x})
-est \verb|0|, la table enbranchera à la fin du block \verb|$b2| pour exécuter la suite du programme (ligne~\ref{ex_br_table_b2}) et 
+est \verb|0|, la table embranchera à la fin du block \verb|$b2| pour exécuter la suite du programme (ligne~\ref{ex_br_table_b2}) et 
 retourner la valeur \verb|0|. Si la valeur de x (ligne~\ref{ex_br_table_x}) est \verb|1| ou supérieure, la table enbranchera à la fin du 
 block \verb|$b1| pour exécuter la suite du programme (ligne~\ref{ex_br_table_b1}) et retourner la valeur \verb|1|.
 
 \subsubsection{Compilation des fonctions}
 
 Pour compiler une fonction, il faut d'abord récolter le nom de toutes les variables utilisées afin de les 
-déclarer et on y ajoute une variale utile à certains scenarios de compilation, \verb|$__intern_var|.
+déclarer et on y ajoute une variable utile à certains scenarios de compilation, \verb|$__intern_var|.
 Ensuite, nous changeons le nom interne de la fonction pour ajouter "fun\_" devant pour éviter les 
 redéfinitions de fonctions internes.
 Nous ajoutons également "var\_" à toutes les variables définies pour éviter de les méler à la variable interne \verb|__intern_var|.
@@ -663,8 +694,8 @@ pointent vers d'autres objets.
 Pour compiler un $proj_i$, il suffit de renvoyer le champ désigné par i, soit ajouter $(i + 1)*4$ à l'adresse de la variable, car
 d'après notre schéma de la mémoire, le seul constructeur possédant des champs est la liste, dont les champs commencent deux cases 
 après le début de l'objet.
-Il ne faut pas oublier que nous commençons l'indexation des champs à 1, c'est à dire que $proj_1$ donne le premier champ, 
-$proj_2$ le deuxième, etc\dots
+Il ne faut pas oublier que nous commençons l'indexation des champs à 1, c'est-à-dire que $proj_1$ donne le premier champ, 
+$proj_2$ le deuxième, etc.
 
 Ainsi, pour une variable \verb|x| de type liste définie par l'utilisateur, la compilation de $proj_1$ est la suivante.
 \begin{figure}[H]
@@ -716,7 +747,7 @@ Voici par exemple dans la figure~\ref*{listing:compile_add} la compilation de la
 \end{figure}
 
 Il ne faut pas oublier de décrémenter les références des objet, car leur des \verb|inc| ont été ajoutés, comme spécifié dans la 
-section~\ref{call $__dec} lors de l'application sur \verb|add| dans l'expression \verb|add x y|.
+section~\ref{call $__dec$} lors de l'application sur \verb|add| dans l'expression \verb|add x y|.
 
 \subsubsection{Application partielle}
 
@@ -725,17 +756,17 @@ partielles en stockant toutes les variables appliquées dans la mémoire. Cepend
 partielle avant d'y fixer la nouvelle variable et incrémenter le nombre d'arguments. Nous appelons donc la fonction 
 \verb|__copy_pap| qui crée une nouvelle application partielle du même type et copie les arguments un à un.
 
-Puis, si il y a assez de variables fixées d'après \verb|__nb_args|, nous appelons la fonction \verb|__exec_pap|, qui charge les 
+Puis, s'il y a assez de variables fixées d'après \verb|__nb_args|, nous appelons la fonction \verb|__exec_pap|, qui charge les 
 variables une à une sur la pile d'exécution de WebAssembly avec une \verb|loop| puis nous appelons la fonction ou nous compilons 
 la primitive selon ce sur quoi l'application partielle est basée. 
 
 De la même manière qu'avec la compilation de \verb|case|, nous savons quelle branche appeler grâce à la 
-combinaison des instructions \verb|block| et \verb|br_table| .Une fois le code compilé, cette fonction est assez longue, 
+combinaison des instructions \verb|block| et \verb|br_table|. Une fois le code compilé, cette fonction est assez longue, 
 car elle contient toutes les primitives définies ainsi que tous les appels des fonctions définies par l'utilisateur.
 
 \subsubsection{Inc et dec}
 
-La compilation d'un \verb|inc| est très simple. En effet, nous ajoutons \verb|1| aux nombre de références de l'objet. 
+La compilation d'un \verb|inc| est très simple. En effet, nous ajoutons \verb|1| au nombre de références de l'objet. 
 Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé est le suivant.
 
 \begin{figure}[H]
@@ -764,7 +795,7 @@ Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé e
 	\label{listing:compile_inc}
 \end{figure}
 
-Le \verb|dec| est un peu plus compliqué, car il ne suffit pas seulement de décrémenter le nombre de références, il faut aussi 
+Le \verb|dec| est un peu plus compliqué, car il ne suffit pas de décrémenter le nombre de références, il faut aussi 
 appliquer un \verb|dec| sur les arguments des \verb|ctor| et \verb|pap| lorsque ceux-ci se retrouvent à 0.
 Ainsi, nous définissons une fonction \verb|$__dec|, qui décrémente l'objet et les arguments de l'objet si besoin.
 
@@ -801,8 +832,8 @@ Il suffit ensuite de charger la variable concernée et d'appeler cette fonction 
 
 \medskip
 
-L'instruction \verb|reset| est toujours suivie d'une instruction \verb|reuse|. Celle ci teste si l'adresse de la variable donnée, 
-soit le résultat de l'instruction \verb|reset|, nul puis si il y a assez de place dans l'ancienne variable. Si le résultat de ces
+L'instruction \verb|reset| est toujours suivie d'une instruction \verb|reuse|. Celle-ci teste si l'adresse de la variable donnée, 
+soit le résultat de l'instruction \verb|reset|, nul puis s'il y a assez de place dans l'ancienne variable. Si le résultat de ces
 tests est \verb|1|, on peut copier les arguments donnés après \verb|reuse| dans l'emplacement mémoire de l'ancienne variable.
 
 Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
@@ -810,7 +841,7 @@ Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 \section{Comparaisons}
 
 En testant notre interpréteur et notre compilateur sur une implémentation de la fonction de fibonacci 
-(voir Figure~\ref{listing:fibo_naif}), l'on s'apperçoit que le code compilé est à beaucoup plus rapide que le code interprété,
+(voir Figure~\ref{listing:fibo_naif}), l'on s'aperçoit que le code compilé est à beaucoup plus rapide que le code interprété,
 mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter.
 
 TODO : Tableau de Comparaisons

@@ -27,6 +27,7 @@ pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
     .zip(vars.clone().into_iter())
     .map(|(status,y)| (y,*status)).collect();
 
+    println!("{:?} {:?}", beta_l.clone(), temp_beta_l);
     FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), beta_bis), beta_l))
 }
 
