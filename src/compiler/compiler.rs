@@ -99,7 +99,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln(")", out);
 
     write_ln("(func $__set_ref (param $adr i32) (param $ref i32)", out);
-    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    ;; mise à jour des ref", out);
     write_ln("    local.get $adr ;; @x", out);
     write_ln("    i32.const 4    ;; @x 4", out);
     write_ln("    i32.add        ;; @refs", out);
@@ -141,9 +141,9 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
-    write_ln("(func $__reset (param $var_var i32) (result i32)", out);
+    write_ln("(func $__reset (param $var i32) (result i32)", out);
     //write_ln("    (local $__intern_var i32)", out);
-    write_ln("    local.get $var_var", out);
+    write_ln("    local.get $var", out);
     write_ln("    call $__dec", out);
     get_ref_loc(Var::Var("var".to_string()), out);
     write_ln("    i32.load", out);
@@ -153,7 +153,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("        i32.const 0", out);
     write_ln("        return", out);
     write_ln("    end", out);
-    write_ln("    local.get $var_var", out);
+    write_ln("    local.get $var", out);
     write_ln(")", out);
 
     
@@ -263,8 +263,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
 
 
     write_ln("(func $__exec_pap (param $pap i32) (result i32)", out);
-    write_ln("(local $var_p_0 i32)", out);
-    write_ln("(local $var_p_1 i32)", out);
+    write_ln("(local $p_0 i32)", out);
+    write_ln("(local $p_1 i32)", out);
     for i in 0..=fn_desc.len() {
         //on crée un block pour chaque cas énuméré
         write_ln(&format!("(block $__case{i}"), out);
@@ -290,7 +290,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 let n = 16+i*4;
                 write_ln(&format!("(i32.add (local.get $pap) (i32.const {n}))"), out);
                 write_ln("i32.load", out);
-                write_ln(&format!("local.set $var_p_{i}"), out);
+                write_ln(&format!("local.set $p_{i}"), out);
             }
 
             let vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
@@ -710,7 +710,7 @@ pub  fn compile_fnbody(body: FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out :
 }
 
 fn string_of_var(Var::Var(s):Var) -> String {
-    return format!("var_{s}");
+    return s;
 }
 
 fn string_of_const(Const::Const(c):Const) -> String {
@@ -726,13 +726,13 @@ pub  fn compile_ret(var: Var, out : &mut File)  {
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
     write_ln("\n;;let", out);
     compile_expr(expr, fn_desc, out);
-    /*if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
+    if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
         write_ln("return", out);
-    } else {*/
+    } else {
         let v = string_of_var(var);
         write_ln(&format!("local.set ${v}"), out);
         compile_fnbody(fnbody, fn_desc, out);
-    //}   
+    }   
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {

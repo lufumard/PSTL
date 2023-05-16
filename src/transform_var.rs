@@ -45,10 +45,19 @@ pub fn transform_program (prog : Program) -> Program {
 fn transform_const(cst : &Const, ctxt_vars : Vec<String>) -> Option<Var> {
     let Const::Const(nom) = cst;
     if ctxt_vars.contains(nom) {
-        Some(Var::Var(nom.to_string()))
+        Some(transform_var(Var::Var(nom.to_string())))
     } else {
         None
     }
+}
+
+/*
+* Variable transformation
+* Renames variables to add "var_" in front
+*/
+
+fn transform_var(Var::Var(s): Var) -> Var {
+    Var::Var(format!("var_{s}"))
 }
 
 /*
@@ -58,8 +67,26 @@ fn transform_const(cst : &Const, ctxt_vars : Vec<String>) -> Option<Var> {
 fn transform_expr(expr: Expr, ctxt_vars:Vec<String>, lfn:&IndexMap<Const, Fn>) -> Expr {
     match expr {
         Expr::FnCall(ident, vars) => transform_fncall(ident, vars, ctxt_vars, lfn),
+        Expr::Proj(n, var) => Expr::Proj(n, transform_var(var)),
+        Expr::Pap(cste, vars) => transform_pap(cste, vars),
+        Expr::Ctor(n, vars) => transform_ctor(n, vars),
+        Expr::PapCall(var, arg) => Expr::PapCall(transform_var(var), transform_var(arg)),
         _ => expr
     }
+}
+
+fn transform_pap(cste:Const, vars:Vec<Var>) -> Expr {
+    let vars = vars.iter()
+                    .map(|v| transform_var(v.to_owned()))
+                    .collect();
+    return Expr::Pap(cste, vars);
+}
+
+fn transform_ctor(n:i32, vars:Vec<Var>) -> Expr {
+    let vars = vars.iter()
+                    .map(|v| transform_var(v.to_owned()))
+                    .collect();
+    return Expr::Ctor(n, vars);
 }
 
 fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&IndexMap<Const, Fn>) -> Expr {
@@ -69,16 +96,19 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
                 let str = string_of_var(var);
                 panic!("{str} has the wrong amount of arguments (papfncall takes exactly 1 argument)");
             }
-            Expr::PapCall(var, vars[0].to_owned())
+            Expr::PapCall(var, transform_var(vars[0].to_owned()))
         },
         None => {
             let Const::Const(name) = ident.clone();
             let diff = has_args(&name, vars.len() as i32);
+            let new_vars = vars.iter()
+                            .map(|v| transform_var(v.to_owned()))
+                            .collect();
             if is_primitive(&name){
                 if diff == 0 {
-                    return Expr::FnCall(ident, vars);
+                    return Expr::FnCall(ident, new_vars);
                 } else if diff < 0 {
-                    return Expr::Pap(ident, vars);
+                    return Expr::Pap(ident, new_vars);
                 } else {
                     panic!("Trop d'arguments pour la fonction")
                 }
@@ -86,9 +116,9 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
                 match lfn.get(&ident) {
                     Some(Fn::Fn(params, _)) => {
                         if params.len() == vars.len() {
-                            return Expr::FnCall(ident, vars);
+                            return Expr::FnCall(ident, new_vars);
                         } else if params.len() > vars.len() {
-                            return Expr::Pap(ident, vars);
+                            return Expr::Pap(ident, new_vars);
                         } else {
                             panic!("Trop d'arguments pour la fonction")
                         }
@@ -108,9 +138,12 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
 
 fn transform_fun(fun:Fn, ctxt_vars:Vec<String>, lfn:&IndexMap<Const, Fn>) -> Fn {
     let Fn::Fn(vars, body) = fun;
+    let new_vars : Vec<Var>= vars.iter()
+                    .map(|v| transform_var(v.to_owned()))
+                    .collect();
     let new_ctxt_vars = vars.iter()
         .fold(ctxt_vars, |acc, v| add_var(&acc, string_of_var(v.to_owned())));
-    Fn::Fn(vars, transform_fnbody(body, new_ctxt_vars, lfn))
+    Fn::Fn(new_vars, transform_fnbody(body, new_ctxt_vars, lfn))
 }
 
 /*
@@ -120,7 +153,7 @@ fn transform_fnbody(body: FnBody, ctxt_vars:Vec<String>, lfn:&IndexMap<Const, Fn
     match body {
         FnBody::Let(var, expr, fnbody) => transform_let(var, expr, *fnbody, ctxt_vars, lfn),
         FnBody::Case(var, bodys) => transform_case(var, bodys, ctxt_vars, lfn),
-        _ => body
+        FnBody::Ret(var) => FnBody::Ret(transform_var(var))
     }
 }
 
@@ -128,12 +161,14 @@ fn transform_let(var: Var, expr: Expr, fnbody: FnBody, ctxt_vars:Vec<String>, lf
     let new_ctxt_vars = add_var(&ctxt_vars, string_of_var(var.clone()));
     let new_expr = transform_expr(expr, ctxt_vars, lfn);
     let new_body = transform_fnbody(fnbody, new_ctxt_vars, lfn);
-    return FnBody::Let(var, new_expr, Box::new(new_body));
+    let new_var = transform_var(var);
+    return FnBody::Let(new_var, new_expr, Box::new(new_body));
 }
 
 fn transform_case(var: Var, bodys: Vec<FnBody>, ctxt_vars:Vec<String>, lfn:&IndexMap<Const, Fn>) -> FnBody {
     let new_bodys : Vec<FnBody> = bodys.iter()
         .map(|b| transform_fnbody(b.to_owned(), ctxt_vars.clone(), lfn))
         .collect();
-    return FnBody::Case(var, new_bodys);
+    let new_var = transform_var(var);
+    return FnBody::Case(new_var, new_bodys);
 }
