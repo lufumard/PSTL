@@ -76,7 +76,7 @@ Au cours de l’exécution, l’espace mémoire peut grandir.
 
 
 
-\section{Lecture de l'article} \label{section:article}
+\section{Lecture de l'article}
 Le langage fonctionnel décrit dans l'article\cite{ullrich_counting_2020} alloue ses constructeurs dans la pile et manipule des 
 adresses vers ces emplacements mémoire alloués. Il est donc primordial d'avoir un système d'allocation et réutilisation de 
 mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution faible.
@@ -117,7 +117,7 @@ Concernant la grammaire du langage, nous reprenons celle qui est définie dans l
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.80]{logos/grammaire.png}
+	\includegraphics[scale=0.65]{logos/grammaire.png}
 	\caption{Grammaire du langage source $\lambda_{pure}$}
 	\label{fig:grammaire pure}
 \end{figure}
@@ -224,8 +224,8 @@ C'est pourquoi nous avons besoin de transformer certaines constantes et certains
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
 Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
 
-C'est aussi avec ce transformateur que l'on transforme les applications en applications partielles si il n'y a pas assez d'arguments
-pour exécuter la fonction. Nous ajoutons par ailleur un préfixe "var\_" aux variables définies par l'utilisateur.
+C'est aussi avec ce transformateur que l'on transforme les applications en applications partielles s'il n'y a pas assez d'arguments
+pour exécuter la fonction.
 
 Ainsi, nous avons obtenu un AST bien formé et correct, où une constante est réellement une constante et une application
 complète est aussi réellement une application complète.
@@ -241,7 +241,7 @@ dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|), comme dé
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.80]{logos/figure_strutures_interpreteur.png}
+	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}
 	\caption{Structures de gestion de la mémoire} 
 	\label{fig:memory}
 \end{figure}
@@ -304,7 +304,7 @@ selon la Figure ~\ref{fig:semantics} ci-dessous.
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.80]{logos/semantics.png}
+	\includegraphics[scale=0.70]{logos/semantics.png}
 	\caption{Sémantiques du langage $\lambda_{pure}$}
 	\label{fig:semantics}
 \end{figure}
@@ -375,12 +375,12 @@ tels que le calcul de fibonacci.
 
 \begin{figure}[H]
 	\begin{lstlisting}
-	fibo n = let m1 = 1; 
-		let a = inf_eq n m1; let m2 = 2; case a of
+	fibo n = let m1 = 1; let m2 = 2;
+		let a = inf_eq n m2; case a of
 		(let x = sub n m1; let y = sub n m2; 
 			let m = fibo x; let n = fibo y;
 			let r = add m n; ret r)
-		(ret n)
+		(ret m1)
 	\end{lstlisting}
 	\caption{Implémentation d'un algorithme naïf de calcul de fibonacci}
 	\label{listing:fibo_naif}
@@ -390,23 +390,21 @@ tels que le calcul de fibonacci.
 \section{Compilateur}
 
 La dernière étape de notre projet était de créer un compilateur du langage $\lambda{RC}$. Pour cela, il faut insérer les 
-instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire est
+instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire était
 d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers le langage $\lambda{RC}$.
 
 \subsection{AST}
 
-Ainsi, nous étendons l'AST du langage $\lambda{pure}$ en suivant l'extension faite par les auteurs de l'article\cite{ullrich_counting_2020},
-selon la figure~\ref{fig:grammaire RC}.
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.45]{logos/grammaire_RC.png}
-	\caption{Extension de la grammaire du langage $\lambda_{RC}$}
+	\includegraphics[scale=0.40]{logos/grammaire_RC.png}
+	\caption{Grammaire du langage $\lambda_{RC}$}
 	\label{fig:grammaire RC}
 \end{figure}
 \FloatBarrier 
 
-\subsection{Insertion des instructions de références} \label{section:insert_inc_dec}
+\subsection{Insertion des instructions de références} \label{insert_inc_dec}
 
 Cette section correspond à la section 5 de l'article \cite{ullrich_counting_2020}.
 L'insertion des instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| va se faire en trois étapes :
@@ -434,13 +432,28 @@ La fonction \textit{S} réalise les substitutions. \textit{S} prend en argument 
 
 
 \subsubsection{Inférence}
-Dans cette partie, on veut créer une map $\beta(c)$ qui associe à chaque fonction une liste qui donne le status des paramètres : Owned ou Borrowed.
+Dans cette partie, on veut créer une map $\beta$ qui associe à chaque fonction une liste qui donne le status des paramètres : Owned ou Borrowed.
 Un paramètre est owned si une de ses projections est owned ou s'il est passé en argument à une fonction qui prend un paramètre owned.
 \textit{collect\_O} qui retourne les variables qui ne doivent pas owned.
 
-Pour déduire la valeur de $\beta(c)$ on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_(b). Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour n'est effectuée sur  $\beta(c)$. 
+Pour déduire la valeur de $\beta$ pour une fonction c, on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_O(b). Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour n'est effectuée sur $\beta(c)$. 
+Une application ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. Dans notre implémentation, le nom de $c_O$ est de la forme c\_$nom de la fonction$. Qu'on ajoute dans $\beta$ et dont tous les paramètres sont owned. Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y.
+
 
 \subsubsection{Insertion de inc et dec}
+Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
+On suppose que notre map $\beta$ de la section précédente est bien définie. Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son status('B' ou 'O'). $\beta_l$ avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme owned.
+
+On utilise plusieurs fonctions :
+\begin{itemize}
+    \item $O_x^{+}$: la variable x n'est pas incrémenté si elle est Owned et morte.
+    \item C : appelé sur le corps de la fonction pour effectuer l'ajout d'instruction \verb|inc| et \verb|dec|.
+    \item $C_{app}$: se charge des applications. En effectuant des appels récursifs sur les paramètres et leur status.
+    \item $O^{-}$: sert à décrémenter plusieurs variables, utilisé au début d'un case et d'une fonction.
+    \item  $O_x^{-}$: décrément la variable x si elle est Owned et morte.   
+\end{itemize}
+
+Si on a un tail call pour le préserver, on change  $\beta(c)_i$ = O si c est utilisé dans le tail call et $\beta_l(x_i)$ est owned.
 
 \subsection{Environnement d'exécution}
 
@@ -516,16 +529,16 @@ Ainsi, nous définissons ces types selon la figure suivante.
 
 Dans la mémoire, nos applications partielles sont stockés sous la forme 
 \verb|<type>| \verb|<nombre| \verb|de références>| \verb|<identifiant| \verb|de la fonction>| \verb|<nombre| \verb|d'arguments| \verb|fixés>| \verb|<arguments>|. 
-Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 14 0| où \verb|5| est le type "application partielle", 
-\verb|1| est le nombre de références à cette application partielle, 
-\verb|7| est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
-\verb|2| est le nombre d'arguments fixés et \verb|12| et \verb|14| sont les arguments fixés et
-\verb|0| est l'emplacement des arguments non fixés que la fonction peut accepter.
+Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 13 0| où 5 est le type "application partielle", 
+1 est le nombre de références à cette application partielle, 
+7 est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
+2 est le nombre d'arguments fixés et 12 et 13 sont les arguments fixés.
+0 est l'emplacement des arguments non fixés que la fonction peut accepter.
 
 \subsection{Schéma mémoire}
 
-La figure~\ref{listing:memory_wasm} représente le schéma de stockage des objets dans la mémoire, c'est à dire la formation
-de chaque type d'objet dans la mémoire.
+Voici donc le schéma de stockage des objets dans la mémoire.
+
 
 \begin{figure}[H]
 	\begin{itemize}
@@ -540,26 +553,7 @@ de chaque type d'objet dans la mémoire.
 	\label{listing:memory_wasm}
 \end{figure}
 
-Les argument des types prennent une case mémoire chacun, c'est à dire la place d'un entier signé 32 bits. 
-Il est certain qu'il s'agit d'un gachi de place de donner 4 octets pour chaque argument, mais WebAssembly n'a pas de type plus
-petit, et cela augmenterait donc la complexité de l'implémentation que d'utiliser 32 bits pour représenter plusieurs arguments.
-Ainsi, l'alignement de la mémoire sera toujours de 32 bits, soit 4 octets. Les adresses de nos variables seront donc toujours 
-multiples de 4.
-
 \subsection{Compilation des instructions en WAT}
-
-Il nous faut compiler les instructions du langage $\lambda{pure}$ dont nous avons les sémantiques sur la figure~\ref{fig:semantics}
-ainsi que les nouvelles instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse|. Pour ces nouvelles instructions, nous
-suivons les sémantiques définies par les auteurs présentes dans la figure~\ref{fig:semantics_rc} ci-dessous.
-
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[scale=0.80]{logos/semantics_rc.png}
-	\caption{Sémantiques de la partie $\lambda_{RC}$ du langage}
-	\label{fig:semantics_rc}
-\end{figure}
-\FloatBarrier 
-
 
 Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
 de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur. Cependant, nous utilisons
@@ -641,14 +635,12 @@ Pour compiler une fonction, il faut d'abord récolter le nom de toutes les varia
 déclarer et on y ajoute une variable utile à certains scenarios de compilation, \verb|$__intern_var|.
 Ensuite, nous changeons le nom interne de la fonction pour ajouter "fun\_" devant pour éviter les 
 redéfinitions de fonctions internes.
-Nous avons également ajouté "var\_" à toutes les variables définies grâce au transformateur .
-Cela nous permet de définir des variables internes telles que \verb|__intern_var| qui ne peuvent pas être modifiées par 
-l'utilisateur.
+Nous ajoutons également "var\_" à toutes les variables définies pour éviter de les méler à la variable interne \verb|__intern_var|.
 Il suffit enfin d'écrire la signature de la fonction, en n'oubliant pas d'exporter au nom original.
 
 Puis, on compile le corps de la fonction, et on ajoute derrière une parenthèse fermante pour fermer la fonction.
 
-Ainsi, la structure de la fonction \verb|fibo| de la figure~\ref{listing:fibo_naif} est la suivante :
+Ainsi, la structure de la fonction \verb|fibo| de la figure~\ref*{listing:fibo_naif} est la suivante :
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
   (func $fun_fibo (export "fibo") (param $n i32) (result i32)
@@ -687,7 +679,7 @@ dans la variable, et compiler le reste de la fonction. Pour une variable \verb|x
 
 Pour compiler les \verb|case|, nous avons besoin d'une structure nous permettant d'exécuter une branche du code suivant la valeur du 
 type de la variable donnée. Ainsi, nous utilisons la combinaison de \verb|block| et \verb|br_table| aussi utilisée pour l'exécution
-d'une application partielle, comme montré sur la figure~\ref{listing:example_block_br_table}.
+d'une application partielle, comme montré sur la figure~\ref*{listing:example_block_br_table}.
 
 Le code d'une instruction \verb|case| à deux embranchements sur la variable \verb|x| définie par l'utilisateur 
 se compile ainsi de la manière suivante
@@ -714,7 +706,7 @@ se compile ainsi de la manière suivante
 On ne peut exécuter un proj que sur un objet de type \verb|CONST_LIST|, car c'est le seul constructeur qui contient des champs qui
 pointent vers d'autres objets.
 
-Pour compiler un $proj_i$, il suffit donc de renvoyer le champ désigné par i, soit ajouter $(i + 1)*4$ à l'adresse de la variable, car
+Pour compiler un $proj_i$, il suffit de renvoyer le champ désigné par i, soit ajouter $(i + 1)*4$ à l'adresse de la variable, car
 d'après notre schéma de la mémoire, le seul constructeur possédant des champs est la liste, dont les champs commencent deux cases 
 après le début de l'objet.
 Il ne faut pas oublier que nous commençons l'indexation des champs à 1, c'est-à-dire que $proj_1$ donne le premier champ, 
@@ -738,7 +730,7 @@ Ainsi, pour une variable \verb|x| de type liste définie par l'utilisateur, la c
 
 Pour l'application complète d'une fonction définie par l'utilisateur, il faut charger tous les arguments donnés puis appeler 
 l'équivalent de la fonction en compilé. Ainsi, l'application des variables \verb|x| et \verb|y| définiées par l'utilisateur sur 
-la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref{listing:compile_app_comp_const}.
+la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref*{listing:compile_app_comp_const}.
 
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
@@ -751,7 +743,7 @@ la fonction \verb|f| définie par l'utilisateur se compile selon la figure~\ref{
 \end{figure}
 
 Si la fonction est une primitive, nous appliquons les arguments sur la définition de la primitive en WebAssembly.
-Voici par exemple dans la figure~\ref{listing:compile_add} la compilation de la primitive \verb|add| appliquée aux variables 
+Voici par exemple dans la figure~\ref*{listing:compile_add} la compilation de la primitive \verb|add| appliquée aux variables 
 \verb|x| et \verb|y| définies par l'utilisateur.
 
 \begin{figure}[H]
@@ -794,19 +786,23 @@ Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé e
 
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
-  ;; chargement de l'adresse pour le stockage
+  ;; chargement de l'adresse
   local.get $var_x
+  i32.const 8     ;; 8 car #ref est deuxieme, donc 2*4
+  i32.add
 
   ;; chargement des references
-  (i32.add (local.get $var_x) (i32.const 4)) 
+  local.get $var_x
+  i32.const 8     
+  i32.add
   i32.load
    
   ;; calcul des nouvelles references
   i32.const 1
-  i32.add
+  i32.sub
 
   ;; stockage
-  call $__set_ref
+  i32.store
 
   ;; corps de fonction suivant
 	\end{lstlisting}
@@ -814,24 +810,7 @@ Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé e
 	\label{listing:compile_inc}
 \end{figure}
 
-Avec la fonction \verb|__set_ref|
-
-\begin{figure}[H]
-	\begin{lstlisting}[escapeinside={(*@}{@*)}]
-  (func $__set_ref (param $adr i32) (param $ref i32)
-    ;; mise a jour des refs
-    local.get $adr ;; @x
-    i32.const 4    ;; @x 4
-    i32.add        ;; @refs
-    local.get $ref ;; @refs #refs
-    i32.store      ;;
-  )
-	\end{lstlisting}
-	\caption{Fonction \_\_set\_ref}
-	\label{listing:set_ref}
-\end{figure}
-
-Le \verb|dec| est un peu plus compliqué, car il ne suffit pas seulement de décrémenter le nombre de références, il faut aussi 
+Le \verb|dec| est un peu plus compliqué, car il ne suffit pas de décrémenter le nombre de références, il faut aussi 
 appliquer un \verb|dec| sur les arguments des \verb|ctor| et \verb|pap| lorsque ceux-ci se retrouvent à 0.
 Ainsi, nous définissons une fonction \verb|$__dec|, qui décrémente l'objet et les arguments de l'objet si besoin.
 
@@ -874,55 +853,22 @@ tests est \verb|1|, on peut copier les arguments donnés après \verb|reuse| dan
 
 Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 
-\section{Résultats}
-
-Noous allons maintenant tester notre interpréteur et notre compilateur sur la fonction de fibonacci.
-
-\begin{table}[H]
-	\begin{tabular}{|c|r|r|r|r|r|r|}
-	\hline
-	\textbf{n} &
-	  \multicolumn{1}{c|}{\textbf{fibo(n)}} &
-	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ d'exécution\\ interprète\end{tabular}}} &
-	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ d'exécution\\ compilé\end{tabular}}} &
-	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Allocations\\ interprète\end{tabular}}} &
-	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Allocations\\ compilé\end{tabular}}} &
-	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Objets\\ en vie\\ compilé\end{tabular}}} \\ \hline
-	5  & 5       & 0 ms   & 0.016 ms  & 75         & 59         & 17        \\ \hline
-	10 & 55      & 20 ms  & 0.044 ms  & 885        & 707        & 179       \\ \hline
-	15 & 610     & 134 ms & 0.385 ms  & 9 865      & 7 891      & 1 975     \\ \hline
-	20 & 6 765   & 1.74 s & 5.82 ms   & 109 455    & 87 563     & 21 893    \\ \hline
-	25 & 75 025  & 23.3 s & 36.11 ms  & 1 213 925  & 971 139    & 242 787   \\ \hline
-	30 & 832 040 & 5 mins & 371.63 ms & 13 462 685 & 10 770 147 & 2 692 539 \\ \hline
-	\end{tabular}
-	\caption{Résultats de l'exécution de fibo sur l'interprète et en compilé}
-	\label{table:results}
-\end{table}
+\section{Comparaisons}
 
 En testant notre interpréteur et notre compilateur sur une implémentation de la fonction de fibonacci 
-(voir Figure~\ref{listing:fibo_naif}), l'on s'apperçoit que le code compilé prend moins de temps à s'exécuter que le code interprété,
-mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter. En effet, nous pouvons observer une réduction de 20\% du nombre 
-d'allocations dans la mémoire. Cela est dû à l'insertion des instruction \verb|reset| et \verb|reuse|.
+(voir Figure~\ref{listing:fibo_naif}), l'on s'aperçoit que le code compilé est à beaucoup plus rapide que le code interprété,
+mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter.
+
+TODO : Tableau de Comparaisons
 
 \section{Améliorations possibles}
 
-Comme précisé à la fin de la section~\ref{section:article}, nous avons implémenté un compilateur en partant du principe que le 
-typage est bon et que les verb|let| inutiles ont été enlevés. Le langage implémenté n'est donc pas typé statiquement.
+Memory dans le module WAT et exportée, et non l'inverse.
 
-De plus, nous avons implémenté les applications partielles de la façon la plus simple à laquelle nous avons pensé. 
-Cette implémentation n'est pas optimale car nous créons une nouvelle application partielle avant de l'exécuter et de la détruire.
+Améliorer les applications partielles.
 
-Nous aurions pu utiliser un unique objet global pour des constructeurs sans arguments tels que $False$, $True$ ou $Nil$. 
-Nous avons en effet choisi de créer des objets à chaque fois pour avoir plus d'éléments sur lesquels agir. Dans une 
-version plus complète du compilateur, il serait plus intelligent de rendre ces constructeurs sans arguments uniques. L'on 
-pourrait par ailleur introduire une meilleure gestion de la mémoire semblable à un \verb|malloc| en C.
 
-De plus, nous n'avons pas non plus implémenté la récursion terminale en WebAssembly. Cependant, l'optimisation des \verb|dec| et \verb|inc| 
-sur une récursion terminale dans la section~\ref{section:insert_inc_dec} est tout de même utile.
-
-Enfin, nous n'avons pas réussi à bien implémenter les références pour les applications partielles et dans les \verb|case|. En effet, nous 
-obtenons plus d'objets en vie que voulus.
-
+\section{Conclusion}
 
 \printbibliography
 \end{document}
