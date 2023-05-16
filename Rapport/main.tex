@@ -740,28 +740,41 @@ Ainsi, pour une variable \verb|v| définie par l'utilisateur, le code compilé e
 
 \begin{figure}[H]
 	\begin{lstlisting}[escapeinside={(*@}{@*)}]
-  ;; chargement de l'adresse
+  ;; chargement de l'adresse pour le stockage
   local.get $var_x
-  i32.const 8     ;; 8 car #ref est deuxieme, donc 2*4
-  i32.add
 
   ;; chargement des references
-  local.get $var_x
-  i32.const 8     
-  i32.add
+  (i32.add (local.get $var_x) (i32.const 4)) 
   i32.load
    
   ;; calcul des nouvelles references
   i32.const 1
-  i32.sub
+  i32.add
 
   ;; stockage
-  i32.store
+  call $__set_ref
 
   ;; corps de fonction suivant
 	\end{lstlisting}
 	\caption{Compilation d'un inc}
 	\label{listing:compile_inc}
+\end{figure}
+
+Avec la fonction \verb|__set_ref|
+
+\begin{figure}[H]
+	\begin{lstlisting}[escapeinside={(*@}{@*)}]
+  (func $__set_ref (param $adr i32) (param $ref i32)
+    ;; mise a jour des refs
+    local.get $adr ;; @x
+    i32.const 4    ;; @x 4
+    i32.add        ;; @refs
+    local.get $ref   ;; @refs n
+    i32.store      ;;
+  )
+	\end{lstlisting}
+	\caption{Fonction \_\_set\_ref}
+	\label{listing:set_ref}
 \end{figure}
 
 Le \verb|dec| est un peu plus compliqué, car il ne suffit pas seulement de décrémenter le nombre de références, il faut aussi 

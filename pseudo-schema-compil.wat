@@ -406,11 +406,11 @@ crée un constructeur sans argument en wat
 )
 
 (func $__set_ref (param $adr i32) (param $ref i32)
-  ;; mise à jour de memory[0]
+  ;; mise à jour des ref
   local.get $adr ;; @x
   i32.const 4    ;; @x 4
   i32.add        ;; @refs
-  local.get $n   ;; @refs n
+  local.get $res ;; @refs #refs
   i32.store      ;;
 )
 

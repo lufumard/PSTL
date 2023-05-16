@@ -99,7 +99,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln(")", out);
 
     write_ln("(func $__set_ref (param $adr i32) (param $ref i32)", out);
-    write_ln("    ;; mise à jour de memory[0]", out);
+    write_ln("    ;; mise à jour des ref", out);
     write_ln("    local.get $adr ;; @x", out);
     write_ln("    i32.const 4    ;; @x 4", out);
     write_ln("    i32.add        ;; @refs", out);
@@ -726,13 +726,13 @@ pub  fn compile_ret(var: Var, out : &mut File)  {
 pub  fn compile_let(var: Var, expr: ExprRC, fnbody:FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
     write_ln("\n;;let", out);
     compile_expr(expr, fn_desc, out);
-    /*if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
+    if fnbody.clone() == FnBodyRC::Ret(var.clone()) {
         write_ln("return", out);
-    } else {*/
+    } else {
         let v = string_of_var(var);
         write_ln(&format!("local.set ${v}"), out);
         compile_fnbody(fnbody, fn_desc, out);
-    //}   
+    }   
 }
 
 pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
