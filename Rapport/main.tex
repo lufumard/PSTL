@@ -76,7 +76,7 @@ Au cours de l’exécution, l’espace mémoire peut grandir.
 
 
 
-\section{Lecture de l'article}
+\section{Lecture de l'article} \label{section:article}
 Le langage fonctionnel décrit dans l'article\cite{ullrich_counting_2020} alloue ses constructeurs dans la pile et manipule des 
 adresses vers ces emplacements mémoire alloués. Il est donc primordial d'avoir un système d'allocation et réutilisation de 
 mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution faible.
@@ -377,12 +377,12 @@ tels que le calcul de fibonacci.
 
 \begin{figure}[H]
 	\begin{lstlisting}
-	fibo n = let m1 = 1; let m2 = 2;
-		let a = inf_eq n m2; case a of
+	fibo n = let m1 = 1; 
+		let a = inf_eq n m1; let m2 = 2; case a of
 		(let x = sub n m1; let y = sub n m2; 
 			let m = fibo x; let n = fibo y;
 			let r = add m n; ret r)
-		(ret m1)
+		(ret n)
 	\end{lstlisting}
 	\caption{Implémentation d'un algorithme naïf de calcul de fibonacci}
 	\label{listing:fibo_naif}
@@ -406,7 +406,7 @@ d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers 
 \end{figure}
 \FloatBarrier 
 
-\subsection{Insertion des instructions de références} \label{insert_inc_dec}
+\subsection{Insertion des instructions de références} \label{section:insert_inc_dec}
 
 
 \subsection{Environnement d'exécution}
@@ -769,7 +769,7 @@ Avec la fonction \verb|__set_ref|
     local.get $adr ;; @x
     i32.const 4    ;; @x 4
     i32.add        ;; @refs
-    local.get $ref   ;; @refs n
+    local.get $ref ;; @refs #refs
     i32.store      ;;
   )
 	\end{lstlisting}
@@ -830,10 +830,22 @@ TODO : Tableau de Comparaisons
 
 \section{Améliorations possibles}
 
-Memory dans le module WAT et exportée, et non l'inverse.
+Comme précisé à la fin de la section~\ref{section:article}, nous avons implémenté un compilateur en partant du principe que le 
+typage est bon et que les verb|let| inutiles ont été enlevés. Le langage implémenté n'est donc pas typé statiquement.
 
-Améliorer les applications partielles.
+De plus, nous avons implémenté les applications partielles de la façon la plus simple à laquelle nous avons pensé. 
+Cette implémentation n'est pas optimale car nous créons une nouvelle application partielle avant de l'exécuter et de la détruire.
 
+Nous aurions pu utiliser un unique objet global pour des constructeurs sans arguments tels que $False$, $True$ ou $Nil$. 
+Nous avons en effet choisi de créer des objets à chaque fois pour avoir plus d'éléments sur lesquels agir. Dans une 
+version plus complète du compilateur, il serait plus intelligent de rendre ces constructeurs sans arguments uniques. L'on 
+pourrait par ailleur introduire une meilleure gestion de la mémoire semblable à un \verb|malloc| en C.
+
+De plus, nous n'avons pas non plus implémenté la récursion terminale en WebAssembly. Cependant, l'optimisation des \verb|dec| et \verb|inc| 
+sur une récursion terminale dans la section~\ref{section:insert_inc_dec} est tout de même utile.
+
+Enfin, nous n'avons pas réussi à bien implémenter les références pour les applications partielles et dans les \verb|case|. En effet, nous 
+obtenons plus d'objets en vie que voulus.
 
 \section{Conclusion}
 
