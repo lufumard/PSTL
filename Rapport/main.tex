@@ -848,17 +848,21 @@ Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 Noous allons maintenant tester notre interpréteur et notre compilateur sur la fonction de fibonacci.
 
 \begin{table}[H]
-	\begin{tabular}{|c|r|}
-		\hline
-		\textbf{Tâche} & \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps \\ (en heures-homme)\end{tabular}}} \\ \hline
-		Gestion du niveau                                                                             & 4           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Gestion de l'affichage\\ (niveau, PAC-MAN \& sprites)\end{tabular} & 5           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Gestion du déplacement de\\ PAC-MAN\end{tabular}                   & 3           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Algorithme de déplacement\\ des fantômes\end{tabular}              & 8           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Gestion des différents modes\\ du jeu\end{tabular}                 & 3           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Algorithme de sélection \\ de cible des fantômes\end{tabular}      & 9           \\ \hline
-		\begin{tabular}[c]{@{}c@{}}Affinage des constantes du\\ jeu et du moteur de jeu\end{tabular}  & 2           \\ \hline
-		\multicolumn{1}{|l|}{\textbf{Total}}                                                          & \textbf{34} \\ \hline
+	\begin{tabular}{|c|r|r|r|r|r|r|}
+	\hline
+	\textbf{n} &
+	  \multicolumn{1}{c|}{\textbf{fibo(n)}} &
+	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ d'exécution\\ interprète\end{tabular}}} &
+	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ d'exécution\\ compilé\end{tabular}}} &
+	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Allocations\\ interprète\end{tabular}}} &
+	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Allocations\\ compilé\end{tabular}}} &
+	  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Objets\\ en vie\\ compilé\end{tabular}}} \\ \hline
+	5  & 5       & 0 ms   & 0.016 ms  & 75         & 59         & 17        \\ \hline
+	10 & 55      & 20 ms  & 0.044 ms  & 885        & 707        & 179       \\ \hline
+	15 & 610     & 134 ms & 0.385 ms  & 9 865      & 7 891      & 1 975     \\ \hline
+	20 & 6 765   & 1.74 s & 5.82 ms   & 109 455    & 87 563     & 21 893    \\ \hline
+	25 & 75 025  & 23.3 s & 36.11 ms  & 1 213 925  & 971 139    & 242 787   \\ \hline
+	30 & 832 040 & 5 mins & 371.63 ms & 13 462 685 & 10 770 147 & 2 692 539 \\ \hline
 	\end{tabular}
 	\caption{Résultats de l'exécution de fibo sur l'interprète et en compilé}
 	\label{table:results}
@@ -888,7 +892,7 @@ sur une récursion terminale dans la section~\ref{section:insert_inc_dec} est to
 Enfin, nous n'avons pas réussi à bien implémenter les références pour les applications partielles et dans les \verb|case|. En effet, nous 
 obtenons plus d'objets en vie que voulus.
 
-\section{Conclusion}
+\newpage
 
 \printbibliography
 \end{document}
