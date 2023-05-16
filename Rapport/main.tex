@@ -117,7 +117,7 @@ Concernant la grammaire du langage, nous reprenons celle qui est définie dans l
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.65]{logos/grammaire.png}
+	\includegraphics[scale=0.80]{logos/grammaire.png}
 	\caption{Grammaire du langage source $\lambda_{pure}$}
 	\label{fig:grammaire pure}
 \end{figure}
@@ -224,8 +224,8 @@ C'est pourquoi nous avons besoin de transformer certaines constantes et certains
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
 Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
 
-C'est aussi avec ce transformateur que l'on transforme les applications en applicaations partielles si il n'y a pas assez d'arguments
-pour exécuter la fonction.
+C'est aussi avec ce transformateur que l'on transforme les applications en applications partielles si il n'y a pas assez d'arguments
+pour exécuter la fonction. Nous ajoutons par ailleur un préfixe "var\_" aux variables définies par l'utilisateur.
 
 Ainsi, nous obtenus un AST bien formé et correct, où une constante est réellement une constante et une application
 complète est aussi réellement une application complète.
@@ -241,7 +241,7 @@ dont les structures du tas et de la pile (\verb|Heap| et \verb|Ctxt|), comme dé
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.65]{logos/figure_strutures_interpreteur.png}
+	\includegraphics[scale=0.80]{logos/figure_strutures_interpreteur.png}
 	\caption{Structures de gestion de la mémoire} 
 	\label{fig:memory}
 \end{figure}
@@ -304,7 +304,7 @@ selon la Figure ~\ref{fig:semantics} ci-dessous.
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.70]{logos/semantics.png}
+	\includegraphics[scale=0.80]{logos/semantics.png}
 	\caption{Sémantiques du langage $\lambda_{pure}$}
 	\label{fig:semantics}
 \end{figure}
@@ -402,7 +402,7 @@ selon la figure~\ref{fig:grammaire RC}.
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.40]{logos/grammaire_RC.png}
+	\includegraphics[scale=0.45]{logos/grammaire_RC.png}
 	\caption{Extension de la grammaire du langage $\lambda_{RC}$}
 	\label{fig:grammaire RC}
 \end{figure}
@@ -485,16 +485,16 @@ Ainsi, nous définissons ces types selon la figure suivante.
 
 Dans la mémoire, nos applications partielles sont stockés sous la forme 
 \verb|<type>| \verb|<nombre| \verb|de références>| \verb|<identifiant| \verb|de la fonction>| \verb|<nombre| \verb|d'arguments| \verb|fixés>| \verb|<arguments>|. 
-Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 13 0| où 5 est le type "application partielle", 
-1 est le nombre de références à cette application partielle, 
-7 est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
-2 est le nombre d'arguments fixés et 12 et 13 sont les arguments fixés.
-0 est l'emplacement des arguments non fixés que la fonction peut accepter.
+Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 14 0| où \verb|5| est le type "application partielle", 
+\verb|1| est le nombre de références à cette application partielle, 
+\verb|7| est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
+\verb|2| est le nombre d'arguments fixés et \verb|12| et \verb|14| sont les arguments fixés et
+\verb|0| est l'emplacement des arguments non fixés que la fonction peut accepter.
 
 \subsection{Schéma mémoire}
 
-Voici donc le schéma de stockage des objets dans la mémoire.
-
+La figure~\ref{listing:memory_wasm} représente le schéma de stockage des objets dans la mémoire, c'est à dire la formation
+de chaque type d'objet dans la mémoire.
 
 \begin{figure}[H]
 	\begin{itemize}
@@ -509,6 +509,12 @@ Voici donc le schéma de stockage des objets dans la mémoire.
 	\label{listing:memory_wasm}
 \end{figure}
 
+Les argument des types prennent une case mémoire chacun, c'est à dire la place d'un entier signé 32 bits. 
+Il est certain qu'il s'agit d'un gachi de place de donner 4 octets pour chaque argument, mais WebAssembly n'a pas de type plus
+petit, et cela augmenterait donc la complexité de l'implémentation que d'utiliser 32 bits pour représenter plusieurs arguments.
+Ainsi, l'alignement de la mémoire sera toujours de 32 bits, soit 4 octets. Les adresses de nos variables seront donc toujours 
+multiples de 4.
+
 \subsection{Compilation des instructions en WAT}
 
 Il nous faut compiler les instructions du langage $\lambda{pure}$ dont nous avons les sémantiques sur la figure~\ref{fig:semantics}
@@ -517,7 +523,7 @@ suivons les sémantiques définies par les auteurs présentes dans la figure~\re
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[scale=0.70]{logos/semantics_rc.png}
+	\includegraphics[scale=0.80]{logos/semantics_rc.png}
 	\caption{Sémantiques de la partie $\lambda_{RC}$ du langage}
 	\label{fig:semantics_rc}
 \end{figure}
@@ -604,7 +610,9 @@ Pour compiler une fonction, il faut d'abord récolter le nom de toutes les varia
 déclarer et on y ajoute une variale utile à certains scenarios de compilation, \verb|$__intern_var|.
 Ensuite, nous changeons le nom interne de la fonction pour ajouter "fun\_" devant pour éviter les 
 redéfinitions de fonctions internes.
-Nous ajoutons également "var\_" à toutes les variables définies pour éviter de les méler à la variable interne \verb|__intern_var|.
+Nous avons également ajouté "var\_" à toutes les variables définies grâce au transformateur .
+Cela nous permet de définir des variables internes telles que \verb|__intern_var| qui ne peuvent pas être modifiées par 
+l'utilisateur.
 Il suffit enfin d'écrire la signature de la fonction, en n'oubliant pas d'exporter au nom original.
 
 Puis, on compile le corps de la fonction, et on ajoute derrière une parenthèse fermante pour fermer la fonction.

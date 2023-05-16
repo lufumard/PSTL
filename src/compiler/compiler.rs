@@ -141,9 +141,9 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
-    write_ln("(func $__reset (param $var_var i32) (result i32)", out);
+    write_ln("(func $__reset (param $var i32) (result i32)", out);
     //write_ln("    (local $__intern_var i32)", out);
-    write_ln("    local.get $var_var", out);
+    write_ln("    local.get $var", out);
     write_ln("    call $__dec", out);
     get_ref_loc(Var::Var("var".to_string()), out);
     write_ln("    i32.load", out);
@@ -153,7 +153,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("        i32.const 0", out);
     write_ln("        return", out);
     write_ln("    end", out);
-    write_ln("    local.get $var_var", out);
+    write_ln("    local.get $var", out);
     write_ln(")", out);
 
     
@@ -263,8 +263,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
 
 
     write_ln("(func $__exec_pap (param $pap i32) (result i32)", out);
-    write_ln("(local $var_p_0 i32)", out);
-    write_ln("(local $var_p_1 i32)", out);
+    write_ln("(local $p_0 i32)", out);
+    write_ln("(local $p_1 i32)", out);
     for i in 0..=fn_desc.len() {
         //on crée un block pour chaque cas énuméré
         write_ln(&format!("(block $__case{i}"), out);
@@ -290,7 +290,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 let n = 16+i*4;
                 write_ln(&format!("(i32.add (local.get $pap) (i32.const {n}))"), out);
                 write_ln("i32.load", out);
-                write_ln(&format!("local.set $var_p_{i}"), out);
+                write_ln(&format!("local.set $p_{i}"), out);
             }
 
             let vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
@@ -710,7 +710,7 @@ pub  fn compile_fnbody(body: FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out :
 }
 
 fn string_of_var(Var::Var(s):Var) -> String {
-    return format!("var_{s}");
+    return s;
 }
 
 fn string_of_const(Const::Const(c):Const) -> String {
