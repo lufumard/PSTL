@@ -5,8 +5,6 @@ const memory = new WebAssembly.Memory({
     initial: 65536,
     maximum: 65536,
 });
-  
-const fichier = "fibo_num.wasm";
 
 const CONST_CONTRUCTEURS = {
     false : 0,
@@ -140,95 +138,6 @@ const interprete = (loc, mem, dt) => {
 
     return interprete_rec(loc, mem);
 }
-/*
-const wasmBuffer = fs.readFileSync("fibo_main.wasm");
-WebAssembly.instantiate(wasmBuffer, {
-    js: { mem: memory },
-}).then((wasmModule) => {
-
-    // Initialisation de la mémoire
-    const mem = new Uint32Array(memory.buffer);
-    mem[0] = 4;
-
-
-    /**
-     * Init memory
-     */
-
-
-
-    /**
-     * Execute function
-     */
-
-    
-/*
-    const { fibo } = wasmModule.instance.exports;
-
-    for(n=10; n<= 50; n++){
-
-        console.log(`\n\n\nfibo_main.wasm fibo of ${n} `)
-
-        var nb = createNum(n, mem);
-        var startTime = performance.now();
-        var res = fibo(nb);
-        var endTime = performance.now();
-        var deltaTime = endTime - startTime;
-        var loc = res/4;
-
-        interprete(loc, mem, deltaTime)
-        
-        // Réinitialise la mémoire
-        for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-        mem[0] = 4;
-    }
-
-});
-*/
-/*
-
-const wasmBuffer1 = fs.readFileSync("fibo.wasm");
-WebAssembly.instantiate(wasmBuffer1, {
-    js: { mem: memory },
-}).then((wasmModule) => {
-
-    // Initialisation de la mémoire
-    const mem = new Uint32Array(memory.buffer);
-    mem[0] = 4;
-
-
-    /**
-     * Init memory
-     */
-
-
-
-    /**
-     * Execute function
-     */
-/*
-    console.log("\n\n\nfibo.wasm")
-
-    const { fibo } = wasmModule.instance.exports;
-
-    let n7 = createNum(7, mem);
-
-    console.log("Mémoire :", mem);
-
-    var startTime = performance.now();
-    var res = fibo(n7);
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-    var loc = res/4;
-
-    interprete(loc, mem, deltaTime)
-    
-    // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-});
-*/
-
 
 const wasmBuffer = fs.readFileSync("fibo_main.wasm");
 WebAssembly.instantiate(wasmBuffer, {
@@ -254,7 +163,7 @@ WebAssembly.instantiate(wasmBuffer, {
 
     const { main10 } = wasmModule.instance.exports;
 
-    console.log(`\n\n\nfibo_main.wasm fibo of 10 `)
+    console.log(`\n\n\nfibo_main.wasm fibo of 10 (55) `)
 
     //var nb = createNum(25, mem);
     var startTime = performance.now();
