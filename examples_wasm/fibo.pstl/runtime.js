@@ -159,12 +159,12 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
-    const { fibo, main10, main25 } = wasmModule.instance.exports;
+    const { fibo, main5, main10, main15, main20, main25, main30, main35 } = wasmModule.instance.exports;
     
-    console.log(`\n\n\nfibo_main.wasm fibo of 25`)
+    console.log(`\n\n\nfibo_main.wasm fibo of 5`)
 
     var startTime = performance.now();
-    var res = main25();
+    var res = main35();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;

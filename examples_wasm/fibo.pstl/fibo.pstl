@@ -1,23 +1,39 @@
-fibo n = let m1 = 1; 
+fibo n = let m1 = 1;
     let a = inf_eq n m1; case a of
-    (   let x = sub n m1; let m = fibo x; 
+    (   let x = sub n m1; let m = fibo x;
         let m2 = 2;
         let y = sub n m2; let n = fibo y;
         let r = add m n; ret r)
     (ret n)
 
-main10 = let n = 10; 
+main10 = let n = 10;
     let r = fibo n;
     ret r
 
-main7 = let n = 7; 
+main7 = let n = 7;
     let r = fibo n;
     ret r
 
-main14 = let n = 14; 
+main15 = let n = 15;
     let r = fibo n;
     ret r
 
-main25 = let n = 25; 
+main5 = let n = 5;
+    let r = fibo n;
+    ret r
+
+main35 = let n = 35;
+    let r = fibo n;
+    ret r
+
+main30 = let n = 30;
+    let r = fibo n;
+    ret r
+
+main25 = let n = 25;
+    let r = fibo n;
+    ret r
+
+main20 = let n = 20;
     let r = fibo n;
     ret r

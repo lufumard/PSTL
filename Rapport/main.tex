@@ -843,13 +843,31 @@ tests est \verb|1|, on peut copier les arguments donnés après \verb|reuse| dan
 
 Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 
-\section{Comparaisons}
+\section{Résultats}
+
+Noous allons maintenant tester notre interpréteur et notre compilateur sur la fonction de fibonacci.
+
+\begin{table}[H]
+	\begin{tabular}{|c|r|}
+		\hline
+		\textbf{Tâche} & \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps \\ (en heures-homme)\end{tabular}}} \\ \hline
+		Gestion du niveau                                                                             & 4           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Gestion de l'affichage\\ (niveau, PAC-MAN \& sprites)\end{tabular} & 5           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Gestion du déplacement de\\ PAC-MAN\end{tabular}                   & 3           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Algorithme de déplacement\\ des fantômes\end{tabular}              & 8           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Gestion des différents modes\\ du jeu\end{tabular}                 & 3           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Algorithme de sélection \\ de cible des fantômes\end{tabular}      & 9           \\ \hline
+		\begin{tabular}[c]{@{}c@{}}Affinage des constantes du\\ jeu et du moteur de jeu\end{tabular}  & 2           \\ \hline
+		\multicolumn{1}{|l|}{\textbf{Total}}                                                          & \textbf{34} \\ \hline
+	\end{tabular}
+	\caption{Résultats de l'exécution de fibo sur l'interprète et en compilé}
+	\label{table:results}
+\end{table}
 
 En testant notre interpréteur et notre compilateur sur une implémentation de la fonction de fibonacci 
-(voir Figure~\ref{listing:fibo_naif}), l'on s'apperçoit que le code compilé est à beaucoup plus rapide que le code interprété,
-mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter.
-
-TODO : Tableau de Comparaisons
+(voir Figure~\ref{listing:fibo_naif}), l'on s'apperçoit que le code compilé prend moins de temps à s'exécuter que le code interprété,
+mais surtout qu'il alloue moins d'espace mémoire pour s'exécuter. En effet, nous pouvons observer une réduction de 20\% du nombre 
+d'allocations dans la mémoire. Cela est dû à l'insertion des instruction \verb|reset| et \verb|reuse|.
 
 \section{Améliorations possibles}
 
