@@ -511,6 +511,19 @@ Voici donc le schéma de stockage des objets dans la mémoire.
 
 \subsection{Compilation des instructions en WAT}
 
+Il nous faut compiler les instructions du langage $\lambda{pure}$ dont nous avons les sémantiques sur la figure~\ref{fig:semantics}
+ainsi que les nouvelles instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse|. Pour ces nouvelles instructions, nous
+suivons les sémantiques définies par les auteurs présentes dans la figure~\ref{fig:semantics_rc} ci-dessous.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[scale=0.70]{logos/semantics_rc.png}
+	\caption{Sémantiques de la partie $\lambda_{RC}$ du langage}
+	\label{fig:semantics_rc}
+\end{figure}
+\FloatBarrier 
+
+
 Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
 de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur. Cependant, nous utilisons
 quelques fois dans la compilation et dans ce rapport un style semblable à du Lisp, les instructions enballées dans des parenthèses.
@@ -662,7 +675,7 @@ se compile ainsi de la manière suivante
 On ne peut exécuter un proj que sur un objet de type \verb|CONST_LIST|, car c'est le seul constructeur qui contient des champs qui
 pointent vers d'autres objets.
 
-Pour compiler un $proj_i$, il suffit de renvoyer le champ désigné par i, soit ajouter $(i + 1)*4$ à l'adresse de la variable, car
+Pour compiler un $proj_i$, il suffit donc de renvoyer le champ désigné par i, soit ajouter $(i + 1)*4$ à l'adresse de la variable, car
 d'après notre schéma de la mémoire, le seul constructeur possédant des champs est la liste, dont les champs commencent deux cases 
 après le début de l'objet.
 Il ne faut pas oublier que nous commençons l'indexation des champs à 1, c'est à dire que $proj_1$ donne le premier champ, 
