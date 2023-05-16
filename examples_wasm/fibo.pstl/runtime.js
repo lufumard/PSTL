@@ -139,7 +139,7 @@ const interprete = (loc, mem, dt) => {
     return interprete_rec(loc, mem);
 }
 
-const wasmBuffer = fs.readFileSync("fibo_main.wasm");
+const wasmBuffer = fs.readFileSync("fibo.wasm");
 WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
@@ -159,15 +159,12 @@ WebAssembly.instantiate(wasmBuffer, {
      * Execute function
      */
 
+    const { fibo, main10, main25 } = wasmModule.instance.exports;
     
+    console.log(`\n\n\nfibo_main.wasm fibo of 10`)
 
-    const { main10 } = wasmModule.instance.exports;
-
-    console.log(`\n\n\nfibo_main.wasm fibo of 10 (55) `)
-
-    //var nb = createNum(25, mem);
     var startTime = performance.now();
-    var res = main10();
+    var res = main25();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
