@@ -7,14 +7,18 @@ fibo n = let m = 1;
         let r = add f1 f2; ret r)
     (ret n)
 
-main10 = let n = 10;
-    let r = fibo n;
+main10 = let n = 2;
+    let r = main n;
     ret r
 
 main2 = let n = 2;
     let r = fibo n;
     ret r
 
+main n = let m = 5;
+    let x = mul n m;
+    let r = fibo x;
+    ret r
 
 main7 = let n = 7;
     let r = fibo n;

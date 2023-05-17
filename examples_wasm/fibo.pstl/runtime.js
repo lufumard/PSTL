@@ -96,13 +96,13 @@ const interprete = (loc, mem, dt) => {
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=3;
         }else{
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=4;
         }
     }

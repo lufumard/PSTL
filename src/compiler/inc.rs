@@ -21,7 +21,7 @@ pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
     .map(|(status,y)| (y,*status)).collect();
 
     let mut beta_bis = beta.clone(); 
-    tail_call(fnbody.clone(), &mut temp_beta_l, &mut beta_bis);
+    //tail_call(fnbody.clone(), &mut temp_beta_l, &mut beta_bis);
 
     let beta_l : HashMap<Var,char> = beta_bis.get(&c).unwrap().into_iter()
     .zip(vars.clone().into_iter())

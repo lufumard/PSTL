@@ -304,6 +304,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
             let name = &desc.name;
             write_ln(&format!("call $fun_{name}"), out);
         }
+        write_ln("local.get $pap", out);
+        write_ln("call $__dec", out);
         write_ln("return", out);
     }
     write_ln(")", out);
@@ -311,6 +313,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("(func $__dec (param $var i32)", out);
     write_ln(" (local $args_left i32)", out);
     write_ln(" (local $ref i32)", out);
+    write_ln(" (local $arg i32)", out);
     
     write_ln(" (i32.add (local.get $var) (i32.const 4))", out); // @ref
     write_ln(" i32.load", out);   // #ref
@@ -339,19 +342,19 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("      i32.load", out);   // #args
     write_ln("      local.set $args_left", out); 
     write_ln("      (i32.add (local.get $var) (i32.const 16))", out); // @arg1
-    write_ln("      local.set $var", out); 
+    write_ln("      local.set $arg", out); 
     write_ln("      (block $dec_end", out);   
     write_ln("        (loop $dec_loop", out);   
-
-    write_ln("          local.get $var", out);
+    write_ln("          local.get $args_left", out);
+    write_ln("          i32.eqz", out);
+    write_ln("          br_if $dec_end", out);
+    
+    write_ln("          local.get $arg", out);
     write_ln("          call $__dec", out);
-
+    
     write_ln("          (i32.sub (local.get $args_left) (i32.const 1))", out);
     write_ln("          local.tee $args_left", out); // #args--
     
-    write_ln("          i32.eqz", out);
-    write_ln("          br_if $dec_end", out);
-
     write_ln("          br $dec_loop", out);
     write_ln("        )", out);
     write_ln("      )", out);
@@ -431,7 +434,19 @@ use primitives::PRIMITIVES;
 
 fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
     let mut res = IndexMap::new();
-    let index = map.iter().fold(0, |index, (cste, fun)| {
+    
+    let index = PRIMITIVES.clone()
+        .iter()
+        .fold(0, |index, &name| {
+            res.insert(Const::Const(name.clone().to_string()), FnDesc{
+                id : index,
+                name: name.clone().to_string(),
+                nb_args: nb_args(name),
+            });
+            return index+1;
+        });
+    
+    map.iter().fold(index, |index, (cste, fun)| {
         let Const::Const(nom) = cste.clone();
         let FnRC::Fn(params, _) = fun;
         if params.len() > 0 {
@@ -445,17 +460,6 @@ fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
             return index;
         }
     });
-
-    PRIMITIVES.clone()
-        .iter()
-        .fold(index, |index, &name| {
-            res.insert(Const::Const(name.clone().to_string()), FnDesc{
-                id : index,
-                name: name.clone().to_string(),
-                nb_args: nb_args(name),
-            });
-            return index+1;
-        });
 
     return res;
 }
@@ -644,12 +648,15 @@ pub  fn compile_value(n: i32, out : &mut File)  {
 
 
 pub fn compile_papcall(var:Var, arg:Var, out : &mut File) {
-    compile_var(var, out);
+    compile_var(var.clone(), out);
     write_ln("call $__copy_pap", out);
     
     write_ln("local.tee $__intern_var", out);
     // une copie de la variable pap a été créée
     
+    compile_var(var, out);
+    write_ln("call $__dec", out);
+
     write_ln("i32.const 12", out);
     write_ln("i32.add", out);
     

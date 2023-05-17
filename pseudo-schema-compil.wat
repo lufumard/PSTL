@@ -135,8 +135,7 @@ compile_fnbody(fnbody)
   
   (i32.add (local.get $var) (i32.const 4)) ;; @ref
   i32.load   ;; #ref
-  local.tee $ref
-  if
+  local.set $ref
   
   local.get $var ;; @var
   
@@ -155,7 +154,6 @@ compile_fnbody(fnbody)
     i32.eq ;; est type PAP
 
     if ;; si de type PAP
-  
       (i32.add (local.get $var) (i32.const 12)) ;; @#args
       i32.load   ;; #args
       local.set $args_left 
@@ -163,16 +161,15 @@ compile_fnbody(fnbody)
       local.set $var 
       (block $dec_end   
         (loop $dec_loop   
+          local.get $args_left ;; #args
+          i32.eqz
+          br_if $dec_end
 
           local.get $var
           call $__dec
 
           (i32.sub (local.get $args_left) (i32.const 1))
-          local.tee $args_left ;; #args--
-      
-          i32.eqz
-          br_if $dec_end
-
+          local.set $args_left ;; #args--
           br $dec_loop
         )
       )
@@ -191,8 +188,6 @@ compile_fnbody(fnbody)
       i32.load   ;; @arg 2
       call $__dec;; dec arg 2
     end
-  end
-    
   end
 )
 
@@ -686,6 +681,9 @@ call $__copy_pap
 
 local.tee $__intern_var
 ;; une copie de la variable pap a été créée
+
+compile_var(var)
+call $__dec
 
 i32.const 12
 i32.add
