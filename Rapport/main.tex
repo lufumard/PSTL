@@ -912,22 +912,21 @@ Sinon, on doit créer un nouvel objet selon le \verb|ctor| donné.
 Noous avons testé notre interpréteur et notre compilateur sur la fonction de fibonacci naïf telle que définie sur la figure~\ref{listing:fibo_naif}.
 
 \begin{table}[H]
-		\begin{tabular}{|c|r|r|r|r|r|}
-		\hline
-		\textbf{n} &
-		  \multicolumn{1}{c|}{\textbf{fibo(n)}} &
-		  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps d'exécution\\ code interprété\end{tabular}}} &
-		  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps d'exécution\\ code compilé\end{tabular}}} &
-		  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Total allocations\\ mémoire\\ (interprété et compilé)\end{tabular}}} &
-		  \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Objets\\ en vie\\ compilé\end{tabular}}} \\ \hline
-		5  & 5       & 0 ms     & 0.015 ms  & 66         & 1 \\ \hline
-		10 & 55      & 10 ms    & 0.095 ms  & 795        & 1 \\ \hline
-		15 & 610     & 153 ms   & 0.562 ms  & 8 877      & 1 \\ \hline
-		20 & 6 765   & 2.18 s   & 3.77 ms   & 98 508     & 1 \\ \hline
-		25 & 75 025  & 30.2 s   & 34.17 ms  & 1 092 531  & 1 \\ \hline
-		30 & 832 040 & 6.5 mins & 366.94 ms & 12 116 415 & 1 \\ \hline
-		\end{tabular}
-	
+	\begin{tabular}{|c|r|r|r|r|r|}
+	\hline
+	\textbf{n} &
+		\multicolumn{1}{c|}{\textbf{fibo(n)}} &
+		\multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ exécution\\ interprété\end{tabular}}} &
+		\multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Temps\\ exécution\\ compilé\end{tabular}}} &
+		\multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Total allocations\\ mémoire\\ (interprété et compilé)\end{tabular}}} &
+		\multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Objets\\ en vie\\ compilé\end{tabular}}} \\ \hline
+	5  & 5       & 0 ms     & 0.015 ms  & 66         & 1 \\ \hline
+	10 & 55      & 10 ms    & 0.095 ms  & 795        & 1 \\ \hline
+	15 & 610     & 153 ms   & 0.562 ms  & 8 877      & 1 \\ \hline
+	20 & 6 765   & 2.18 s   & 3.77 ms   & 98 508     & 1 \\ \hline
+	25 & 75 025  & 30.2 s   & 34.17 ms  & 1 092 531  & 1 \\ \hline
+	30 & 832 040 & 6.5 mins & 366.94 ms & 12 116 415 & 1 \\ \hline
+	\end{tabular}	
 	\caption{Résultats de l'exécution de fibo sur l'interprète et en compilé}
 	\label{table:results}
 \end{table}
