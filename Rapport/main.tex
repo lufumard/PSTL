@@ -426,10 +426,10 @@ Ces deux instructions sont utilisées ensemble. Si x est une valeur partagée, a
 Si x n'est pas partagé, alors reset décrémente les compteurs de références des composants de x, et y est initialisé à x. 
 Ensuite, reuse réutilise la cellule mémoire utilisée par x pour stocker la valeur d'un constructeur \verb|ctor|. Pour savoir si x est une variable partagée, on vérifie son compteur de références.
 
-On introduit la fonction $\lambda_{reuse}$ qui se charge d'insérer les instructions \verb|inc| et \verb|dec| dans une fonction. Pour cela, elle fait appel à la fonction \textit{R} sur le corps de la fonction.
-%La fonction \textit{R} utilise deux fonctions \textit{D} et \textit{S}.
+On introduit la fonction $\delta_{reuse}$ qui se charge d'insérer les instructions \verb|inc| et \verb|dec| dans une fonction. Pour cela, elle fait appel à la fonction \textit{R} sur le corps de la fonction.
+En plus de la fonction \textit{R}, on utilise deux autres fonctions: \textit{D} et \textit{S}.
 Pour chaque case, R tente d'insérer des instructions \verb|reset|\textbackslash \verb|reuse| pour la variable correspondant au case. Cela est fait en utilisant \textit{D} dans chaque bras du case.
-\par La fonction \textit{D} cherche les variables mortes. Elle prend en paramètre la variable z à réutiliser et l'arité n du constructeur correspondant. 
+La fonction \textit{D} cherche les variables mortes. Elle prend en paramètre la variable z à réutiliser et l'arité n du constructeur correspondant. 
 \textit{D} recherche le premier emplacement où z où n'est pas utilisé dans le reste du corps de la fonction, puis fait appel à \textit{S} en lui donnant une nouvelle variable. 
 Dans notre implémentation, on garde un compteur qu'on incrémente à chaque fois qu'on a besoin d'une nouvelle variable. Et on passe à \textit{S} une variable de la forme w\_compteur. Pour s'assurer qu'on utilise toujours une nouvelle variable, on interdit le fait qu'une variable puisse avoir un nom de la forme w\_nombre. Si aucune instruction \verb|ctor| correspondante ne peut être trouvée, \textit{D} ne modifie pas le corps de la fonction. Sinon, on insère un \verb|reuse|.
 La fonction \textit{S} réalise les substitutions. \textit{S} prend en argument une variable, une arité et une partie du corps de la fonction. Si S trouve un constructeur dont l'arité est n. \textit{S} remplace ce constructeur par \verb|reuse|.
@@ -437,16 +437,33 @@ La fonction \textit{S} réalise les substitutions. \textit{S} prend en argument 
 
 \subsubsection{Inférence}
 Dans cette partie, on veut créer une map $\beta$ qui associe à chaque fonction une liste qui donne le status des paramètres : Owned ou Borrowed.
+On va s'appuyer sur la fonction \textit{collect\_O} qui retourne un ensemble contenant les variables qui doivent être owned.
 Un paramètre est owned si une de ses projections est owned ou s'il est passé en argument à une fonction qui prend un paramètre owned.
-\textit{collect\_O} qui retourne les variables qui ne doivent pas owned.
+Si une variable x est utilisé dans un \verb|reset|, on ne veut pas qu'elle soit borrowed. 
+En effet, on utilise le compteur de référence pour savoir si une variable est partagé lors de l'évaluation d'un \verb|reset|. 
+Or si x est borrowed, il peut être une variable partagé et son compteur à un.
+De plus, une application 	ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. 
+Dans notre implémentation, le nom de $c_O$ est de la forme c\_$nom de la fonction$. 
+Pour s'assurer que que la constante $c_O$ n'est pas présente dans le programme, on interdit aux fonction d'avoir un nom qui est préfixé apr c\_.
+Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y. La fonction \textit{collect\_O} va s'assurer que les arguments soit owned.
 
-Pour déduire la valeur de $\beta$ pour une fonction c, on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_O(b). Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour n'est effectuée sur $\beta(c)$. 
-Une application ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. Dans notre implémentation, le nom de $c_O$ est de la forme c\_$nom de la fonction$. Qu'on ajoute dans $\beta$ et dont tous les paramètres sont owned. Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y.
+La fonction $\delta_{\beta}$ va déduire la valeur de $\beta$ pour une fonction c. Pour réaliser cette étape, on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_O(b). 
+Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour 
+n'est effectuée sur $\beta(c)$.
+Pour inférer l'ensemble du programme, on appelle $\delta_{\beta}$ sur chaque fonction dans l'ordre de déclaration des fonctions. 
+Si une fonction c utilise une autre fonction d, pour avoir avoir un résultat optimal, il faut que d soit déclaré avant c. 
+Sinon, on considère que les paramètres de la fonction d sont owned.
 
 
 \subsubsection{Insertion de inc et dec}
 Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
-On suppose que notre map $\beta$ de la section précédente est bien définie. Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son status('B' ou 'O'). $\beta_l$ avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme owned.
+Lorsqu'une variable est borrowed, elle ne possède pas la responsabilité de sa gestion mémoire. 
+D'un autre côté, une variable owned est responsable de sa gestion mémoire.
+Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned.
+On doit décrémenté leur compteur de référence das variables owned après leur dernière utilisation. 
+On suppose que notre map $\beta$ de la section précédente est bien définie. 
+Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son status('B' ou 'O'). 
+$\beta_l$ est initialisé avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme owned.
 
 On utilise plusieurs fonctions :
 \begin{itemize}
@@ -939,6 +956,11 @@ Nous aurions pu utiliser un unique objet global pour des constructeurs sans argu
 Nous avons en effet choisi de créer des objets à chaque fois pour avoir plus d'éléments sur lesquels agir. Dans une 
 version plus complète du compilateur, il serait plus intelligent de rendre ces constructeurs sans arguments uniques. L'on 
 pourrait par ailleur introduire une meilleure gestion de la mémoire semblable à un \verb|malloc| en C.
+
+Quand on infére les status des paramètres d'une fonction, on parcout les fonctions dans l'ordre de leur déclarations. 
+Si jamais une fonction c utilise une autre fonction d avant qu'elle soit déclaré on considère ses paramètres comme étant owned.
+On peut changer notre implémentation, pour inférer d au lieu de lui supposer que ses paramètres sont owned.
+Bien sur on devra mettre en place, un mécanisme pour les fonctions mutuellement récursives.
 
 De plus, nous n'avons pas non plus implémenté la récursion terminale en WebAssembly. Cependant, l'optimisation des \verb|dec| et \verb|inc| 
 sur une récursion terminale dans la section~\ref{section:insert_inc_dec} est tout de même utile.
