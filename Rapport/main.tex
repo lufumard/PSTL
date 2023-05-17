@@ -97,17 +97,14 @@ Notre interpréteur implémentera le langage $\lambda_{pure}$ et notre compilate
 
 Les tâches que nous avons identifiées sont les suivantes :
 
-- Analyser le fonctionnement de WASM et étudier son écosystème.
-
-- Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
-
-- Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
-
-- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
-
-- Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
-
-- Programmer un compilateur du langage agrandi vers WASM
+\begin{itemize}
+	\item Analyser le fonctionnement de WASM et étudier son écosystème
+	\item Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
+	\item Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
+	\item Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
+	\item Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
+	\item Programmer un compilateur du langage agrandi vers WASM
+\end{itemize}
 
 Comme dans l'article, nous partons du principe que le typage a déjà été vérifié et que les \verb|let| inutiles ont été enlevés.
 
