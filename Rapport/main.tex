@@ -810,11 +810,12 @@ section~\ref{call $__dec$} lors de l'application sur \verb|add| dans l'expressio
 L'application d'une variable sur une application partielle est délicat. En effet, nous avons choisi d'implémenter les applications 
 partielles en stockant toutes les variables appliquées dans la mémoire. Cependant, cela signifie que nous devons copier l'application
 partielle avant d'y fixer la nouvelle variable et incrémenter le nombre d'arguments. Nous appelons donc la fonction 
-\verb|__copy_pap| qui crée une nouvelle application partielle du même type et copie les arguments un à un.
+\verb|__copy_pap| qui crée une nouvelle application partielle du même type et copie les arguments un à un. Il ne faut pas oublier de 
+decrémenter les références de l'application partielle copiée.
 
 Puis, s'il y a assez de variables fixées d'après \verb|__nb_args|, nous appelons la fonction \verb|__exec_pap|, qui charge les 
 variables une à une sur la pile d'exécution de WebAssembly avec une \verb|loop| puis nous appelons la fonction ou nous compilons 
-la primitive selon ce sur quoi l'application partielle est basée. 
+la primitive selon ce sur quoi l'application partielle est basée et déréférençons l'application partielle.
 
 De la même manière qu'avec la compilation de \verb|case|, nous savons quelle branche appeler grâce à la 
 combinaison des instructions \verb|block| et \verb|br_table|. Une fois le code compilé, cette fonction est assez longue, 
@@ -940,7 +941,7 @@ d'allocations pour le code interprété que pour le code compilé. Nous remarquo
 un seul objet en vie à la fin de l'exécution du code compilé, c'est à dire un seul objet dont le nombre de références n'est pas 
 nul. 
 
-Ainsi, les instructions \verb|inc| mais surtout \verb|dec| ont bien été insérées dans le code pour modifier le nombre de références 
+Ainsi, les instructions \verb|inc| mais surtout \verb|dec| ont bien été insérées avec succès dans le code pour modifier le nombre de références 
 des objets au fur et à mesure de l'exécution.
 
 \section{Améliorations possibles}
@@ -954,7 +955,9 @@ Cette implémentation n'est pas optimale car nous créons une nouvelle applicati
 Nous aurions pu utiliser un unique objet global pour des constructeurs sans arguments tels que $False$, $True$ ou $Nil$. 
 Nous avons en effet choisi de créer des objets à chaque fois pour avoir plus d'éléments sur lesquels agir. Dans une 
 version plus complète du compilateur, il serait plus intelligent de rendre ces constructeurs sans arguments uniques. L'on 
-pourrait par ailleur introduire une meilleure gestion de la mémoire semblable à un \verb|malloc| en C.
+pourrait par ailleur introduire une meilleure gestion de la mémoire semblable à un \verb|malloc| en C. De plus, on peut 
+utiliser un i32 pour représenter les types et le nombre de références, avec les instructions \verb|i32.store16_u| et \verb|i32.load16_u|,
+qui stockent et chargent des entiers sur 16 non signés.
 
 Quand on infére les status des paramètres d'une fonction, on parcout les fonctions dans l'ordre de leur déclarations. 
 Si jamais une fonction c utilise une autre fonction d avant qu'elle soit déclaré on considère ses paramètres comme étant owned.
@@ -964,8 +967,7 @@ Bien sur on devra mettre en place, un mécanisme pour les fonctions mutuellement
 De plus, nous n'avons pas non plus implémenté la récursion terminale en WebAssembly. Cependant, l'optimisation des \verb|dec| et \verb|inc| 
 sur une récursion terminale dans la section~\ref{section:insert_inc_dec} est tout de même utile.
 
-Enfin, nous n'avons pas réussi à bien implémenter les références pour les applications partielles et dans les \verb|case|. En effet, nous 
-obtenons plus d'objets en vie que voulus.
+\newpage
 
 \printbibliography
 \end{document}
