@@ -96,13 +96,13 @@ const interprete = (loc, mem, dt) => {
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=3;
         }else{
-            if (mem[i+1] > 0) alive++;
+            if (mem[i+1] != 0) alive++;
             i+=4;
         }
     }
@@ -164,7 +164,7 @@ WebAssembly.instantiate(wasmBuffer, {
     console.log(`\n\n\nfibo_main.wasm fibo of 5`)
 
     var startTime = performance.now();
-    var res = main35();
+    var res = main5();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;
@@ -177,5 +177,97 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 
+    console.log(`\n\n\nfibo_main.wasm fibo of 10`)
 
+    var startTime = performance.now();
+    var res = main10();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_main.wasm fibo of 15`)
+
+    var startTime = performance.now();
+    var res = main15();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_main.wasm fibo of 20`)
+
+    var startTime = performance.now();
+    var res = main20();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_main.wasm fibo of 25`)
+
+    var startTime = performance.now();
+    //var res = fibo(createNum(2, mem));
+    var res = main25();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_main.wasm fibo of 30`)
+
+    var startTime = performance.now();
+    //var res = fibo(createNum(2, mem));
+    var res = main30();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log(`\n\n\nfibo_main.wasm fibo of 2`)
+    var startTime = performance.now();
+    //var res = fibo(createNum(2, mem));
+    var res = fibo(createNum(2, mem));
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+
+    console.log("Mémoire :", mem);
+    
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
 });

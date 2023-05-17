@@ -187,7 +187,7 @@ pub fn interpreter (program : Program, call : &String) {
     let end = SystemTime::now();
     let delta = end.duration_since(start);
 
-    let nb_alloc = heap.nb_alloc();
+    let nb_alloc = heap.nb_alloc() - 1;
     
     println!("Attention ! L'interpréteur implémente le langage pur, sans inc, dec, reset, reuse");
     println!("Nombre d'allocations : {nb_alloc}");

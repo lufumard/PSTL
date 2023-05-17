@@ -177,8 +177,14 @@ pub fn inf_fn(vars: Vec<Loc>, ct: &Ctxt, heap:&mut Heap, lfn: &mut HashMap<Strin
     return sup_fn(vars.into_iter().rev().collect(), ct, heap, lfn);
 }
 
-pub fn sup_eq_fn(vars: Vec<Loc>, ct: &Ctxt, heap:&mut Heap, lfn: &mut HashMap<String, Fn>) -> Loc {
-    return not_fn(inf_fn(vars, ct, heap, lfn), ct, heap, lfn);
+pub fn sup_eq_fn(vars: Vec<Loc>, _: &Ctxt, heap:&mut Heap, _: &mut HashMap<String, Fn>) -> Loc {
+    assert_eq!(vars.len(), 2);
+    let n = extract_int(vars[0].to_owned(), heap);
+    let m = extract_int(vars[1].to_owned(), heap);
+    match n >= m {
+        true => heap.add(make_true()),
+        false => heap.add(make_false()),
+    }
 }
 
 pub fn inf_eq_fn(vars: Vec<Loc>, ct: &Ctxt, heap:&mut Heap, lfn: &mut HashMap<String, Fn>) -> Loc {

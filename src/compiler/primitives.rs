@@ -28,7 +28,7 @@ pub fn nb_args(nom : &str) -> usize {
 
 
 
-pub fn compile_fncall_primitive(nom: String, vars:Vec<Var>, out:&mut File) {  
+pub fn compile_fncall_primitive(nom: &String, vars:&Vec<Var>, out:&mut File) {  
     match nom.as_str() {
         "add" => add_fn(vars, out),
         "sub" => sub_fn(vars, out),
@@ -37,7 +37,7 @@ pub fn compile_fncall_primitive(nom: String, vars:Vec<Var>, out:&mut File) {
         "mod" => mod_fn(vars, out),
         "and" => and_fn(vars, out),
         "or"  => or_fn (vars, out),
-        "not" => not_fn(vars[0].to_owned(), out),
+        "not" => not_fn(&vars[0], out),
         "eq"  => eq_fn (vars, out),
         "sup" => sup_fn(vars, out),
         "inf" => inf_fn(vars, out),
@@ -56,7 +56,7 @@ pub fn write_ln(s : &str, out : &mut File){
     write_out(&format!("{s}\n"), out);
 }
 
-pub fn get_num(var:Var, out : &mut File) {
+pub fn get_num(var:&Var, out : &mut File) {
     let s = string_of_var(var);
     write_ln(&format!("local.get ${s}"), out);
     write_ln("i32.const 8", out);
@@ -64,7 +64,7 @@ pub fn get_num(var:Var, out : &mut File) {
     write_ln("i32.load", out);
 }
 
-pub fn get_bool(var:Var, out : &mut File) {
+pub fn get_bool(var:&Var, out : &mut File) {
     compile_var(var, out);
     write_ln("i32.load", out);
 }
@@ -72,155 +72,155 @@ pub fn get_bool(var:Var, out : &mut File) {
 // Définition des primitives
 // TODO : rendre plus concis
 
-pub fn add_fn(vars: Vec<Var>, out:&mut File) {
+pub fn add_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.add", out);
     make_num(out); 
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn sub_fn(vars: Vec<Var>, out:&mut File) {
+pub fn sub_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.sub", out);
     make_num(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn mul_fn(vars: Vec<Var>, out:&mut File) {
+pub fn mul_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.mul", out);
     make_num(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn div_fn(vars: Vec<Var>, out:&mut File) {
+pub fn div_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);    
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.div_s", out);
     make_num(out);    
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn mod_fn(vars: Vec<Var>, out:&mut File) {
+pub fn mod_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.rem_s", out);
     make_num(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn eq_fn(vars: Vec<Var>, out:&mut File) {
+pub fn eq_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.eq", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn and_fn(vars: Vec<Var>, out:&mut File) {
+pub fn and_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_bool(vars[0].to_owned(), out);
-    get_bool(vars[1].to_owned(), out);
+    get_bool(&vars[0], out);
+    get_bool(&vars[1], out);
     write_ln("i32.and", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
 
-pub fn or_fn(vars: Vec<Var>, out:&mut File) {
+pub fn or_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_bool(vars[0].to_owned(), out);
-    get_bool(vars[1].to_owned(), out);
+    get_bool(&vars[0], out);
+    get_bool(&vars[1], out);
     write_ln("i32.or", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn not_fn(var : Var, out:&mut File) {
-    get_bool(var.clone(), out);
+pub fn not_fn(var : &Var, out:&mut File) {
+    get_bool(var, out);
     write_ln("i32.eqz", out);
     make_bool(out);
     compile_var(var, out);
     write_ln("call $__dec", out);
 }
 
-pub fn sup_fn(vars: Vec<Var>, out:&mut File) {
+pub fn sup_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.gt_s", out);
     make_bool(out);    
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn inf_fn(vars: Vec<Var>, out:&mut File) {
+pub fn inf_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.lt_s", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn sup_eq_fn(vars: Vec<Var>, out:&mut File) {
+pub fn sup_eq_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.ge_s", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }
 
-pub fn inf_eq_fn(vars: Vec<Var>, out:&mut File) {
+pub fn inf_eq_fn(vars: &Vec<Var>, out:&mut File) {
     assert_eq!(vars.len(), 2);
-    get_num(vars[0].to_owned(), out);
-    get_num(vars[1].to_owned(), out);
+    get_num(&vars[0], out);
+    get_num(&vars[1], out);
     write_ln("i32.le_s", out);
     make_bool(out);
-    compile_var(vars[0].to_owned(), out);
+    compile_var(&vars[0], out);
     write_ln("call $__dec", out);
-    compile_var(vars[1].to_owned(), out);
+    compile_var(&vars[1], out);
     write_ln("call $__dec", out);
 }

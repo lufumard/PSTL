@@ -45,13 +45,20 @@ length l = case l of
 liste1 =
     let n1 = 1;
     let nil = ctor2;
-    let l5 = ctor3 n1 nil;
-    let l4 = ctor3 n1 l5;
-    let l3 = ctor3 n1 l4;
-    let l2 = ctor3 n1 l3;
+    let l2 = ctor3 n1 nil;
     let l1 = ctor3 n1 l2;
     let l0 = ctor3 n1 l1;
     ret l0
+
+len_liste1 =
+    let l = liste1;
+    let r = length l;
+    ret r
+
+len_liste =
+    let l = liste;
+    let r = length l;
+    ret r
 
 fmap f l = case l of
     (let r = f l; ret r)
@@ -82,3 +89,8 @@ papbool =
     let fun = not;
     let r = fmap fun l1;
     ret r
+
+hl =
+    let l = liste;
+    let h = head l;
+    ret h
