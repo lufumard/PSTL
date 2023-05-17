@@ -44,6 +44,152 @@ use primitives::compile_fncall_primitive;
 use self::primitives::write_ln;
 use self::primitives::write_out;
 
+
+pub fn make_bool(out:&mut File) {
+    write_ln("call $__make_no_arg", out);
+}
+
+pub fn make_false(out:&mut File) {
+    write_ln(&format!("i32.const {CONST_FALSE}"), out);
+    make_bool(out);
+}
+
+pub fn make_true(out:&mut File) {
+    write_ln(&format!("i32.const {CONST_TRUE}"), out);
+    make_bool(out);
+}
+
+pub fn make_nil(out:&mut File) {
+    write_ln(&format!("i32.const {CONST_NIL}"), out);
+    write_ln("call $__make_no_arg", out);
+}
+
+pub  fn make_list(out:&mut File) {
+    write_ln("call $__make_list", out);
+}
+
+
+pub  fn make_num(out:&mut File) {
+    write_ln("call $__make_num", out);
+}
+
+fn string_of_var(Var::Var(s):Var) -> String {
+    return s;
+}
+
+fn string_of_const(Const::Const(c):Const) -> String {
+    return c;
+}
+
+/**
+* L'emplacement du nième argument du ctor
+* commence à 1
+*/
+fn ctor_arg_loc(var:Var, n:i32, out:&mut File) {
+    if n < 1 {
+        panic!("Les indices des arguments commencent à 1");
+    }
+    compile_var(var.clone(), out);
+    let i = n * 4 + 4;
+    write_ln(&format!("i32.const {i}"), out);
+    write_ln("i32.add", out);
+}
+
+fn get_type(var:Var, out:&mut File){
+    compile_var(var.clone(), out);
+    write_ln("i32.load", out);
+}
+
+
+fn get_ref_loc(var: Var, out : &mut File) {
+    compile_var(var, out);
+    write_ln("i32.const 4", out);
+    write_ln("i32.add", out);
+}
+
+fn pap_nb_args_fixed_loc(var:Var, out : &mut File){
+    let s = string_of_var(var);
+    write_ln(&format!("local.get ${s}"), out);
+    write_ln("i32.const 12", out);
+    write_ln("i32.add", out);
+}
+
+fn pap_fn_id_loc(var:Var, out : &mut File){
+    let s = string_of_var(var);
+    write_ln(&format!("local.get ${s}"), out);
+    write_ln("i32.const 8", out);
+    write_ln("i32.add", out);
+}
+
+/**
+ * commence à 1
+ */
+fn pap_arg_loc(var:Var, n:i32, out:&mut File) {
+    if n < 1 {
+        panic!("Les indices des arguments commencent à 1");
+    }
+    compile_var(var.clone(), out);
+    let i = n * 4 + 12;
+    write_ln(&format!("i32.const {i}"), out);
+    write_ln("i32.add", out);
+}
+
+pub fn compile(program: Program, out : &mut File){
+    let prog_reuse = insert_reuse(program);
+    let beta: HashMap<Const,Vec<char>> = inferring_program(prog_reuse.clone());
+    let prog_inc = insert_inc(prog_reuse, beta);
+    write_ln("(module", out);
+    write_ln("(memory (import \"js\" \"mem\") 1)", out);
+    let ProgramRC::Program(fun_dec) = prog_inc.clone();
+    let fn_desc = &make_fun_desc(fun_dec);
+    write_runtime(fn_desc, out);
+    compile_program(prog_inc, fn_desc, out);
+    write_ln(")", out);
+
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FnDesc {
+    id : i32,
+    name : String,
+    nb_args : usize,
+} 
+
+use primitives::PRIMITIVES;
+
+fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
+    let mut res = IndexMap::new();
+    
+    let index = PRIMITIVES.clone()
+        .iter()
+        .fold(0, |index, &name| {
+            res.insert(Const::Const(name.clone().to_string()), FnDesc{
+                id : index,
+                name: name.clone().to_string(),
+                nb_args: nb_args(name),
+            });
+            return index+1;
+        });
+    
+    map.iter().fold(index, |index, (cste, fun)| {
+        let Const::Const(nom) = cste.clone();
+        let FnRC::Fn(params, _) = fun;
+        if params.len() > 0 {
+            res.insert(cste.clone().to_owned(), FnDesc{
+                id : index,
+                name: nom,
+                nb_args: params.len(),
+            });
+            return index+1;
+        } else {
+            return index;
+        }
+    });
+
+    return res;
+}
+
 pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     fn wr(out :&mut File) {
         write_ln("    ;; références", out);
@@ -183,7 +329,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
-    
+    let pap = Var::Var("pap".to_string());
+    let var = Var::Var("var".to_string());
     write_ln("(func $__nb_args (param $id i32) (result i32)", out);
     for i in 0..fn_desc.len() {
         write_ln(&format!("    (block $__case{i}"), out);
@@ -210,58 +357,58 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     }
     write_ln(")", out);
 
-   write_ln("
-(func $__copy_pap (param $var i32) (result i32)
-   (local $pap i32)
-   (local $args_rest i32)
-   (local $loc_arg_var i32)
-   (local $loc_arg_pap i32)
-   ;; make new pap
-   (i32.add (local.get $var) (i32.const 8))
-   i32.load
-   call $__make_pap
-   
-   local.set $pap
- 
-   ;; copy nb_args
-   (i32.add (local.get $pap) (i32.const 12))
-   (i32.add (local.get $var) (i32.const 12))  
-   i32.load
-   
-   local.tee $args_rest
-   i32.store
- 
-   ;; copy args
-   (i32.add (local.get $var) (i32.const 16))
-   local.set $loc_arg_var
-   
-   (i32.add (local.get $pap) (i32.const 16))  
-   local.set $loc_arg_pap
- 
-   local.get $args_rest
-   if
-     (loop $set_arg
-       local.get $loc_arg_pap
-       local.get $loc_arg_var
-       i32.load
-       i32.store
- 
-       (i32.add (local.get $loc_arg_pap) (i32.const 4))    
-       local.set $loc_arg_pap
-       
-       (i32.add (local.get $loc_arg_var) (i32.const 4))
-       local.set $loc_arg_var
- 
-       (i32.sub (local.get $args_rest) (i32.const 1))
-       local.tee $args_rest
-       br_if $set_arg
-     )
-   end
-   local.get $pap
-)
-   ", out);
+    write_ln("(func $__copy_pap (param $var i32) (result i32)", out);
 
+    write_ln("(local $pap i32)", out);
+    write_ln("(local $args_rest i32)", out);
+    write_ln("(local $loc_arg_var i32)", out);
+    write_ln("(local $loc_arg_pap i32)", out);
+    // make new pap
+    pap_fn_id_loc(var.clone(), out);
+    write_ln("i32.load", out);
+    write_ln("call $__make_pap", out);
+    
+    write_ln("local.set $pap", out);
+    
+    // copy nb_args
+    pap_nb_args_fixed_loc(pap.clone(), out);
+    pap_nb_args_fixed_loc(var.clone(), out);
+    write_ln("i32.load", out);
+    
+    write_ln("local.tee $args_rest", out);
+    write_ln("i32.store", out);
+    
+    // copy args
+    pap_arg_loc(var.clone(), 1, out);
+    write_ln("local.set $loc_arg_var", out);
+    
+    pap_arg_loc(pap.clone(), 1, out);
+    write_ln("local.set $loc_arg_pap", out);
+    
+    write_ln("local.get $args_rest", out);
+    write_ln("if", out);
+    write_ln("(loop $set_arg", out);
+    write_ln("    local.get $loc_arg_pap", out);
+    write_ln("    local.get $loc_arg_var", out);
+    write_ln("    i32.load", out);
+    write_ln("    i32.store", out);
+    
+    write_ln("    (i32.add (local.get $loc_arg_pap) (i32.const 4))", out); 
+    write_ln("    local.set $loc_arg_pap", out);
+        
+    write_ln("    (i32.add (local.get $loc_arg_var) (i32.const 4))", out); 
+    write_ln("    local.set $loc_arg_var", out);
+    
+    write_ln("    (i32.sub (local.get $args_rest) (i32.const 1))", out);
+    write_ln("    local.tee $args_rest", out);
+    write_ln("    br_if $set_arg", out);
+    write_ln(")", out);
+    write_ln("end", out);
+    compile_var(pap.clone(), out);
+    write_ln("return", out);
+    write_ln(")", out);
 
+   
     write_ln("(func $__exec_pap (param $pap i32) (result i32)", out);
     write_ln("(local $p_0 i32)", out);
     write_ln("(local $p_1 i32)", out);
@@ -269,10 +416,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
         //on crée un block pour chaque cas énuméré
         write_ln(&format!("(block $__case{i}"), out);
     }
-    // on charge le type de la variable
-    write_ln("local.get $pap", out);
-    write_ln("i32.const 8", out);
-    write_ln("i32.add", out);
+    // on charge l'id de la pap
+    pap_fn_id_loc(pap.clone(), out);
     write_ln("i32.load", out);
     // br_table choisi un enbranchement selon la valeur du type de la variable
     // br renvoie à la fin du block indiqué, 
@@ -287,8 +432,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
         write_ln(")", out);
         if is_primitive(&desc.name){
             for i in 0..desc.nb_args {
-                let n = 16+i*4;
-                write_ln(&format!("(i32.add (local.get $pap) (i32.const {n}))"), out);
+                let n = (i+1).try_into().unwrap();
+                pap_arg_loc(pap.clone(), n, out);
                 write_ln("i32.load", out);
                 write_ln(&format!("local.set $p_{i}"), out);
             }
@@ -297,8 +442,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
             compile_fncall_primitive(desc.name.clone(), vars, out);
         } else {
             for i in 0..desc.nb_args {
-                let n = 16+i*4;
-                write_ln(&format!("(i32.add (local.get $pap) (i32.const {n}))"), out);
+                let n = (i + 1).try_into().unwrap();
+                pap_arg_loc(pap.clone(), n, out);
                 write_ln("i32.load", out);
             }
             let name = &desc.name;
@@ -315,7 +460,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln(" (local $ref i32)", out);
     write_ln(" (local $arg i32)", out);
     
-    write_ln(" (i32.add (local.get $var) (i32.const 4))", out); // @ref
+        get_ref_loc(var.clone(), out); // @ref
     write_ln(" i32.load", out);   // #ref
     write_ln(" local.tee $ref", out);
     
@@ -332,16 +477,15 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
 
     write_ln("  if", out);   // alors
     
-    write_ln("    local.get $var", out);
-    write_ln("    i32.load", out); // type
+        get_type(var.clone(), out); // type
     write_ln(&format!("    i32.const {CONST_PAP}"), out);
     write_ln("    i32.eq", out); // est type PAP
 
     write_ln("    if", out);
-    write_ln("      (i32.add (local.get $var) (i32.const 12))", out); // @#args
+        pap_nb_args_fixed_loc(var.clone(), out); // @#args
     write_ln("      i32.load", out);   // #args
     write_ln("      local.set $args_left", out); 
-    write_ln("      (i32.add (local.get $var) (i32.const 16))", out); // @arg1
+        pap_arg_loc(var.clone(), 1, out); // @arg1
     write_ln("      local.set $arg", out); 
     write_ln("      (block $dec_end", out);   
     write_ln("        (loop $dec_loop", out);   
@@ -366,10 +510,10 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    i32.eq", out); // est type LIST
 
     write_ln("    if ;; si de type LIST", out);
-    write_ln("      (i32.add (local.get $var) (i32.const 8)) ;; @@arg 1", out);
+    ctor_arg_loc(Var::Var("var".to_string()), 1, out);
     write_ln("      i32.load   ;; @arg 1", out);
     write_ln("      call $__dec;; dec arg 1", out);
-    write_ln("      (i32.add (local.get $var) (i32.const 12)) ;; @@arg 2", out);
+    ctor_arg_loc(Var::Var("var".to_string()), 2, out);
     write_ln("      i32.load   ;; @arg 2", out);
     write_ln("      call $__dec;; dec arg 2", out);
     write_ln("    end", out);
@@ -379,90 +523,6 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     
 }
 
-pub fn make_bool(out:&mut File) {
-    write_ln("call $__make_no_arg", out);
-}
-
-pub fn make_false(out:&mut File) {
-    write_ln(&format!("i32.const {CONST_FALSE}"), out);
-    make_bool(out);
-}
-
-pub fn make_true(out:&mut File) {
-    write_ln(&format!("i32.const {CONST_TRUE}"), out);
-    make_bool(out);
-}
-
-pub fn make_nil(out:&mut File) {
-    write_ln(&format!("i32.const {CONST_NIL}"), out);
-    write_ln("call $__make_no_arg", out);
-}
-
-pub  fn make_list(out:&mut File) {
-    write_ln("call $__make_list", out);
-}
-
-
-pub  fn make_num(out:&mut File) {
-    write_ln("call $__make_num", out);
-}
-
-
-pub fn compile(program: Program, out : &mut File){
-    let prog_reuse = insert_reuse(program);
-    let beta: HashMap<Const,Vec<char>> = inferring_program(prog_reuse.clone());
-    let prog_inc = insert_inc(prog_reuse, beta);
-    write_ln("(module", out);
-    write_ln("(memory (import \"js\" \"mem\") 1)", out);
-    let ProgramRC::Program(fun_dec) = prog_inc.clone();
-    let fn_desc = &make_fun_desc(fun_dec);
-    write_runtime(fn_desc, out);
-    compile_program(prog_inc, fn_desc, out);
-    write_ln(")", out);
-
-}
-
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct FnDesc {
-    id : i32,
-    name : String,
-    nb_args : usize,
-} 
-
-use primitives::PRIMITIVES;
-
-fn make_fun_desc (map : IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
-    let mut res = IndexMap::new();
-    
-    let index = PRIMITIVES.clone()
-        .iter()
-        .fold(0, |index, &name| {
-            res.insert(Const::Const(name.clone().to_string()), FnDesc{
-                id : index,
-                name: name.clone().to_string(),
-                nb_args: nb_args(name),
-            });
-            return index+1;
-        });
-    
-    map.iter().fold(index, |index, (cste, fun)| {
-        let Const::Const(nom) = cste.clone();
-        let FnRC::Fn(params, _) = fun;
-        if params.len() > 0 {
-            res.insert(cste.clone().to_owned(), FnDesc{
-                id : index,
-                name: nom,
-                nb_args: params.len(),
-            });
-            return index+1;
-        } else {
-            return index;
-        }
-    });
-
-    return res;
-}
 
 pub fn compile_program(prog: ProgramRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
     let ProgramRC::Program(fun_dec) = prog;
@@ -578,10 +638,8 @@ pub fn compile_pap(ident_wrap: ConstWrapper, vars:Vec<Var>, fn_desc:&IndexMap<Co
             if vars.len() > 0 {
                 for i in 0..vars.len() {
                     // charge l'emplacement de l'argument
-                    let loc = 16 + 4*i;
-                    write_ln("local.get $__intern_var", out);  
-                    write_ln(&format!("i32.const {loc}"), out);  
-                    write_ln("i32.add", out);  
+                    let n = (i+1).try_into().unwrap();
+                    pap_arg_loc(Var::Var("__intern_var".to_string()), n, out);
                     compile_var(vars[i].to_owned(), out);
                     write_ln("i32.store", out);
                 }
@@ -630,13 +688,9 @@ pub fn compile_ctor(n: i32, vars:Vec<Var>, out : &mut File)  {
 // On commence à 1
 pub fn compile_proj(n: i32, var:Var, out : &mut File)  {
     write_ln("\n;;proj", out);
-    compile_var(var, out);
     // calcul de l'offset en ajoutant la case des références et sur alignement des entier 32 bits
-    let arg = (n + 1) * 4; 
     // sur liste : 3 4 123 456, proj1 => 123 (offset de 8) et proj2 => 456 (offset de 12)
-
-    write_ln(&format!("i32.const {arg}"), out);
-    write_ln("i32.add", out); // calcul de l'adresse à récupérer
+    ctor_arg_loc(var, n, out);
     write_ln("i32.load", out) // chargement du nième argument
 }
 
@@ -646,21 +700,20 @@ pub  fn compile_value(n: i32, out : &mut File)  {
     make_num(out); // création du nombre
 }
 
-
 pub fn compile_papcall(var:Var, arg:Var, out : &mut File) {
     compile_var(var.clone(), out);
     write_ln("call $__copy_pap", out);
     
-    write_ln("local.tee $__intern_var", out);
+    write_ln("local.set $__intern_var", out);
     // une copie de la variable pap a été créée
     
     compile_var(var, out);
     write_ln("call $__dec", out);
 
-    write_ln("i32.const 12", out);
-    write_ln("i32.add", out);
-    
-    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    let __intern_var = Var::Var("__intern_var".to_string());
+
+    pap_nb_args_fixed_loc(__intern_var.clone(), out);
+    pap_nb_args_fixed_loc(__intern_var.clone(), out);
     write_ln("i32.load", out);
     
     write_ln("i32.const 1", out);
@@ -670,14 +723,12 @@ pub fn compile_papcall(var:Var, arg:Var, out : &mut File) {
     
     // nb_args ++
     
-    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    pap_nb_args_fixed_loc(__intern_var.clone(), out);
     write_ln("i32.load", out);
     
     write_ln("i32.const 4", out);
     write_ln("i32.mul", out);
-    write_ln("local.get $__intern_var", out);
-    write_ln("i32.add", out);
-    write_ln("i32.const 12", out);
+    pap_nb_args_fixed_loc(__intern_var.clone(), out);
     write_ln("i32.add", out);
     //emplacement nouvel argument
     
@@ -685,10 +736,10 @@ pub fn compile_papcall(var:Var, arg:Var, out : &mut File) {
     write_ln("i32.store", out);
     
     // si il y a tous les arguments, exec_pap
-    write_ln("(i32.add (local.get $__intern_var) (i32.const 12))", out);
+    pap_nb_args_fixed_loc(__intern_var.clone(), out);
     write_ln("i32.load", out);
     
-    write_ln("(i32.add (local.get $__intern_var) (i32.const 8))", out);
+    pap_fn_id_loc(__intern_var, out);
     write_ln("i32.load", out);
     write_ln("call $__nb_args", out);
     
@@ -714,14 +765,6 @@ pub  fn compile_fnbody(body: FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out :
         FnBodyRC::Inc(var, fnbody) => compile_inc(var, *fnbody, fn_desc, out),
         FnBodyRC::Dec(var, fnbody) => compile_dec(var, *fnbody, fn_desc, out),
     }
-}
-
-fn string_of_var(Var::Var(s):Var) -> String {
-    return s;
-}
-
-fn string_of_const(Const::Const(c):Const) -> String {
-    return c;
 }
 
 pub  fn compile_ret(var: Var, out : &mut File)  {
@@ -761,25 +804,20 @@ pub  fn compile_case(var: Var, bodys: Vec<FnBodyRC>, fn_desc : &IndexMap<Const, 
     }    
 }
 
-
-
-fn get_ref_loc(var: Var, out : &mut File) {
-    compile_var(var, out);
-    write_ln("i32.const 4", out);
-    write_ln("i32.add", out);
+fn compile_add_ref(var:Var, n:i32, out:&mut File) {
+    compile_var(var.clone(), out);              // @var
+    get_ref_loc(var, out);                      // @var @ref
+    write_ln("i32.load", out);               // @ref #ref
+    write_ln(&format!("i32.const {n}"), out);// @ref #ref n
+    write_ln("i32.add", out);                // @ref #ref+n
+    write_ln("call $__set_ref", out);
 }
 
 pub fn compile_inc(var: Var, fnbody:FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
     write_ln("\n;;inc", out);
-    compile_var(var.clone(), out);  // @var
-    get_ref_loc(var.clone(), out);  // @var @ref
-    write_ln("i32.load", out);   // @ref #ref
-    write_ln("i32.const 1", out);// @ref #ref 1
-    write_ln("i32.add", out);    // @ref #ref+1
-    write_ln("call $__set_ref", out);
+    compile_add_ref(var, 1, out);
     compile_fnbody(fnbody, fn_desc, out);
 }
-
 
 
 pub fn compile_dec(var: Var, fnbody:FnBodyRC, fn_desc : &IndexMap<Const, FnDesc>, out : &mut File)  {
@@ -804,15 +842,14 @@ pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut
     
     // ET
     // types égaux
-    compile_var(var.clone(), out);
-    write_ln("i32.load", out);
+    get_type(var.clone(), out);
     write_ln("local.tee $__intern_var", out); // var <-type
-    write_ln(&format!("i32.const {:?}", ctor.clone()), out);
+    write_ln(&format!("i32.const {ctor}"), out);
     write_ln("i32.eq", out);
 
     
 
-    if ctor.clone() <= 3 {
+    if ctor <= 3 {
         // types tous les deux <= à 3
         write_ln("local.get $__intern_var", out); // type <- var
         write_ln("i32.const 3", out);
@@ -829,10 +866,8 @@ pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut
         CONST_NUM => match args.clone() {
             Either::Left(n) => {
                 compile_reuse_no_arg(var.clone(), CONST_NUM, out);
-                compile_var(var.clone(), out);
-                write_ln("i32.load", out);
-                write_ln("i32.const 8", out);
-                write_ln("i32.add", out);
+                
+                ctor_arg_loc(var.clone(), 1, out);
                 write_ln(&format!("i32.const {n}"), out);
                 write_ln("i32.store", out);
             },
@@ -842,15 +877,12 @@ pub fn compile_reuse(var: Var, ctor: i32, args: Either<i32, Vec<Var>>, out: &mut
                 Either::Left(_) => panic!("i32 as args of ctor other than num"),
                 Either::Right(vars) => {
                     compile_reuse_no_arg(var.clone(), CONST_LIST, out);
-                    compile_var(var.clone(), out);
-                    write_ln("i32.load", out);
-                    write_ln("i32.const 8", out);
-                    write_ln("i32.add", out);
+                    
+                    ctor_arg_loc(var.clone(), 1, out);
                     compile_var(vars[0].to_owned(), out);
                     write_ln("i32.store", out); // store vars[0] @ var+8
-                    compile_var(var.clone(), out);
-                    write_ln("i32.const 12", out);
-                    write_ln("i32.add", out);
+
+                    ctor_arg_loc(var.clone(), 2, out);
                     compile_var(vars[1].to_owned(), out);
                     write_ln("i32.store", out); // store vars[1] @ var+12
                 },
