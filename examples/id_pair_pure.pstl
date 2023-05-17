@@ -3,3 +3,5 @@ id x = ret x
 fst x y = ret x
 
 sec x y = ret y
+
+mkPairOf x = let p = ctor0 x x; ret p

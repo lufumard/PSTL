@@ -4,10 +4,8 @@ goForward p = case p of
         (ret p)
         (ret p)
         (let bs = proj1 p ;
-        let w2 = reset p ;
         let x = proj0 xs ; let xsbis = proj1 xs ;
-        let w1 = reset xs ;
-        let bsbis = reuse w1 in ctor1 x bs ;
-        let r = reuse w2 in ctor0 xsbis bsbis ; ret r))
+        let bsbis = ctor1 x bs ;
+        let r = ctor0 xsbis bsbis ; ret r))
      (ret p)
      (ret p)

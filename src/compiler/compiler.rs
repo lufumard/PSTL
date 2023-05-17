@@ -2,7 +2,10 @@
 pub mod ast_rc;
 pub mod inferring;
 pub mod reuse;
+#[allow(non_snake_case)]
 pub mod inc;
+
+#[allow (dead_code)]
 pub mod reader_rc;
 
 pub mod utils;
@@ -406,7 +409,7 @@ pub  fn make_num(out:&mut File) {
 
 
 pub fn compile(program: Program, out : &mut File){
-    let prog_reuse = insert_reuse(program);
+    let prog_reuse = insert_reuse(program, vec![0,0,0,2,1]);
     let beta: HashMap<Const,Vec<char>> = inferring_program(prog_reuse.clone());
     let prog_inc = insert_inc(prog_reuse, beta);
     write_ln("(module", out);
