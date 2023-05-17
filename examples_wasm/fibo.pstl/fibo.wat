@@ -603,35 +603,27 @@ return
  end
 )
 (func $fun_fibo (export "fibo")(param $var_n i32) (result i32)
-(local $var_m1 i32)
-(local $var_x i32)
+(local $var_f1 i32)
 (local $var_y i32)
+(local $var_r i32)
+(local $var_m1 i32)
+(local $var_m2 i32)
+(local $var_f2 i32)
+(local $var_x i32)
 (local $__intern_var i32)
 (local $var_a i32)
-(local $var_m2 i32)
 (local $var_m i32)
-(local $var_r i32)
 
 ;;let
 
 ;;num
 i32.const 1
 call $__make_num
-local.set $var_m1
+local.set $var_m
 
 ;;inc
 local.get $var_n
 local.get $var_n
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-call $__set_ref
-
-;;inc
-local.get $var_m1
-local.get $var_m1
 i32.const 4
 i32.add
 i32.load
@@ -646,7 +638,7 @@ local.get $var_n
 i32.const 8
 i32.add
 i32.load
-local.get $var_m1
+local.get $var_m
 i32.const 8
 i32.add
 i32.load
@@ -654,7 +646,7 @@ i32.le_s
 call $__make_no_arg
 local.get $var_n
 call $__dec
-local.get $var_m1
+local.get $var_m
 call $__dec
 local.set $var_a
 
@@ -670,6 +662,13 @@ $__case1 $__case0 )
 ;;dec
 local.get $var_a
 call $__dec
+
+;;let
+
+;;num
+i32.const 1
+call $__make_num
+local.set $var_m1
 
 ;;inc
 local.get $var_n
@@ -705,7 +704,7 @@ local.set $var_x
 ;;fncall
 local.get $var_x
 call $fun_fibo
-local.set $var_m
+local.set $var_f1
 
 ;;dec
 local.get $var_x
@@ -752,38 +751,28 @@ local.set $var_y
 ;;fncall
 local.get $var_y
 call $fun_fibo
-local.set $var_n
+local.set $var_f2
 
 ;;dec
 local.get $var_y
 call $__dec
 
-;;inc
-local.get $var_n
-local.get $var_n
-i32.const 4
-i32.add
-i32.load
-i32.const 1
-i32.add
-call $__set_ref
-
 ;;let
 
 ;;fncall
-local.get $var_m
+local.get $var_f1
 i32.const 8
 i32.add
 i32.load
-local.get $var_n
+local.get $var_f2
 i32.const 8
 i32.add
 i32.load
 i32.add
 call $__make_num
-local.get $var_m
+local.get $var_f1
 call $__dec
-local.get $var_n
+local.get $var_f2
 call $__dec
 return
 )
@@ -823,11 +812,19 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main7 (export "main7")(result i32)
-(local $__intern_var i32)
 (local $var_n i32)
+(local $__intern_var i32)
 (local $var_r i32)
 
 ;;let
@@ -842,12 +839,20 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main15 (export "main15")(result i32)
+(local $var_r i32)
 (local $__intern_var i32)
 (local $var_n i32)
-(local $var_r i32)
 
 ;;let
 
@@ -861,12 +866,20 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main5 (export "main5")(result i32)
 (local $var_r i32)
-(local $var_n i32)
 (local $__intern_var i32)
+(local $var_n i32)
 
 ;;let
 
@@ -880,11 +893,19 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main35 (export "main35")(result i32)
-(local $var_n i32)
 (local $var_r i32)
+(local $var_n i32)
 (local $__intern_var i32)
 
 ;;let
@@ -899,6 +920,14 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main30 (export "main30")(result i32)
@@ -918,12 +947,20 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main25 (export "main25")(result i32)
 (local $__intern_var i32)
-(local $var_n i32)
 (local $var_r i32)
+(local $var_n i32)
 
 ;;let
 
@@ -937,12 +974,20 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 (func $fun_main20 (export "main20")(result i32)
 (local $var_r i32)
-(local $__intern_var i32)
 (local $var_n i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -956,6 +1001,14 @@ local.set $var_n
 ;;fncall
 local.get $var_n
 call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
 return
 )
 )
