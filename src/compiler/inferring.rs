@@ -13,7 +13,6 @@ use super::ast_rc::ConstWrapper;
 use super::ast_rc::ProgramRC;
 
 
-
 pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var> {
     match fnbody {
         FnBodyRC::Ret(_) => HashSet::new(),
@@ -278,14 +277,15 @@ mod tests_inferring {
    
     #[test]
     fn id_pair() {
-        let file_path = "./examples/id_pair.pstl";
+        let file_path = "./examples/id_pair_pure.pstl";
         let file_contents = fs::read_to_string(file_path)
             .expect(format!("unable to read file + {}", file_path).as_str());
         let prog = reader_rc::program().parse(file_contents).expect("can't parse");
         let expected : HashMap<Const,Vec<char>> = 
             vec![(Const::Const(String::from("id")), vec!['B']), 
             (Const::Const(String::from("fst")), vec!['B', 'B']), 
-            (Const::Const(String::from("sec")), vec!['B', 'B'])]
+            (Const::Const(String::from("sec")), vec!['B', 'B']),
+            (Const::Const(String::from("mkPairOf")), vec!['B'])]
             .into_iter().collect();
 
         assert_eq!(expected, inferring_program(prog));

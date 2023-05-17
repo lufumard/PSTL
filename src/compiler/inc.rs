@@ -21,13 +21,12 @@ pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
     .map(|(status,y)| (y,*status)).collect();
 
     let mut beta_bis = beta.clone(); 
-    //tail_call(fnbody.clone(), &mut temp_beta_l, &mut beta_bis);
+    tail_call(fnbody.clone(), &mut temp_beta_l, &mut beta_bis);
 
     let beta_l : HashMap<Var,char> = beta_bis.get(&c).unwrap().into_iter()
     .zip(vars.clone().into_iter())
     .map(|(status,y)| (y,*status)).collect();
 
-    //println!("{:?} {:?}", beta_l.clone(), temp_beta_l);
     FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), beta_bis), beta_l))
 }
 
@@ -76,6 +75,7 @@ pub fn FV_e(e: ExprRC) -> Vec<Var> {
             },
     }
 }
+
 /*retourne les variables non mortes de F */
 pub fn FV(F : FnBodyRC) -> HashSet<Var>{
     match F {
@@ -143,8 +143,6 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
             }
         },
         FnBodyRC::Case(x, cases) => {
-
-
             FnBodyRC::Case(x.clone(), cases.into_iter()
             .map(|f| {
                 let mut fv : Vec<Var> = FV(f.clone()).into_iter().collect();
@@ -248,7 +246,6 @@ mod  tests {
     use crate::compiler::ast_rc::{FnBodyRC, ProgramRC, FnRC};
     use crate::ast::{Var};
     use crate::compiler::inc::{insert_inc, tail_call};
-    use crate::compiler::inferring::inferring_program;
     use crate::compiler::{reader_rc, Const};
 
     use super::FV;
@@ -637,7 +634,7 @@ mod  tests {
         let beta : HashMap<Const,Vec<char>> = vec![(Const::Const(String::from("f")), vec!['B'])]
             .into_iter().collect();
 
-        assert_eq!(expected, insert_inc(prog.clone(), inferring_program(prog)));
+        assert_eq!(expected, insert_inc(prog.clone(), beta));
         
     }
     #[test]

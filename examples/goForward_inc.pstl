@@ -1,10 +1,13 @@
 goForward p = case p of
-    (let xs = proj1 p ; inc xs ;
+    (let xs = proj0 p ; inc xs;
     case xs of
-    (ret p)
-    (let bs = proj2 p ; inc bs ;
-    let c1 = reset p ;
-    let x = proj1 xs ; inc x ; let xsbis = proj2 xs ; inc xsbis ;
-    let c2 = reset xs ;
-    let bsbis = reuse c2 in ctor2 x bs ;
-    let r = reuse c1 in ctor1 xsbis bsbis ; ret r))
+        (dec xs; ret p)
+        (dec xs; ret p)
+        (let bs = proj1 p ; inc bs;
+        let w2 = reset p ;
+        let x = proj0 xs ; inc x; let xsbis = proj1 xs ; inc xsbis ;
+        let w1 = reset xs ;
+        let bsbis = reuse w1 in ctor1 x bs ;
+        let r = reuse w2 in ctor0 xsbis bsbis ; ret r))
+     (ret p)
+     (ret p)

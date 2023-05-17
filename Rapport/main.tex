@@ -427,7 +427,7 @@ Si x n'est pas partagé, alors reset décrémente les compteurs de références 
 Ensuite, reuse réutilise la cellule mémoire utilisée par x pour stocker la valeur d'un constructeur \verb|ctor|. Pour savoir si x est une variable partagée, on vérifie son compteur de références.
 
 On introduit la fonction $\delta_{reuse}$ qui se charge d'insérer les instructions \verb|inc| et \verb|dec| dans une fonction. Pour cela, elle fait appel à la fonction \textit{R} sur le corps de la fonction.
-En plus de la fonction \textit{R}, on utilise deux autres fonctions: \textit{D} et \textit{S}.
+En plus de la fonction \textit{R}, on utilise deux autres fonctions : \textit{D} et \textit{S}.
 Pour chaque case, R tente d'insérer des instructions \verb|reset|\textbackslash \verb|reuse| pour la variable correspondant au case. Cela est fait en utilisant \textit{D} dans chaque bras du case.
 La fonction \textit{D} cherche les variables mortes. Elle prend en paramètre la variable z à réutiliser et l'arité n du constructeur correspondant. 
 \textit{D} recherche le premier emplacement où z où n'est pas utilisé dans le reste du corps de la fonction, puis fait appel à \textit{S} en lui donnant une nouvelle variable. 
@@ -442,12 +442,13 @@ Un paramètre est owned si une de ses projections est owned ou s'il est passé e
 Si une variable x est utilisé dans un \verb|reset|, on ne veut pas qu'elle soit borrowed. 
 En effet, on utilise le compteur de référence pour savoir si une variable est partagé lors de l'évaluation d'un \verb|reset|. 
 Or si x est borrowed, il peut être une variable partagé et son compteur à un.
-De plus, une application 	ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. 
+De plus, une application ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. 
 Dans notre implémentation, le nom de $c_O$ est de la forme c\_$nom de la fonction$. 
-Pour s'assurer que que la constante $c_O$ n'est pas présente dans le programme, on interdit aux fonction d'avoir un nom qui est préfixé apr c\_.
-Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y. La fonction \textit{collect\_O} va s'assurer que les arguments soit owned.
+Pour s'assurer que que la constante $c_O$ n'est pas présente dans le programme, on interdit aux fonction d'avoir un nom qui est préfixé par c\_.
+Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y. On ajoute à $\beta$ une entrée tel que $\beta(c_O) = \overline{O}$
 
-La fonction $\delta_{\beta}$ va déduire la valeur de $\beta$ pour une fonction c. Pour réaliser cette étape, on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_O(b). 
+La fonction $\delta_{\beta}$ va déduire la valeur de $\beta$ pour une fonction c. 
+Pour réaliser cette étape, on commence par une approximation $\beta(c)$ = $\overline{B}$ , puis en calculant S = collect\_O(b). 
 Ensuite, nous mettons à jour  $\beta(c)_i :=$ O  si $y_i \in S $, et nous répétons ce processus jusqu'à atteindre un point fixe où aucune autre mise à jour 
 n'est effectuée sur $\beta(c)$.
 Pour inférer l'ensemble du programme, on appelle $\delta_{\beta}$ sur chaque fonction dans l'ordre de déclaration des fonctions. 

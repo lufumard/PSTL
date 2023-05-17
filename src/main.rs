@@ -18,6 +18,7 @@ mod interpreter;
 mod compiler;
 
 #[path = "interpreter/tests.rs"]
+#[allow(dead_code)]
 #[cfg(test)]
 mod tests_interpreter;
 
