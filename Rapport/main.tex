@@ -97,17 +97,14 @@ Notre interpréteur implémentera le langage $\lambda_{pure}$ et notre compilate
 
 Les tâches que nous avons identifiées sont les suivantes :
 
-- Analyser le fonctionnement de WASM et étudier son écosystème.
-
-- Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
-
-- Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
-
-- Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
-
-- Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
-
-- Programmer un compilateur du langage agrandi vers WASM
+\begin{itemize}
+	\item Analyser le fonctionnement de WASM et étudier son écosystème
+	\item Programmer un parseur qui puisse lire le langage pur tel que défini dans l'article\cite{ullrich_counting_2020}
+	\item Programmer un interpréteur en Rust du langage selon les sémantiques du langage pur
+	\item Définir quelques tests unitaires couvrant les sémantiques définies dans l'article
+	\item Ajouter la gestion des instructions \verb|inc|, \verb|dec|, \verb|reset|, \verb|reuse|
+	\item Programmer un compilateur du langage agrandi vers WASM
+\end{itemize}
 
 Comme dans l'article, nous partons du principe que le typage a déjà été vérifié et que les \verb|let| inutiles ont été enlevés.
 
@@ -502,67 +499,18 @@ Afin d'implémenter le tas en WebAssembly, nous utilisons une structure \verb|Me
 nous pouvons manipuler de WebAssembly ainsi que de JavaScript.
 C'est dans cette mémoire que nous stockons les objets que nous créons
 L'accès à cette mémoire nous permettra de réaliser des diagnostics ainsi que des évaluations de l'empreinte mémoire.
-Nous avons commencé à définir le schéma du tas du code compilé :
 La case mémoire 0 est réservée pour indiquer le prochain espace mémoire libre. Par défault, nous mettons la valeur de cette case à 
 l'adresse de la seconde case, soit 4, car la mémoire est alignée sur des entiers naturels de 32 bit ou 4 octets.
-Ensuite, chaque constructeur suit le format suivant : \verb|<type> <nb_ref> <args>|. Ainsi, un constructeur \verb|FALSE| référencé 
-deux fois est représenté sous la forme "0 2" dans la mémoire. Un entier 10 référencé 3 fois sous la forme "4 3 10".
+Ensuite, chaque constructeur défini dans la figure~\ref{listing:types_ctor} suit le format suivant : \verb|<type> <nb_ref> <args>|. 
 
+Les argument des types prennent une case mémoire chacun, c'est à dire la place d'un entier signé 32 bits. 
+Il est certain qu'il s'agit d'un gachi de place de donner 4 octets pour chaque argument, mais WebAssembly n'a pas de type plus
+petit, et, bien que l'on puisse lire et stocker des entiers sur 16 ou 8 bits,
+cela complexifierait le déboguage de l'implémentation que d'utiliser 32 bits pour représenter plusieurs arguments.
+Ainsi, l'alignement de la mémoire sera toujours de 32 bits, soit 4 octets. Les adresses de nos variables seront toujours 
+multiples de 4.
 
-\subsection{Applications partielles}
-
-Pour les applications partielles, nous avons décidé de les stocker dans le tas de la même façon que toutes les autres valeurs.
-Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de charactères, car WebAssembly
-ne supporte pas ce type. Ainsi, nous avons décidé de donner à chaque fonction, primitive ou définie par l'utilisateur, un identifiant
-sous forme d'un entier, qui nous servira à choisir quelle fonction appeler lors de l'exécution de l'application partielle.
-Il nous faut aussi définir un nouveau nombre définissant le type des applications partielles, étendant les types déjà définis
-par à la Figure~\ref{listing:types_ctor}. Bien que nous définissions les applications partielles de la même façon que les constructeurs,
-les applications partielles n'en sont pas. 
-
-\medskip
-
-Ainsi, nous définissons ces types selon la figure suivante.
-
-
-\begin{figure}[H]
-	\begin{equation*}
-	CONST\_FALSE = 0
-	\end{equation*}
-	\begin{equation*}
-	CONST\_TRUE = 1
-	\end{equation*}
-	\begin{equation*}
-	CONST\_NIL = 2
-	\end{equation*}
-	\begin{equation*}
-	CONST\_LIST = 3
-	\end{equation*}
-	\begin{equation*}
-	CONST\_NUM = 4
-	\end{equation*}
-	\begin{equation*}
-	CONST\_PAP = 5
-	\end{equation*}
-	\caption{Type des constructeurs dans le langage $\lambda{RC}$ en WASM}
-	\label{listing:types_ctor_wasm}
-	\end{figure}
-	\FloatBarrier 
-
-\medskip
-
-Dans la mémoire, nos applications partielles sont stockés sous la forme 
-\verb|<type>| \verb|<nombre| \verb|de références>| \verb|<identifiant| \verb|de la fonction>| \verb|<nombre| \verb|d'arguments| \verb|fixés>| \verb|<arguments>|. 
-Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 14 0| où \verb|5| est le type "application partielle", 
-\verb|1| est le nombre de références à cette application partielle, 
-\verb|7| est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
-\verb|2| est le nombre d'arguments fixés et \verb|12| et \verb|14| sont les arguments fixés et
-\verb|0| est l'emplacement des arguments non fixés que la fonction peut accepter.
-
-\subsection{Schéma mémoire}
-
-La figure~\ref{listing:memory_wasm} représente le schéma de stockage des objets dans la mémoire, c'est à dire la formation
-de chaque type d'objet dans la mémoire.
-
+Nous ordonnons donc les objets dans la mémoire selon la figure~\ref{listing:memory_wasm} suivante.
 
 \begin{figure}[H]
 	\begin{itemize}
@@ -571,17 +519,50 @@ de chaque type d'objet dans la mémoire.
 		\item Nil   : 2 <\#refs>
 		\item List  : 3 <\#refs> <@arg1> <@arg2>
 		\item Num   : 4 <\#refs> <entier>
-		\item Pap   : 5 <\#refs> <id fonction> <\#arguments fixés> <@arg1> <@arg2> ...
 	\end{itemize}
-	\caption{Schéma mémoire}
+	\caption{Schéma mémoire des constructeurs}
 	\label{listing:memory_wasm}
 \end{figure}
 
-Les argument des types prennent une case mémoire chacun, c'est à dire la place d'un entier signé 32 bits. 
-Il est certain qu'il s'agit d'un gachi de place de donner 4 octets pour chaque argument, mais WebAssembly n'a pas de type plus
-petit, et cela augmenterait donc la complexité de l'implémentation que d'utiliser 32 bits pour représenter plusieurs arguments.
-Ainsi, l'alignement de la mémoire sera toujours de 32 bits, soit 4 octets. Les adresses de nos variables seront donc toujours 
-multiples de 4.
+Ainsi, un constructeur \verb|FALSE| référencé deux fois est représenté sous la forme "\verb|0 2|" dans la mémoire et un entier 10 
+référencé 3 fois sous la forme "\verb|4 3 10|".
+
+\bigskip
+
+Nous avons aussi décidé de stocker les applications partielles dans le tas de la même façon que toutes les autres valeurs.
+Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de charactères, car WebAssembly
+ne supporte pas ce type. Ainsi, nous avons décidé de donner à chaque fonction, primitive ou définie par l'utilisateur, un identifiant
+sous forme d'un entier, qui nous servira à choisir quelle fonction appeler lors de l'exécution de l'application partielle.
+Il nous faut aussi définir un nouveau nombre définissant le type des applications partielles, étendant les types déjà définis
+par à la Figure~\ref{listing:types_ctor}. Bien que nous définissions les applications partielles de la même façon que les constructeurs,
+les applications partielles n'en sont pas. 
+Nous ajoutons donc le type des applications partielles à notre liste des types de la figure~\ref{listing:types_ctor}.
+
+
+\begin{figure}[H]
+	\begin{equation*}
+	CONST\_PAP = 5
+	\end{equation*}
+	\caption{Type des PAP en WASM}
+	\label{listing:types_pap_wasm}
+	\end{figure}
+	\FloatBarrier 
+
+Ainsi, dans la mémoire, nos applications partielles sont stockés sous la forme de la figure~\ref{listing:memory_wasm_pap} suivante.
+
+\begin{figure}[H]
+	\begin{itemize}
+		\item Pap   : 5 <\#refs> <id fonction> <\#arguments fixés> <@arg1> <@arg2> ...
+	\end{itemize}
+	\caption{Schéma mémoire pour les applications partielles}
+	\label{listing:memory_wasm_pap}
+\end{figure}
+
+Par exemple, une application partielle est sous la forme \verb|5 1 7 2 12 14 0| où \verb|5| est le type "application partielle", 
+\verb|1| est le nombre de références à cette application partielle, 
+\verb|7| est l'identifiant de la fonction à appeler (dans l'interpréteur, on utilise des \verb|string|), 
+\verb|2| est le nombre d'arguments fixés et \verb|12| et \verb|14| sont les arguments fixés et
+\verb|0| est l'emplacement des arguments non fixés que la fonction peut accepter.
 
 \subsection{Compilation des instructions en WAT}
 
