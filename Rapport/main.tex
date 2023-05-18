@@ -443,8 +443,8 @@ Si une variable x est utilisé dans un \verb|reset|, on ne veut pas qu'elle soit
 En effet, on utilise le compteur de référence pour savoir si une variable est partagé lors de l'évaluation d'un \verb|reset|. 
 Or si x est borrowed, il peut être une variable partagé et son compteur à un.
 De plus, une application ne doit pas avoir de paramètre borrowed. Pour résoudre ce problème, on définit un wrapper $c_O := c$. 
-Dans notre implémentation, le nom de $c_O$ est de la forme c\_$nom de la fonction$. 
-Pour s'assurer que que la constante $c_O$ n'est pas présente dans le programme, on interdit aux fonction d'avoir un nom qui est préfixé par c\_.
+Dans notre implémentation, le nom de $c_O$ est de la forme $nom de la fonction$\_c. 
+Pour s'assurer que que la constante $c_O$ n'est pas présente dans le programme, interdit au nom de fonction d'avoir pour suffixe \_c.
 Chaque \verb|pap| c y est remplacé par \verb|pap| $c_O$ y. On ajoute à $\beta$ une entrée tel que $\beta(c_O) = \overline{O}$
 
 La fonction $\delta_{\beta}$ va déduire la valeur de $\beta$ pour une fonction c. 
@@ -460,7 +460,8 @@ Sinon, on considère que les paramètres de la fonction d sont owned.
 Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
 Lorsqu'une variable est borrowed, elle ne possède pas la responsabilité de sa gestion mémoire. 
 D'un autre côté, une variable owned est responsable de sa gestion mémoire.
-Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned.
+Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned. 
+Si elle est utilisé dans un constructeur ou dans une application.
 On doit décrémenté leur compteur de référence das variables owned après leur dernière utilisation. 
 On suppose que notre map $\beta$ de la section précédente est bien définie. 
 Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son status('B' ou 'O'). 
@@ -468,11 +469,11 @@ $\beta_l$ est initialisé avec les valeurs de $\beta(c)$. Par défaut, une varia
 
 On utilise plusieurs fonctions :
 \begin{itemize}
-    \item $O_x^{+}$: la variable x n'est pas incrémenté si elle est Owned et morte.
+    \item $O_x^{+}$: la variable x n'est pas incrémenté si elle est owned et morte.
     \item C : appelé sur le corps de la fonction pour effectuer l'ajout d'instruction \verb|inc| et \verb|dec|.
     \item $C_{app}$: se charge des applications. En effectuant des appels récursifs sur les paramètres et leur status.
     \item $O^{-}$: sert à décrémenter plusieurs variables, utilisé au début d'un case et d'une fonction.
-    \item  $O_x^{-}$: décrément la variable x si elle est Owned et morte.   
+    \item  $O_x^{-}$: décrément la variable x si elle est owned et morte.   
 \end{itemize}
 
 Si on a un tail call pour le préserver, on change  $\beta(c)_i$ = O si c est utilisé dans le tail call et $\beta_l(x_i)$ est owned.

@@ -13,13 +13,13 @@ use super::ast_rc::ConstWrapper;
 use super::ast_rc::ProgramRC;
 
 
-pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var> {
+pub fn collect_o(fnbody:FnBodyRC, beta: &HashMap<Const,Vec<char>>) -> HashSet<Var> {
     match fnbody {
         FnBodyRC::Ret(_) => HashSet::new(),
         FnBodyRC::Let(z, e, f) => match e {
             ExprRC::FnCall(c, vars) => {
-                if beta.clone().contains_key(&c) {
-                    let beta_c = beta.clone().get(&c).unwrap_or(&vec!['O';vars.len()]).clone();
+                if beta.contains_key(&c) {
+                    let beta_c = beta.get(&c).unwrap_or(&vec!['O';vars.len()]).clone();
                     assert_eq!(beta_c.clone().len(), vars.len());
                     collect_o(*f, beta)
                     .union(&vars
@@ -52,9 +52,10 @@ pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var
             _ =>  collect_o(*f, beta),
         },
         FnBodyRC::Case(_, bodys) =>  {
-            bodys.into_iter()
-            .map(|f| collect_o(f, beta.clone()))
-            .collect::<Vec<HashSet<Var>>>().iter().flatten().cloned().collect::<HashSet<Var>>()
+            bodys.into_iter().fold(HashSet::new(), |acc, x| {
+                let hash_set = collect_o(x, beta); 
+                acc.union(&hash_set).cloned().collect()
+            })
         },
         _ => panic!("Les instructions inc et dec n'ont pas encore été insérées")
     }
@@ -64,13 +65,13 @@ pub fn collect_o(fnbody:FnBodyRC, beta: HashMap<Const,Vec<char>>) -> HashSet<Var
 définit si il est borrowed('B') ou owned('O')
  */
 pub fn inferring_signatures(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> Vec<char> {
-    let mut temp_beta = beta.clone();
+    let mut temp_beta = beta;
 
     let FnRC::Fn(ref vars, fnbody) = f;  
     let mut beta_c: Vec<char> = vars.into_iter().map(|_| 'B').collect();
     loop {
         temp_beta.insert(c.clone(), beta_c.clone());
-        let s: HashSet<Var> = collect_o(fnbody.clone(), temp_beta.clone());
+        let s: HashSet<Var> = collect_o(fnbody.clone(), &temp_beta);
         let it = vars.iter().zip(beta_c.iter());
         let mut temp_beta_c: Vec<char> = Vec::new();
         for (var, beta_c_var) in it {
@@ -140,9 +141,9 @@ mod tests_collect_o {
         let x = Var::Var(String::from("x"));
         let retour = Box::new(FnBodyRC::Ret(x.clone()));
 
-        let body = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
+        let body = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour);
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
     }
 
     #[test]
@@ -150,9 +151,9 @@ mod tests_collect_o {
         let x = Var::Var(String::from("x"));
         let z = Var::Var(String::from("z"));
         let retour = Box::new(FnBodyRC::Ret(z.clone()));
-        let body = FnBodyRC::Let(z.clone(),ExprRC::Reset(x.clone()),retour.clone());
-        let expected = HashSet::from([x.clone()]);
-        assert_eq!(expected,collect_o(body, HashMap::new()));
+        let body = FnBodyRC::Let(z.clone(),ExprRC::Reset(x.clone()),retour);
+        let expected = HashSet::from([x]);
+        assert_eq!(expected,collect_o(body, &HashMap::new()));
     }
 
     #[test]
@@ -160,9 +161,9 @@ mod tests_collect_o {
         let x = Var::Var(String::from("x"));
         let w = Var::Var(String::from("w"));
         let retour = Box::new(FnBodyRC::Ret(x.clone()));
-        let body = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Either::Right(Vec::new())) ,retour.clone());
+        let body = FnBodyRC::Let(x,ExprRC::Reuse(w, 0, Either::Right(Vec::new())) ,retour);
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
     }
 
     #[test]
@@ -170,9 +171,9 @@ mod tests_collect_o {
         let x = Var::Var(String::from("x"));
         let w = Var::Var(String::from("w"));
         let retour = Box::new(FnBodyRC::Ret(x.clone()));
-        let body = FnBodyRC::Let(x.clone(),ExprRC::Reuse(w.clone(), 0, Either::Left(5)) ,retour.clone());
+        let body = FnBodyRC::Let(x,ExprRC::Reuse(w, 0, Either::Left(5)) ,retour);
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
     }
 
     #[test]
@@ -185,9 +186,9 @@ mod tests_collect_o {
         let mut beta: HashMap<Const,Vec<char>> = HashMap::new();
         beta.insert(id.clone(), vec!['O']);
 
-        let body = FnBodyRC::Let(x.clone(), ExprRC::FnCall(id.clone(), vec![y.clone()]), retour.clone());
-        let expected = HashSet::from( [y.clone()]);
-        assert_eq!(expected, collect_o(body, beta))
+        let body = FnBodyRC::Let(x, ExprRC::FnCall(id, vec![y.clone()]), retour);
+        let expected = HashSet::from([y]);
+        assert_eq!(expected, collect_o(body, &beta))
 
     }
 
@@ -198,9 +199,9 @@ mod tests_collect_o {
         let y = Var::Var(String::from("y"));
         let retour = Box::new(FnBodyRC::Ret(z.clone()));
 
-        let body = FnBodyRC::Let(z.clone(), ExprRC::PapCall(x.clone(), y.clone()), retour.clone());
-        let expected = HashSet::from([x.clone(),y.clone()]);
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        let body = FnBodyRC::Let(z, ExprRC::PapCall(x.clone(), y.clone()), retour);
+        let expected = HashSet::from([x,y]);
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
         
     }   
 
@@ -213,11 +214,11 @@ mod tests_collect_o {
         let add = Const::Const(String::from("add"));
         let add_wrap = ConstWrapper::ConstWrapper(Const::Const(String::from("add_c")), add.clone());
         let mut beta: HashMap<Const,Vec<char>> = HashMap::new();
-        beta.insert(add.clone(), vec!['O', 'O']);
+        beta.insert(add, vec!['O', 'O']);
 
-        let body = FnBodyRC::Let(z.clone(), ExprRC::Pap(add_wrap, vec![x.clone()]), retour.clone());
-        let expected = HashSet::from( [x.clone()]);
-        assert_eq!(expected, collect_o(body, beta));
+        let body = FnBodyRC::Let(z, ExprRC::Pap(add_wrap, vec![x.clone()]), retour);
+        let expected = HashSet::from( [x]);
+        assert_eq!(expected, collect_o(body, &beta));
         
     }  
 
@@ -230,9 +231,9 @@ mod tests_collect_o {
         let retour = Box::new(FnBodyRC::Ret(z.clone()));
 
         let body = FnBodyRC::Let(x.clone(), ExprRC::Proj(0, var.clone()), 
-            Box::new(FnBodyRC::Let(z.clone(),ExprRC::Reset(x.clone()),retour.clone())));
-        let expected = HashSet::from( [x.clone(), var.clone()]);
-        assert_eq!(expected, collect_o(body, HashMap::new()));
+            Box::new(FnBodyRC::Let(z,ExprRC::Reset(x.clone()),retour)));
+        let expected = HashSet::from( [x, var]);
+        assert_eq!(expected, collect_o(body, &HashMap::new()));
     }   
 
     /*cas où z n'appartient pas à collect_O(F) */
@@ -243,7 +244,7 @@ mod tests_collect_o {
         let retour = Box::new(FnBodyRC::Ret(z.clone()));
         let body = FnBodyRC::Let(z, ExprRC::Proj(0, x), retour);
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
 
     }  
 
@@ -251,7 +252,7 @@ mod tests_collect_o {
     fn test_ret() {
         let body = FnBodyRC::Ret(Var::Var(String::from("x")));
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()))
+        assert_eq!(expected, collect_o(body, &HashMap::new()))
     }
 
     #[test]
@@ -260,11 +261,11 @@ mod tests_collect_o {
         let h1 = Var::Var(String::from("h1"));
         let retour = Box::new(FnBodyRC::Ret(h1.clone()));
         let case1 = FnBodyRC::Ret(xs.clone());
-        let case2 = FnBodyRC::Let(h1.clone(), ExprRC::Proj(1, xs.clone()), retour);
+        let case2 = FnBodyRC::Let(h1, ExprRC::Proj(1, xs.clone()), retour);
 
-        let body = FnBodyRC::Case(xs.clone(), vec![case1,case2]);
+        let body = FnBodyRC::Case(xs, vec![case1,case2]);
         let expected: HashSet<Var> = HashSet::new();
-        assert_eq!(expected, collect_o(body, HashMap::new()));
+        assert_eq!(expected, collect_o(body, &HashMap::new()));
     }
 
 }

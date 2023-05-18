@@ -139,7 +139,7 @@ fn pap_arg_loc(var:&Var, n:i32, out:&mut File) {
 }
 
 pub fn compile(program: Program, out : &mut File){
-    let prog_reuse = insert_reuse(program, vec![0, 0, 0, 2, 1]);
+    let prog_reuse = insert_reuse(program, &vec![0, 0, 0, 2, 1]);
     let beta: HashMap<Const,Vec<char>> = inferring_program(prog_reuse.clone());
     let prog_inc = insert_inc(prog_reuse, beta);
     write_ln("(module", out);

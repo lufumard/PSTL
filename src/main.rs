@@ -1,5 +1,3 @@
-
-
 mod ast;
 use chumsky::Parser;
 use transform_var::transform_program;
@@ -7,7 +5,6 @@ use std::env;
 use std::fs;
 use std::fs::File;
 
-//use crate::interpreter::{start_interpreter, empty_heap, empty_ctxt};
 
 pub mod reader;
 

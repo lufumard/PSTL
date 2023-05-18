@@ -27,7 +27,7 @@ pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
     .zip(vars.clone().into_iter())
     .map(|(status,y)| (y,*status)).collect();
 
-    FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), beta_bis), beta_l))
+    FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), &beta_bis), beta_l))
 }
 
 pub fn o_plus_var(x: Var, V: HashSet<Var>, F : FnBodyRC, beta_l : HashMap<Var,char>) -> FnBodyRC {
@@ -99,7 +99,7 @@ pub fn FV(F : FnBodyRC) -> HashSet<Var>{
     }
 }
 
-pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<char>>) -> FnBodyRC {
+pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: &HashMap<Const,Vec<char>>) -> FnBodyRC {
     match fnbody.clone() {
         FnBodyRC::Ret(x) => o_plus_var(x, HashSet::new(), fnbody, beta_l),
         FnBodyRC::Let(x, e, F) => {
@@ -107,7 +107,7 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
                 ExprRC::FnCall(c, vars) => {
                     let o = vec!['O'; vars.clone().len()];
                     C_app(vars, beta.get(&c).unwrap_or(&o).clone(), FnBodyRC::Let(x, e,
-                        Box::new(C(*F, beta_l.clone(), beta.clone()))), beta_l)
+                        Box::new(C(*F, beta_l.clone(), beta))), beta_l)
                 },
                 ExprRC::PapCall(z, y) => {
                     C_app(vec![z, y], vec!['O'; 2], FnBodyRC::Let(x, e, 
@@ -149,7 +149,7 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: HashMap<Const,Vec<
                 if !fv.contains(&x) {
                     fv.insert(0, x.clone())
                 }
-                o_moins(fv, C(f,beta_l.clone(), beta.clone()), beta_l.clone())
+                o_moins(fv, C(f,beta_l.clone(), beta), beta_l.clone())
         })
             .collect())         
         },
@@ -196,12 +196,12 @@ pub fn tail_call(fnbody : FnBodyRC, beta_l : &mut HashMap<Var,char>, beta: &mut 
         FnBodyRC::Ret(_) => (),
         FnBodyRC::Let(y, e, F) => {
             match e {
-                ExprRC::FnCall(c, vars) => {
-                    match *F.clone() {
+                ExprRC::FnCall(c, ref vars) => {
+                    match *F {
                         FnBodyRC::Ret(r) => {
                             if r.eq(&y) {
                                 let update : Vec<char>= beta.get(&c)
-                                .unwrap_or(&vec!['O'; vars.clone().len()])
+                                .unwrap_or(&vec!['O'; vars.len()])
                                 .into_iter().zip(vars.into_iter())
                                 .map(|(status, x)| {
                                     if beta_l.get(&x).unwrap_or(&'O').eq(&'O') {
@@ -295,7 +295,7 @@ mod  tests {
 
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'O');
-            let res = o_plus_var(x.clone(),HashSet::new(),body.clone(), beta_l);
+            let res = o_plus_var(x,HashSet::new(),body.clone(), beta_l);
             assert_eq!(body, res);
         }
 
@@ -307,7 +307,7 @@ mod  tests {
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
             let res = o_plus_var(x.clone(),HashSet::new(),body.clone(), beta_l);
-            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            let excpected = FnBodyRC::Inc(x, Box::new(body));
             assert_eq!(excpected, res);
             
         }
@@ -324,7 +324,7 @@ mod  tests {
             V.insert(x.clone());
 
             let res = o_plus_var(x.clone(),V,body.clone(), beta_l);
-            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            let excpected = FnBodyRC::Inc(x, Box::new(body));
             assert_eq!(excpected, res);
         }
 
@@ -340,7 +340,7 @@ mod  tests {
             V.insert(x.clone());
             
             let res = o_plus_var(x.clone(),V,body.clone(), beta_l);
-            let excpected = FnBodyRC::Inc(x.clone(), Box::new(body));
+            let excpected = FnBodyRC::Inc(x, Box::new(body));
             assert_eq!(excpected, res);
         }
 
@@ -353,7 +353,7 @@ mod  tests {
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'O');
             let res = o_moins_var(x.clone(),body.clone(), beta_l);
-            let excpected = FnBodyRC::Dec(x.clone(), Box::new(body));
+            let excpected = FnBodyRC::Dec(x, Box::new(body));
             assert_eq!(excpected, res);
         }
 
@@ -365,7 +365,7 @@ mod  tests {
 
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
-            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            let res = o_moins_var(x,body.clone(), beta_l);
             assert_eq!(body, res);
             
         }
@@ -378,7 +378,7 @@ mod  tests {
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'O');
 
-            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            let res = o_moins_var(x,body.clone(), beta_l);
             assert_eq!(body, res);
         }
 
@@ -390,7 +390,7 @@ mod  tests {
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
             
-            let res = o_moins_var(x.clone(),body.clone(), beta_l);
+            let res = o_moins_var(x,body.clone(), beta_l);
             assert_eq!(body, res);
         }
 
@@ -401,7 +401,7 @@ mod  tests {
             let body = FnBodyRC::Ret(Var::Var(String::from("x")));
 
             let mut beta_l = HashMap::new();
-            beta_l.insert(x.clone(), 'B');
+            beta_l.insert(x, 'B');
             
             let res = o_moins(vec![], body.clone(), beta_l);
             assert_eq!(body, res);
@@ -415,8 +415,8 @@ mod  tests {
             let retour = Box::new(FnBodyRC::Ret(x.clone()));
 
             let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
-            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
-            let cases = vec![case1.clone(), case2.clone()];
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour);
+            let cases = vec![case1, case2];
             
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'O');
@@ -436,8 +436,8 @@ mod  tests {
             let retour = Box::new(FnBodyRC::Ret(x.clone()));
 
             let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
-            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
-            let cases = vec![case1.clone(), case2.clone()];
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour);
+            let cases = vec![case1, case2];
             
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
@@ -458,8 +458,8 @@ mod  tests {
             let retour = Box::new(FnBodyRC::Ret(x.clone()));
 
             let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
-            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
-            let cases = vec![case1.clone(), case2.clone()];
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour);
+            let cases = vec![case1, case2];
             
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
@@ -481,8 +481,8 @@ mod  tests {
             let retour = Box::new(FnBodyRC::Ret(x.clone()));
 
             let case1 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(0, Vec::new()), retour.clone());
-            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour.clone());
-            let cases = vec![case1.clone(), case2.clone()];
+            let case2 = FnBodyRC::Let(x.clone(), ExprRC::Ctor(3, Vec::from([z.clone(),y.clone()])), retour);
+            let cases = vec![case1, case2];
             
             let mut beta_l = HashMap::new();
             beta_l.insert(x.clone(), 'B');
@@ -566,7 +566,7 @@ mod  tests {
             let vars = vec![y.clone();2];
             let F = FnBodyRC::Let(z, ExprRC::FnCall(c, vars), retour);
             
-            let res = C(F.clone(),beta_l,beta);
+            let res = C(F.clone(),beta_l,&beta);
             let expected = FnBodyRC::Inc(y, Box::new(F));
             
             assert_eq!(expected, res);
@@ -590,7 +590,7 @@ mod  tests {
 
             let expected = FnBodyRC::Let(r.clone(), e, Box::new(FnBodyRC::Inc(r, 
                 Box::new(FnBodyRC::Dec(x, retour))))); 
-            assert_eq!(expected, C(body, beta_l, beta));
+            assert_eq!(expected, C(body, beta_l, &beta));
         }
         
 
