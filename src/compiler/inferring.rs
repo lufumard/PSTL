@@ -89,6 +89,7 @@ pub fn inferring_signatures(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) ->
 
 }
 
+/// Ajoute les wrapper des application partielle dans beta donnant à leur paramètre le status 'O'
 pub fn inferring_pap_fnbody(fnbody:FnBodyRC, mut beta: HashMap<Const,Vec<char>>) -> HashMap<Const,Vec<char>> {
     match fnbody {
         FnBodyRC::Let(_, e, _body) => {
@@ -103,6 +104,8 @@ pub fn inferring_pap_fnbody(fnbody:FnBodyRC, mut beta: HashMap<Const,Vec<char>>)
         _ => beta,
     }
 }
+
+/// Parcourt le programme pour trouver les applications partielle et ajouter leur wrapper dans beta 
 pub fn inferring_pap(fun_dec : IndexMap<Const, FnRC>) -> HashMap<Const,Vec<char>>{
     let beta: HashMap<Const,Vec<char>> = HashMap::new();
 

@@ -59,6 +59,7 @@ pub fn o_moins(vars: Vec<Var>, F : FnBodyRC, beta_l : HashMap<Var,char>) -> FnBo
     }
 }
 
+/// retourne les variables non mortes dans une expression
 pub fn FV_e(e: ExprRC) -> Vec<Var> {
     match e {
         ExprRC::FnCall(_, vars) => vars,
@@ -190,7 +191,7 @@ pub fn C_app(vars: Vec<Var>, status_var : Vec<char>, fnbody : FnBodyRC, beta_l :
 
 }
 
-
+/// vérifie si y a un tail call, si c'est le cas modifie beta
 pub fn tail_call(fnbody : FnBodyRC, beta_l : &mut HashMap<Var,char>, beta: &mut HashMap<Const,Vec<char>>)  {
     match fnbody {
         FnBodyRC::Ret(_) => (),

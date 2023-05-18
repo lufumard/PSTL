@@ -33,7 +33,7 @@ pub fn is_in_fn(z: &Var, f:FnBodyRC) -> bool {
 }
 
 
-/// Crée un
+/// Crée un wrapper pour la constante c
 pub fn wrap_const(c : Const) -> ConstWrapper {
     let Const::Const(mut name) = c.clone();
     name.push_str("_c");

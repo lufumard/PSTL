@@ -20,32 +20,7 @@ fn expr_pure_rc(e:Expr) -> ExprRC {
 }
 
 
-/// Retourne le nombre d'arguments pour le constructeur à l'index donné `n`.
-///
-/// La fonction prend un paramètre `usize` nommé `n` représentant l'index du constructeur à interroger,
-/// et une référence à un `Vec<usize>` nommé `constructeurs` qui contient le nombre d'arguments pour chaque constructeur.
-///
-/// # Arguments
-///
-/// * `n` - L'index du constructeur à interroger.
-/// * `constructeurs` - Un vecteur qui contient le nombre d'arguments pour chaque constructeur.
-///
-/// # Panics
-///
-/// Si le constructeur à l'index donné `n` n'existe pas dans le vecteur `constructeurs`, une panique se produira
-/// avec un message d'erreur indiquant le constructeur inexistant.
-///
-/// # Returns
-///
-/// Le nombre d'arguments pour le constructeur à l'index donné `n`.
-///
-/// # Examples
-///
-/// ```
-/// let constructeurs = vec![0, 0, 0, 2, 1];
-/// let nb_args = get_nb_args_ctor(2, &constructeurs);
-/// assert_eq!(nb_args, 0);
-/// ```
+// Retourne le nombre d'arguments pour le constructeur à l'index donné n.
 pub fn get_nb_args_ctor(n: usize,  constructeurs : &Vec<usize>) -> usize {
     match constructeurs.get(n) {
         Some(x) => *x,
@@ -77,11 +52,14 @@ impl W {
     }
 }
 
+/// insére les instruction reset et reuse dans un programme
 pub fn insert_reuse(prog: Program, constructeurs : &Vec<usize>) -> ProgramRC {
     let Program::Program(fun_dec) = prog;
     ProgramRC::Program(fun_dec.into_iter()
     .map(|(_const, _fn)| (_const, delta_reuse(_fn, constructeurs))).collect())
 }
+
+/// insére les instruction reset et reuse dans le corps d'une fonction
 pub fn delta_reuse(c : Fn,  constructeurs : &Vec<usize>) -> FnRC {
     let mut w = W::new(String::from("w"), 1);
     match c {
