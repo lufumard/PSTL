@@ -706,16 +706,16 @@ i32.add
  end
 )
 (func $fun_fibo (export "fibo")(param $var_n i32) (result i32)
-(local $var_f1 i32)
-(local $var_m1 i32)
-(local $var_r i32)
-(local $var_m i32)
-(local $var_x i32)
-(local $__intern_var i32)
 (local $var_f2 i32)
-(local $var_m2 i32)
+(local $var_m i32)
+(local $var_m1 i32)
 (local $var_a i32)
+(local $var_f1 i32)
+(local $__intern_var i32)
 (local $var_y i32)
+(local $var_m2 i32)
+(local $var_r i32)
+(local $var_x i32)
 
 ;;let
 
@@ -899,9 +899,9 @@ local.get $var_n
 return
 )
 (func $fun_main10 (export "main10")(result i32)
-(local $__intern_var i32)
-(local $var_n i32)
 (local $var_r i32)
+(local $var_n i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -953,9 +953,9 @@ local.get $var_r
 return
 )
 (func $fun_main (export "main")(param $var_n i32) (result i32)
-(local $var_r i32)
 (local $__intern_var i32)
 (local $var_m i32)
+(local $var_r i32)
 (local $var_x i32)
 
 ;;let
@@ -1010,9 +1010,9 @@ local.get $var_r
 return
 )
 (func $fun_main7 (export "main7")(result i32)
-(local $var_n i32)
 (local $__intern_var i32)
 (local $var_r i32)
+(local $var_n i32)
 
 ;;let
 
@@ -1037,9 +1037,9 @@ local.get $var_r
 return
 )
 (func $fun_main15 (export "main15")(result i32)
-(local $var_r i32)
-(local $__intern_var i32)
 (local $var_n i32)
+(local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1064,9 +1064,9 @@ local.get $var_r
 return
 )
 (func $fun_main5 (export "main5")(result i32)
+(local $__intern_var i32)
 (local $var_r i32)
 (local $var_n i32)
-(local $__intern_var i32)
 
 ;;let
 
@@ -1091,8 +1091,8 @@ local.get $var_r
 return
 )
 (func $fun_main35 (export "main35")(result i32)
-(local $var_r i32)
 (local $var_n i32)
+(local $var_r i32)
 (local $__intern_var i32)
 
 ;;let
@@ -1118,9 +1118,9 @@ local.get $var_r
 return
 )
 (func $fun_main30 (export "main30")(result i32)
+(local $var_n i32)
 (local $__intern_var i32)
 (local $var_r i32)
-(local $var_n i32)
 
 ;;let
 
@@ -1146,8 +1146,8 @@ return
 )
 (func $fun_main25 (export "main25")(result i32)
 (local $var_n i32)
-(local $__intern_var i32)
 (local $var_r i32)
+(local $__intern_var i32)
 
 ;;let
 

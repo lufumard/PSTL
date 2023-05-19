@@ -146,6 +146,7 @@ pub fn compile(program: Program, out : &mut File){
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let ProgramRC::Program(fun_dec) = &prog_inc;
     let fn_desc = make_fun_desc(fun_dec);
+    dbg!(&prog_inc);
     write_runtime(&fn_desc, out);
     compile_program(&prog_inc, &fn_desc, out);
     write_ln(")", out);
@@ -475,6 +476,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("  local.get $ref", out);   // @ref #ref
     write_ln("  i32.const 1", out);// @ref #ref 1
     write_ln("  i32.sub", out);    // @ref #ref-1
+    write_ln("  local.tee $ref", out);   // @ref #ref
     write_ln("  call $__set_ref", out);
     write_ln("  local.get $ref", out);   // #ref
     write_ln("  i32.eqz", out);   // #ref est 0

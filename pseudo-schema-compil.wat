@@ -142,6 +142,7 @@ compile_fnbody(fnbody)
   local.get $ref;; @ref #ref
   i32.const 1;; @ref #ref 1
   i32.sub    ;; @ref #ref-1
+  local.tee $ref;; @ref #ref
   call $__set_ref
   local.get $ref ;; #ref
   i32.eqz   ;; #ref est 0

@@ -96,13 +96,13 @@ const interprete = (loc, mem, dt) => {
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
-            if (mem[i+1] != 0) alive++;
+            if (mem[i+1] != 0) alive+=mem[i+1];
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
-            if (mem[i+1] != 0) alive++;
+            if (mem[i+1] != 0) alive+=mem[i+1];
             i+=3;
         }else{
-            if (mem[i+1] != 0) alive++;
+            if (mem[i+1] != 0) alive+=mem[i+1];
             i+=4;
         }
     }
@@ -270,4 +270,62 @@ WebAssembly.instantiate(wasmBuffer, {
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+});
+
+
+WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
+    js: { mem: memory },
+}).then((wasmModule) => {
+
+    // Initialisation de la mémoire
+
+    /**
+     * Init memory
+     */
+
+
+
+    /**
+     * Execute function
+     */
+
+    const { fibo0, fibo1, fibo2 } = wasmModule.instance.exports;
+    const mem = new Int32Array(memory.buffer);
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_liste.wasm fibo of 0`)
+
+    var startTime = performance.now();
+    var res = fibo0();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+    
+    interprete(loc, mem, deltaTime)
+    console.log("Mémoire :", mem);    
+
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_liste.wasm fibo of 1`)
+
+    var startTime = performance.now();
+    var res = fibo1();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+    
+    interprete(loc, mem, deltaTime)
+    console.log("Mémoire :", mem);
+
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_liste.wasm fibo of 2`)
+
+    var startTime = performance.now();
+    var res = fibo2();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+    
+    interprete(loc, mem, deltaTime);
+    console.log("Mémoire :", mem);
 });
