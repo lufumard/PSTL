@@ -39,8 +39,7 @@ JavaScript est le seul langage de programmation native au Web.
 Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
 WebAssembly a plusieurs objectifs\cite{haas_bringing_2017}. Être sûre, les programmes WebAssembly sont isolées de leur environnement hôte. 
 WebAssembly est conçu pour être lié à aucun runtime ou langages de programmation, de sorte qu'il peut être exécuté sur n'importe quel 
-appareil qui le prend en charge et d’avoir le même comportement. 
-Ce qui le rend intéressant pour la création d'applications multiplateformes.
+appareil qui le prend en charge et d’avoir le même comportement. Ceci le rend intéressant pour la création d'applications multiplateformes.
 Les programmes pouvant être exécutées sur des ordinateurs de bureau, des appareils mobiles, et même des serveurs. 
 WebAssembly fonctionne avec les technologies Web existants, par exemple JavaScript, CSS, et HTML.
 WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
@@ -214,7 +213,7 @@ des définitions de fonction \verb|Fn|.
 \section{Parser/reader}
 
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
-variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
+variables, ceci nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
 tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
 
 C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
@@ -458,6 +457,7 @@ Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
 Lorsqu'une variable est borrowed, elle ne possède pas la responsabilité de sa gestion mémoire. 
 D'un autre côté, une variable owned est responsable de sa gestion mémoire.
 Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned. 
+C'est-à-dire que la variable est utilisé dans une application, une projection ou un constructeur.
 Si elle est utilisé dans un constructeur ou dans une application.
 On doit décrémenté leur compteur de référence das variables owned après leur dernière utilisation. 
 On suppose que notre map $\beta$ de la section précédente est bien définie. 
@@ -497,7 +497,7 @@ Pour la pile, nous n'implémentons pas de structure particulière, nous utilison
 
 Afin d'implémenter le tas en WebAssembly, nous utilisons une structure \verb|Memory| qui nous permet de définir une mémoire que 
 nous pouvons manipuler de WebAssembly ainsi que de JavaScript.
-C'est dans cette mémoire que nous stockons les objets que nous créons
+C'est dans cette mémoire que nous stockons les objets que nous créons.
 L'accès à cette mémoire nous permettra de réaliser des diagnostics ainsi que des évaluations de l'empreinte mémoire.
 La case mémoire 0 est réservée pour indiquer le prochain espace mémoire libre. Par défault, nous mettons la valeur de cette case à 
 l'adresse de la seconde case, soit 4, car la mémoire est alignée sur des entiers naturels de 32 bit ou 4 octets.
@@ -579,7 +579,7 @@ suivons les sémantiques définies par les auteurs présentes dans la figure~\re
 \FloatBarrier 
 
 Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
-de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur. Cependant, nous utilisons
+de regrouper des instructions récurentes en fonctions et simplifie la lecture du code du compilateur. Cependant, nous utilisons
 quelques fois dans la compilation et dans ce rapport un style semblable à du Lisp, les instructions enballées dans des parenthèses.
 Ces deux styles sont strictement valables en WebAssembly.
 
