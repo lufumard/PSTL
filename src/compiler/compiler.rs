@@ -498,7 +498,10 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("          br_if $dec_end", out);
     
     write_ln("          local.get $arg", out);
+    write_ln("          i32.load", out);
     write_ln("          call $__dec", out);
+    write_ln("          (i32.add (local.get $arg) (i32.const 4))", out);
+    write_ln("          local.set $arg", out);
     
     write_ln("          (i32.sub (local.get $args_left) (i32.const 1))", out);
     write_ln("          local.tee $args_left", out); // #args--
