@@ -39,8 +39,12 @@ JavaScript est le seul langage de programmation native au Web.
 Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
 WebAssembly a plusieurs objectifs\cite{haas_bringing_2017}. Être sûre, les programmes WebAssembly sont isolées de leur environnement hôte. 
 WebAssembly est conçu pour être lié à aucun runtime ou langages de programmation, de sorte qu'il peut être exécuté sur n'importe quel 
+<<<<<<< HEAD
+appareil qui le prend en charge et d’avoir le même comportement. Ceci le rend intéressant pour la création d'applications multiplateformes.
+=======
 appareil qui le prend en charge et d’avoir le même comportement. 
 Ceci rend WebAssembly intéressant pour la création d'applications multiplateformes.
+>>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
 Les programmes pouvant être exécutées sur des ordinateurs de bureau, des appareils mobiles, et même des serveurs. 
 WebAssembly fonctionne avec les technologies Web existants, telles que JavaScript, CSS, et HTML.
 WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
@@ -219,8 +223,13 @@ des définitions de fonction \verb|Fn|.
 \section{Parser/reader}
 
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
+<<<<<<< HEAD
+variables, ceci nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
+tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
+=======
 variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
 tous les mots en paramètres de fonction sont interprétés commes des constantes.
+>>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
 
 C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
@@ -444,10 +453,18 @@ Sinon, on considère que les paramètres de la fonction $d$ sont "owned".
 \subsubsection{Insertion de inc et dec}
 Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
 Lorsqu'une variable est borrowed, elle ne possède pas la responsabilité de sa gestion mémoire. 
+<<<<<<< HEAD
+D'un autre côté, une variable owned est responsable de sa gestion mémoire.
+Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned. 
+C'est-à-dire que la variable est utilisé dans une application, une projection ou un constructeur.
+Si elle est utilisé dans un constructeur ou dans une application.
+On doit décrémenté leur compteur de référence das variables owned après leur dernière utilisation. 
+=======
 D'un autre côté, une variable "owned" est responsable de sa gestion mémoire.
 Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte "owned". 
 Si elle est utilisée dans un constructeur ou dans une application.
 On doit décrémenter leur compteur de référence das variables "owned" après leur dernière utilisation. 
+>>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
 On suppose que notre map $\beta$ de la section précédente est bien définie. 
 Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son statut ('B' ou 'O'). 
 $\beta_l$ est initialisé avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme owned.
@@ -553,6 +570,12 @@ définies à la figure 2 dans la section 5.1 de l'article\cite{ullrich_counting_
 %ainsi que les nouvelles instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse|. Pour ces nouvelles instructions, nous
 %suivons les sémantiques définies par les auteurs présentes dans la figure~\ref{fig:semantics_rc} ci-dessous.
 
+<<<<<<< HEAD
+Nous avons choisi d'adopter un style impératif dans la compilation des instructions de WebAssembly. En effet, ce style nous permet 
+de regrouper des instructions récurentes en fonctions et simplifie la lecture du code du compilateur. Cependant, nous utilisons
+quelques fois dans la compilation et dans ce rapport un style semblable à du Lisp, les instructions enballées dans des parenthèses.
+Ces deux styles sont strictement valables en WebAssembly.
+=======
 %\begin{figure}[hbt!]
 %	\centering
 %	\includegraphics[scale=0.80]{logos/semantics_rc.png}
@@ -566,6 +589,7 @@ Nous avons choisi d'adopter un style impératif dans la compilation des instruct
 de regrouper des instructions récurentes en fonctions, ce qui simplifie la lecture du code du compilateur. Cependant, nous utilisons
 quelques fois dans la compilation et dans ce rapport le style fonctionnel.
 Ces deux styles sont strictement égaux et valides en WebAssembly.
+>>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
 
 \subsubsection{Formation des objets dans la mémoire}
 
