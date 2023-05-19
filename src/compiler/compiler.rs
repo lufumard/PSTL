@@ -844,7 +844,6 @@ pub fn compile_reuse(var: &Var, ctor: i32, args: &Either<i32, Vec<Var>>, out: &m
     // ET
     // types égaux
     get_type(var, out);
-    write_ln("local.tee $__intern_var", out); // var <-type
     write_ln(&format!("i32.const {ctor}"), out);
     write_ln("i32.eq", out);
 
@@ -852,7 +851,7 @@ pub fn compile_reuse(var: &Var, ctor: i32, args: &Either<i32, Vec<Var>>, out: &m
 
     if ctor <= 3 {
         // types tous les deux <= à 3
-        write_ln("local.get $__intern_var", out); // type <- var
+        get_type(var, out); // type
         write_ln("i32.const 3", out);
         write_ln("i32.le_s", out);
         write_ln("i32.or", out);  // type var <= 3 OU types égaux
