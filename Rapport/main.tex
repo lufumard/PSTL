@@ -39,12 +39,8 @@ JavaScript est le seul langage de programmation native au Web.
 Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
 WebAssembly a plusieurs objectifs\cite{haas_bringing_2017}. Être sûre, les programmes WebAssembly sont isolées de leur environnement hôte. 
 WebAssembly est conçu pour être lié à aucun runtime ou langages de programmation, de sorte qu'il peut être exécuté sur n'importe quel 
-<<<<<<< HEAD
-appareil qui le prend en charge et d’avoir le même comportement. Ceci le rend intéressant pour la création d'applications multiplateformes.
-=======
 appareil qui le prend en charge et d’avoir le même comportement. 
 Ceci rend WebAssembly intéressant pour la création d'applications multiplateformes.
->>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
 Les programmes pouvant être exécutées sur des ordinateurs de bureau, des appareils mobiles, et même des serveurs. 
 WebAssembly fonctionne avec les technologies Web existants, telles que JavaScript, CSS, et HTML.
 WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
@@ -453,21 +449,14 @@ Sinon, on considère que les paramètres de la fonction $d$ sont "owned".
 \subsubsection{Insertion de inc et dec}
 Dans cette partie, on insère les instructions \verb|inc| et \verb|dec|.
 Lorsqu'une variable est borrowed, elle ne possède pas la responsabilité de sa gestion mémoire. 
-<<<<<<< HEAD
-D'un autre côté, une variable owned est responsable de sa gestion mémoire.
-Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte owned. 
-C'est-à-dire que la variable est utilisé dans une application, une projection ou un constructeur.
-Si elle est utilisé dans un constructeur ou dans une application.
-On doit décrémenté leur compteur de référence das variables owned après leur dernière utilisation. 
-=======
 D'un autre côté, une variable "owned" est responsable de sa gestion mémoire.
-Les compteurs des variables doivent être incrémentées avant d'être utilisées dans un contexte "owned". 
-Si elle est utilisée dans un constructeur ou dans une application.
-On doit décrémenter leur compteur de référence das variables "owned" après leur dernière utilisation. 
->>>>>>> 938a1d7158c5f2312a64106aa7dde9ad80a56189
+Les compteurs des variables doivent être incrémentés avant d'être utilisés dans un contexte "owned". 
+C'est-à-dire que la variable est utilisée dans une application, une projection ou un constructeur.
+Si elle est utilisé dans un constructeur ou dans une application.
+On doit décrémenter leur compteur de références des variables "owned" après leur dernière utilisation. 
 On suppose que notre map $\beta$ de la section précédente est bien définie. 
 Pour chaque fonction c, on introduit une nouvelle map $\beta_l$ qui associe à chaque variable dans c, son statut ('B' ou 'O'). 
-$\beta_l$ est initialisé avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme owned.
+$\beta_l$ est initialisé avec les valeurs de $\beta(c)$. Par défaut, une variable sera considérée comme "owned".
 
 Nous définisson plusieurs fonctions :
 \begin{itemize}
