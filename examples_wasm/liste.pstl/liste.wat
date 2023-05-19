@@ -142,7 +142,7 @@ i32.add
     i32.add             ;; x offset
     call $__offset_next ;; x
 )
-(func $__nb_args (param $id i32) (result i32)
+(func $__nb_args (export "__nb_args") (param $id i32) (result i32)
     (block $__case0
     (block $__case1
     (block $__case2
@@ -675,21 +675,24 @@ return
 )
 (func $__dec (param $var i32)
  (local $args_left i32)
- (local $ref i32)
  (local $arg i32)
 local.get $var
 i32.const 4
 i32.add
  i32.load
- local.tee $ref
  if
-  local.get $var
-  local.get $ref
-  i32.const 1
-  i32.sub
-  local.tee $ref
-  call $__set_ref
-  local.get $ref
+local.get $var
+local.get $var
+i32.const 4
+i32.add
+i32.load
+i32.const -1
+i32.add
+call $__set_ref
+local.get $var
+i32.const 4
+i32.add
+  i32.load
   i32.eqz
   if
 local.get $var
@@ -742,18 +745,18 @@ i32.add
  end
 )
 (func $fun_liste (export "liste")(result i32)
-(local $__intern_var i32)
-(local $var_nil i32)
-(local $var_l5 i32)
-(local $var_n4 i32)
-(local $var_n3 i32)
 (local $var_l1 i32)
+(local $var_nil i32)
 (local $var_n5 i32)
-(local $var_n1 i32)
-(local $var_n2 i32)
+(local $var_l4 i32)
+(local $var_n3 i32)
 (local $var_l3 i32)
 (local $var_l2 i32)
-(local $var_l4 i32)
+(local $var_n2 i32)
+(local $var_n4 i32)
+(local $var_l5 i32)
+(local $var_n1 i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -892,8 +895,8 @@ local.get $var_h
 return
 )
 (func $fun_nil (export "nil")(result i32)
-(local $__intern_var i32)
 (local $var_r i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -903,13 +906,13 @@ call $__make_no_arg
 return
 )
 (func $fun_length (export "length")(param $var_l i32) (result i32)
+(local $w1 i32)
+(local $var_h i32)
 (local $var_r i32)
-(local $var_len2 i32)
 (local $__intern_var i32)
 (local $var_len1 i32)
-(local $w1 i32)
+(local $var_len2 i32)
 (local $var_t i32)
-(local $var_h i32)
 
 ;;case
 (block $__case0
@@ -1054,11 +1057,11 @@ return
 )
 (func $fun_liste1 (export "liste1")(result i32)
 (local $var_l2 i32)
+(local $var_nil i32)
 (local $var_l0 i32)
 (local $var_l1 i32)
 (local $var_n1 i32)
 (local $__intern_var i32)
-(local $var_nil i32)
 
 ;;let
 
@@ -1120,8 +1123,8 @@ return
 )
 (func $fun_len_liste1 (export "len_liste1")(result i32)
 (local $var_l i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1137,8 +1140,8 @@ call $fun_length
 return
 )
 (func $fun_len_liste (export "len_liste")(result i32)
-(local $__intern_var i32)
 (local $var_l i32)
+(local $__intern_var i32)
 (local $var_r i32)
 
 ;;let
@@ -1155,14 +1158,14 @@ call $fun_length
 return
 )
 (func $fun_fmap (export "fmap")(param $var_f i32) (param $var_l i32) (result i32)
-(local $var_r i32)
 (local $var_fh i32)
-(local $var_h i32)
-(local $var_ft i32)
-(local $__intern_var i32)
-(local $var_t i32)
 (local $var_rl i32)
+(local $var_h i32)
 (local $w1 i32)
+(local $__intern_var i32)
+(local $var_ft i32)
+(local $var_t i32)
+(local $var_r i32)
 
 ;;case
 (block $__case0
@@ -1412,11 +1415,11 @@ local.get $__intern_var
 return
 )
 (func $fun_papadd1 (export "papadd1")(result i32)
-(local $var_n i32)
-(local $var_r i32)
 (local $var_f i32)
 (local $var_l i32)
+(local $var_n i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1460,12 +1463,12 @@ return
 )
 (func $fun_papbool (export "papbool")(result i32)
 (local $var_fun i32)
-(local $var_r i32)
-(local $__intern_var i32)
 (local $var_l1 i32)
 (local $var_f i32)
-(local $var_l2 i32)
 (local $var_t i32)
+(local $var_r i32)
+(local $var_l2 i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -1526,8 +1529,8 @@ return
 )
 (func $fun_hl (export "hl")(result i32)
 (local $var_h i32)
-(local $__intern_var i32)
 (local $var_l i32)
+(local $__intern_var i32)
 
 ;;let
 

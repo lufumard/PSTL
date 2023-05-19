@@ -96,19 +96,36 @@ const interprete = (loc, mem, dt) => {
     console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
+    var alive = 0;
+    var obj_alive = 0;
     while(i<mem[0]/4){
         nb_alloc++;
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
+            if (mem[i+1] != 0){
+                alive+=mem[i+1];
+                obj_alive++;
+            } 
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
+            if (mem[i+1] != 0){
+                alive+=mem[i+1];
+                obj_alive++;
+            } 
             i+=3;
-        }else if (mem[i] == CONST_CONTRUCTEURS.pap){
-            i+= mem[i+2] + 2;
+        }else if (mem[i] == CONST_CONTRUCTEURS.list){
+            if (mem[i+1] != 0){
+                alive+=mem[i+1];
+                obj_alive++;
+            } 
+            i+= 4;
         }else{
-            i+=4;
+            console.log("PAP, compte sûrement faussé");
+            if (mem[i+2] == 7) i+=5;
+            else i+=6;
         }
     }
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
+    console.log(`Objets en vie : ${obj_alive} (${alive} refs)`)
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (l, mem) => {
         if (l == 0){

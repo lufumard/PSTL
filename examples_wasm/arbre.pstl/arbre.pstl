@@ -1,0 +1,197 @@
+arbre v g d = let fs = ctor3 g d;
+            let a = ctor3 v fs;
+            ret a
+
+feuille = let r = ctor2; ret r
+
+est_feuille a = 
+        case a of 
+            (let r = ctor1; ret r)
+            (let r = ctor1; ret r)
+            (let r = ctor1; ret r)
+            (let r = ctor0; ret r)
+            (let r = ctor1; ret r)
+
+valeur a = let r = proj1 a; ret r
+fils a = let r = proj2 a; ret r
+fils_gauche a = let fs = fils a; let r = proj1 fs; ret r
+fils_droit a = let fs = fils a; let r = proj2 fs; ret r
+
+
+fmap_arbre fun a = 
+        let est_f = est_feuille a;
+        case est_f of
+            (
+                let v = valeur a;
+                let nv = fun v;
+                let g = fils_gauche a;
+                let ng = fmap_arbre fun g;
+                let d = fils_droit a;
+                let nd = fmap_arbre fun d;
+                let na = arbre nv ng nd;
+                ret na
+            )
+            (
+                ret a
+            )
+
+
+max a b = let t = sup_eq a b;
+        case t of
+            (ret b)
+            (ret a)
+
+min a b = let t = inf_eq a b;
+        case t of
+            (ret b)
+            (ret a)
+
+etage_plus_haute_feuille a = 
+        let est_f = est_feuille a;
+        case est_f of
+            (
+                let g = fils_gauche a;
+                let hg = etage_plus_haute_feuille g;
+                let d = fils_droit a;
+                let hd = etage_plus_haute_feuille d;
+                let hfs = min hg hd;
+                let n1 = 1;
+                let h = add hfs n1;
+                ret h
+            )
+            (
+                let r = 1; ret r
+            )
+
+hauteur a = 
+        let est_f = est_feuille a;
+        case est_f of
+            (
+                let g = fils_gauche a;
+                let hg = hauteur g;
+                let d = fils_droit a;
+                let hd = hauteur d;
+                let hfs = max hg hd;
+                let n1 = 1;
+                let h = add hfs n1;
+                ret h
+            )
+            (
+                let r = 0; ret r
+            )
+
+
+fold_arbre fun a acc =
+        let est_f = est_feuille a;
+        case est_f of
+            (
+                let g = fils_gauche a;
+                let vg = fold_arbre fun g acc;
+
+                let d = fils_droit a;
+                let vd = fold_arbre fun d vg;
+
+                let v = valeur a;
+                let nfv = fun vd;
+                let nv = nfv v;
+
+                ret nv
+            )
+            (
+                ret acc
+            )
+
+arbre_test = 
+    let v1  = 1;
+    let v2  = 2;
+    let v3  = 3;
+    let v4  = 4;
+    let nil = feuille;
+    let a3224 = arbre v4 nil nil;
+    let a322  = arbre v2 nil a3224;
+    let a321  = arbre v1 nil nil;
+    let a32   = arbre v2 a321 a322;
+    let a3    = arbre v3 a32 a321;
+    ret a3
+
+
+add_arbre =
+    let n = 5;
+    let f = add n;
+    let a = arbre_test;
+    let r = fmap_arbre f a;
+    ret r
+
+max_a a =
+    let t = est_feuille a;
+    case t of
+        (
+            let g = fils_gauche a;
+            let vg = max_a g;
+
+            let d = fils_droit a;
+            let vd = max_a d;
+
+            let temp = max vd vg;
+            let v = valeur a;
+            let r = max temp v;
+            ret r
+        )
+        (let n = 0; ret n)
+
+max_arbre =
+    let a = arbre_test;
+    let r = max_a a;
+    ret r
+
+min_a a =
+    let t = est_feuille a;
+    case t of
+        (
+            let g = fils_gauche a;
+            let vg = min_a g;
+
+            let d = fils_droit a;
+            let vd = min_a d;
+
+            let temp = min vd vg;
+            let v = valeur a;
+            let r = min temp v;
+            ret r
+        )
+        (let n = 10000; ret n)
+
+min_arbre =
+    let a = arbre_test;
+    let r = min_a a;
+    ret r
+    
+hauteur_test = 
+    let a = arbre_test;
+    let r = hauteur a;
+    ret r
+
+ephf =
+    let a = arbre_test;
+    let r = etage_plus_haute_feuille a;
+    ret r
+
+somme a = 
+    let t = est_feuille a;
+    case t of
+        (
+            let v = valeur a;
+            let d = fils_droit a;
+            let vd = somme d;
+            let g = fils_gauche a;
+            let vg = somme g;
+            let vf = add vd vg;
+            let r = add v vf;
+            ret r            
+        )
+        (let n=0; ret n)
+
+somme_test =
+    let a = arbre_test;
+    let r = somme a;
+    ret r
