@@ -33,18 +33,18 @@ WebAssembly\cite{noauthor_webassembly_nodate} ou Wasm définit un format de code
 et un langage de type assembleur\cite{noauthor_webassembly_2023}. Tous les principaux navigateurs peuvent exécuter des programmes WebAssembly. 
 Des langages comme C, C++, Rust, Go et bien d'autres peuvent être compilés en WebAssembly. 
 
-\section{WebAsssembly}
+\section{WebAssembly}
 
 JavaScript est le seul langage de programmation native au Web. 
 Pour de nombreuses raisons, JavaScript n’est pas idéal pour être une cible de compilation efficace pour les langages de bas niveau tels que C/C++ et Rust. 
 WebAssembly a plusieurs objectifs\cite{haas_bringing_2017}. Être sûre, les programmes WebAssembly sont isolées de leur environnement hôte. 
 WebAssembly est conçu pour être lié à aucun runtime ou langages de programmation, de sorte qu'il peut être exécuté sur n'importe quel 
 appareil qui le prend en charge et d’avoir le même comportement. 
-Ce qui le rend intéressant pour la création d'applications multiplateformes.
+Ceci rend WebAssembly intéressant pour la création d'applications multiplateformes.
 Les programmes pouvant être exécutées sur des ordinateurs de bureau, des appareils mobiles, et même des serveurs. 
-WebAssembly fonctionne avec les technologies Web existants, par exemple JavaScript, CSS, et HTML.
+WebAssembly fonctionne avec les technologies Web existants, telles que JavaScript, CSS, et HTML.
 WebAssembly est un langage bytecode portable de bas niveau pris en charge par les principaux navigateurs Web. 
-Les utilisations de WebAssembly ne se limitent pas qu'au Web, il y a aussi un intérêt pour l'Internet des Objets, les serveurs, les systèmes embarqués.
+Les utilisations de WebAssembly ne se limitent pas qu'au domaine du Web, il y a aussi un intérêt pour l'Internet des Objets, les serveurs, les systèmes embarqués.
 \par WebAssembly a un format texte (.wat) et un format binaire (.wasm). 
 WebAssembly peut être exécuté dans différents environnements, tels que les serveurs, les navigateurs web ou les applications. 
 Dans les navigateurs web, WebAssembly est exécuté en même temps que le code JavaScript. 
@@ -84,7 +84,7 @@ mémoire performant afin d'éviter les fuites mémoires et un temps d'exécution
 Le système de la gestion de la mémoire par comptage de référence est bien plus vieux que des systèmes par garbage collector, 
 mais aussi plus efficaces\cite{ullrich_counting_2020}. Cependant, la gestion de mémoire comptage de références ne fonctionne que si 
 il n'est pas possible de créer de cycle de référence. 
-C'est pourquoi les garbage collector ne sont plus utilisés de nos jours.
+C'est pourquoi les garbage collector sont plus utilisés de nos jours.
 
 Les auteurs de l'article\cite{ullrich_counting_2020} ont créé un langage fonctionnel dans lequel les cycles de références 
 sont impossibles afin d'implémenter un système de gestion de mémoire par comptage de référence et d'obtenir un langage fonctionnel 
@@ -121,9 +121,11 @@ Concernant la grammaire du langage, nous reprenons celle qui est définie dans l
 \FloatBarrier
 
 Nous avons implémenté en Rust l'AST du langage proposé par les auteurs, en en étendant les 
-expression (\verb|Expr|) pour ajouter la notion d'entiers à notre interpréteur,
-sou la forme \verb|Expr::Num(i32)| en Rust afin de tester concrètement notre interpréteur à partir de
-langages lus de fichiers.
+expressions (\verb|Expr|) pour ajouter la notion d'entiers à notre interpréteur,
+afin de tester concrètement notre interpréteur à partir de fichiers de programmes.
+
+Chaque type dans l'AST est un produit de somme en Rust. Nous utilisons principalement les entier 32 bits, les chaînes de caractères,
+ainsi que les vecteurs (ou tableaux), notés respectivements \verb|i32|, \verb|String| et \verb|Vec| en Rust.
 
 \bigskip
 
@@ -131,6 +133,8 @@ Les énumérateurs feuilles dans notre AST sont les variables \verb|Var| et les 
 qui contiennent chacune une chaîne de caractère décrivant le nom de la fonction pour les constantes et 
 le nom de la variable pour les variables. La valeur de la variable peut être récupérée dans le tas
 une fois que l'on a l'adresse, obtenue à partir de la pile et de la chaîne de caractère.
+
+Nous avons aussi les constructeurs, qui contiennent soit une liste d'adresses vers leurs arguments, soit un nombre.
 
 \medskip
 
@@ -167,7 +171,7 @@ Ainsi, nous avons défini les booléens \verb|False| et \verb|True| par les enti
 Nous utilisons des identifiants plutôt qu'une énumération où l'on pourrait définir chaque type proprement car 
 c'est comme cela que nous allons stocker les types en mémoire en WASM.
 
-Une fois le contructeur créé, nous pouvons accéder aux champs du contructeur avec \verb|Proj|.
+Une fois le contructeur créé, nous pouvons accéder aux champs du contructeur avec l'instrution \verb|proj|.
 Il est à noter que seules les listes ont des champs, car ce sont les seuls constructeurs qui prennent
 des variables en paramètres pour être créés.
 
@@ -192,9 +196,9 @@ dans la suite de la fonction.
 \medskip
 
 Pour savoir quelle branche du \verb|Case| il faut exécuter, il suffit tout simplement de regarder
-l'identifiant du type du constructeur. Ainsi, si l'on veut exécuter du code pour les listes,
-il faut d'abord remplir les branches de \verb|False|, \verb|True| et \verb|Nil|.
-Il n'est pas nécessaire de remplir la branche pour les entiers si on considère qu'aucun entier
+l'identifiant du type du constructeur puis accéder à l'indice correspondant dans le vecteur des branches du \verb|Case|. 
+Ainsi, si l'on veut exécuter du code pour les listes, il faut d'abord remplir les branches de \verb|False|, 
+\verb|True| et \verb|Nil|. Il n'est pas nécessaire de remplir la branche pour les entiers si on considère qu'aucun entier
 ne sera jamais évalué dans ce \verb|Case|. Le cas échéant, l'interprète lance une erreur et le comportement
 du langage compilé en WASM est indéterminé.
 
@@ -206,7 +210,7 @@ d'un corps de fonction \verb|FnBody|.
 
 \medskip
 
-Enfin, à la racine de notre AST, nous définissons un \verb|Program| en Rust comme une \verb|IndexMap<Const, Fn>| liant des constantes \verb|Const| à 
+Enfin, à la racine de notre AST, nous définissons un \verb|Program| en Rust comme une table de hachage liant des constantes \verb|Const| à 
 des définitions de fonction \verb|Fn|.
 
 \bigskip
@@ -215,14 +219,14 @@ des définitions de fonction \verb|Fn|.
 
 Notre reader utilise la bibliothèque Chumsky\cite{zesterer_chumsky_nodate}, ainsi, nous ne pouvons pas stoker les noms définis 
 variables, ce qui nous empêche de distinguer directement les constantes des variables, car sans historique de définition de variable, 
-tous les mots en paramètres de fonction sont lus en tant que \verb|Const|.
+tous les mots en paramètres de fonction sont interprétés commes des constantes.
 
 C'est pourquoi nous avons besoin de transformer certaines constantes et certains appels de fonctions en variables et applications partielles à l'aide de 
 fonction d'explorations définies dans le fichier \verb|transform_var.rs|.
-Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter.
+Les variables définies avec un \verb|let| sont donc ainsi représentées par \verb|Var| au lieu de \verb|Const| dans l'AST à interpréter,
+et les applications non complètes en applications partielles
 
-C'est aussi avec ce transformateur que l'on transforme les applications en applications partielles si il n'y a pas assez d'arguments
-pour exécuter la fonction. Nous ajoutons par ailleur un préfixe "var\_" aux variables définies par l'utilisateur.
+Nous ajoutons par ailleur un préfixe "var\_" aux variables définies par l'utilisateur.
 
 Ainsi, nous avons obtenu un AST bien formé et correct, où une constante est réellement une constante et une application
 complète est aussi réellement une application complète.
@@ -296,16 +300,16 @@ Une fois le programme parsé et transformé, nous pouvons interpréter le progra
 contexte du programme. Toutes les fonctions de l'interpréteur s'exécutent avec une pile et un tas. Ainsi, nous créons une pile vierge
 et un tas vide que nous passons en référence à chaque fonction de l'interpréteur.
 
-Ensuite, il nous suffit d'interpréter les instructions en respectant les règles sémantiques du langage telles que définies par les auteurs, 
-selon la Figure ~\ref{fig:semantics} ci-dessous.
+Ensuite, il nous suffit d'interpréter les instructions en respectant les règles sémantiques du langage telles que définies par les auteurs de l'article.
+%selon la Figure ~\ref{fig:semantics} ci-dessous.
 
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[scale=0.80]{logos/semantics.png}
-	\caption{Sémantiques du langage $\lambda_{pure}$}
-	\label{fig:semantics}
-\end{figure}
-\FloatBarrier 
+%\begin{figure}[hbt!]
+%	\centering
+%	\includegraphics[scale=0.80]{logos/semantics.png}
+%	\caption{Sémantiques du langage $\lambda_{pure}$}
+%	\label{fig:semantics}
+%\end{figure}
+%\FloatBarrier 
 
 
 \bigskip
@@ -389,7 +393,9 @@ tels que le calcul de fibonacci.
 \section{Compilateur}
 
 La dernière étape de notre projet est de créer un compilateur du langage $\lambda{RC}$. Pour cela, il faut insérer les 
-instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. Ainsi, la première chose à faire est
+instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse| dans l'AST. 
+
+Ainsi, la première chose à faire est
 d'étendre l'AST et de créer un transformateur du langage $\lambda{pure}$ vers le langage $\lambda{RC}$.
 
 \subsection{AST}
@@ -419,7 +425,7 @@ L'insertion des instructions \verb|inc|, \verb|dec|, \verb|reset| et \verb|reuse
 En utilisant ces deux instructions, on peut réduire la quantité de mémoire allouée et libérée en réutilisant les cellules mémoire lorsque les valeurs ne sont pas partagées. Cela permet d'économiser des ressources et d'optimiser les performances en évitant des opérations coûteuses d'allocation et de 
 libération de mémoire.
 
-Ces deux instructions sont utilisées ensemble. Si x est une valeur partagée, alors y est initialisé avec une référence spéciale,  et l'instruction reuse alloue simplement une nouvelle valeur de constructeur \verb|ctor|. 
+Ces deux instructions sont utilisées ensemble. Si x est une valeur partagée, alors y est initialisé avec une référence spéciale, et l'instruction reuse alloue simplement une nouvelle valeur de constructeur \verb|ctor|. 
 Si x n'est pas partagé, alors reset décrémente les compteurs de références des composants de x, et y est initialisé à x. 
 Ensuite, reuse réutilise la cellule mémoire utilisée par x pour stocker la valeur d'un constructeur \verb|ctor|. Pour savoir si x est une variable partagée, on vérifie son compteur de références.
 
@@ -497,7 +503,7 @@ Pour la pile, nous n'implémentons pas de structure particulière, nous utilison
 
 Afin d'implémenter le tas en WebAssembly, nous utilisons une structure \verb|Memory| qui nous permet de définir une mémoire que 
 nous pouvons manipuler de WebAssembly ainsi que de JavaScript.
-C'est dans cette mémoire que nous stockons les objets que nous créons
+C'est dans cette mémoire que nous stockons les objets que nous créons.
 L'accès à cette mémoire nous permettra de réaliser des diagnostics ainsi que des évaluations de l'empreinte mémoire.
 La case mémoire 0 est réservée pour indiquer le prochain espace mémoire libre. Par défault, nous mettons la valeur de cette case à 
 l'adresse de la seconde case, soit 4, car la mémoire est alignée sur des entiers naturels de 32 bit ou 4 octets.
@@ -530,7 +536,7 @@ référencé 3 fois sous la forme "\verb|4 3 10|".
 \bigskip
 
 Nous avons aussi décidé de stocker les applications partielles dans le tas de la même façon que toutes les autres valeurs.
-Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de charactères, car WebAssembly
+Il nous faut cependant trouver une alternative au stockage du nom de la fonction en une chaîne de caractères, car WebAssembly
 ne supporte pas ce type. Ainsi, nous avons décidé de donner à chaque fonction, primitive ou définie par l'utilisateur, un identifiant
 sous forme d'un entier, qui nous servira à choisir quelle fonction appeler lors de l'exécution de l'application partielle.
 Il nous faut aussi définir un nouveau nombre définissant le type des applications partielles, étendant les types déjà définis
