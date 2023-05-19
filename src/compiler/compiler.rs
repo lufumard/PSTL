@@ -146,7 +146,6 @@ pub fn compile(program: Program, out : &mut File){
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
     let ProgramRC::Program(fun_dec) = &prog_inc;
     let fn_desc = make_fun_desc(fun_dec);
-    dbg!(&prog_inc);
     write_runtime(&fn_desc, out);
     compile_program(&prog_inc, &fn_desc, out);
     write_ln(")", out);
@@ -336,7 +335,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    call $__offset_next ;; x", out);
     write_ln(")", out);
 
-    write_ln("(func $__nb_args (param $id i32) (result i32)", out);
+    write_ln("(func $__nb_args (export \"__nb_args\") (param $id i32) (result i32)", out);
     for i in 0..fn_desc.len() {
         write_ln(&format!("    (block $__case{i}"), out);
     } 
@@ -462,23 +461,16 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
 
     write_ln("(func $__dec (param $var i32)", out);
     write_ln(" (local $args_left i32)", out);
-    write_ln(" (local $ref i32)", out);
     write_ln(" (local $arg i32)", out);
     
         get_ref_loc(var, out); // @ref
     write_ln(" i32.load", out);   // #ref
-    write_ln(" local.tee $ref", out);
     
     write_ln(" if", out);   // #ref
     
-
-    write_ln("  local.get $var", out); // @var
-    write_ln("  local.get $ref", out);   // @ref #ref
-    write_ln("  i32.const 1", out);// @ref #ref 1
-    write_ln("  i32.sub", out);    // @ref #ref-1
-    write_ln("  local.tee $ref", out);   // @ref #ref
-    write_ln("  call $__set_ref", out);
-    write_ln("  local.get $ref", out);   // #ref
+        compile_add_ref(var, -1, out);
+        get_ref_loc(var, out); // @ref
+    write_ln("  i32.load", out);   // #ref
     write_ln("  i32.eqz", out);   // #ref est 0
 
     write_ln("  if", out);   // alors

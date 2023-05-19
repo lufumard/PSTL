@@ -120,10 +120,14 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
                         } else if params.len() > vars.len() {
                             return Expr::Pap(ident, new_vars);
                         } else {
-                            panic!("Trop d'arguments pour la fonction")
+                            let Const::Const(str) = ident;
+                            panic!("Trop d'arguments pour la fonction {str}");
                         }
                     },
-                    None => panic!("La fonction n'existe pas"),
+                    None => {
+                        let Const::Const(str) = ident;
+                        panic!("La fonction {str} n'existe pas")
+                    },
                 }
             } 
             
