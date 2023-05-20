@@ -289,7 +289,7 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
      * Execute function
      */
 
-    const { fibo0, fibo1, fibo2 } = wasmModule.instance.exports;
+    const { fibo0, fibo1, fibo2, fibo20 } = wasmModule.instance.exports;
     const mem = new Int32Array(memory.buffer);
     mem[0] = 4;
     console.log(`\n\n\nfibo_liste.wasm fibo of 0`)
@@ -322,6 +322,19 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
 
     var startTime = performance.now();
     var res = fibo2();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+    var loc = res/4;
+    
+    interprete(loc, mem, deltaTime);
+    console.log("Mémoire :", mem);
+
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    console.log(`\n\n\nfibo_liste.wasm fibo of 20`)
+
+    var startTime = performance.now();
+    var res = fibo20();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
     var loc = res/4;

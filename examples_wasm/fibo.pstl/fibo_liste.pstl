@@ -37,3 +37,8 @@ fibo2 =
     let n = 2;
     let r = fibo n;
     ret r
+
+fibo20 =
+    let n = 20;
+    let r = fibo n;
+    ret r

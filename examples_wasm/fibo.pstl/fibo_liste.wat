@@ -142,7 +142,7 @@ i32.add
     i32.add             ;; x offset
     call $__offset_next ;; x
 )
-(func $__nb_args (param $id i32) (result i32)
+(func $__nb_args (export "__nb_args") (param $id i32) (result i32)
     (block $__case0
     (block $__case1
     (block $__case2
@@ -212,6 +212,7 @@ $__case14 $__case13 $__case12 $__case11 $__case10 $__case9 $__case8 $__case7 $__
 (local $args_rest i32)
 (local $loc_arg_var i32)
 (local $loc_arg_pap i32)
+(local $arg i32)
 local.get $var
 i32.const 8
 i32.add
@@ -242,6 +243,17 @@ if
     local.get $loc_arg_var
     i32.load
     i32.store
+    local.get $loc_arg_var
+    i32.load
+    local.set $arg
+local.get $arg
+local.get $arg
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
     (i32.add (local.get $loc_arg_pap) (i32.const 4))
     local.set $loc_arg_pap
     (i32.add (local.get $loc_arg_var) (i32.const 4))
@@ -647,21 +659,21 @@ return
 )
 (func $__dec (param $var i32)
  (local $args_left i32)
- (local $ref i32)
  (local $arg i32)
+local.get $var
+ if
+local.get $var
 local.get $var
 i32.const 4
 i32.add
- i32.load
- local.tee $ref
- if
-  local.get $var
-  local.get $ref
-  i32.const 1
-  i32.sub
-  local.tee $ref
-  call $__set_ref
-  local.get $ref
+i32.load
+i32.const -1
+i32.add
+call $__set_ref
+local.get $var
+i32.const 4
+i32.add
+  i32.load
   i32.eqz
   if
 local.get $var
@@ -689,7 +701,7 @@ i32.add
           (i32.add (local.get $arg) (i32.const 4))
           local.set $arg
           (i32.sub (local.get $args_left) (i32.const 1))
-          local.tee $args_left
+          local.set $args_left
           br $dec_loop
         )
       )
@@ -714,16 +726,16 @@ i32.add
  end
 )
 (func $fun_fibo_liste (export "fibo_liste")(param $var_n i32) (param $var_l i32) (result i32)
-(local $var_t i32)
-(local $var_m i32)
-(local $var_v i32)
-(local $var_c i32)
-(local $var_a i32)
-(local $var_m1 i32)
-(local $var_lr i32)
-(local $__intern_var i32)
-(local $var_r i32)
 (local $var_b i32)
+(local $var_lr i32)
+(local $var_t i32)
+(local $var_a i32)
+(local $var_r i32)
+(local $var_m1 i32)
+(local $var_m i32)
+(local $var_c i32)
+(local $var_v i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -934,8 +946,8 @@ local.get $var_r
 return
 )
 (func $fun_fibo (export "fibo")(param $var_n i32) (result i32)
-(local $var_m0 i32)
 (local $var_m1 i32)
+(local $var_m0 i32)
 (local $var_l i32)
 (local $__intern_var i32)
 (local $var_r i32)
@@ -979,9 +991,9 @@ local.get $var_r
 return
 )
 (func $fun_fibo0 (export "fibo0")(result i32)
+(local $var_n i32)
 (local $__intern_var i32)
 (local $var_r i32)
-(local $var_n i32)
 
 ;;let
 
@@ -1006,9 +1018,9 @@ local.get $var_r
 return
 )
 (func $fun_fibo1 (export "fibo1")(result i32)
-(local $__intern_var i32)
-(local $var_r i32)
 (local $var_n i32)
+(local $var_r i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -1033,6 +1045,33 @@ local.get $var_r
 return
 )
 (func $fun_fibo2 (export "fibo2")(result i32)
+(local $var_r i32)
+(local $__intern_var i32)
+(local $var_n i32)
+
+;;let
+
+;;num
+i32.const 2
+call $__make_num
+local.set $var_n
+
+;;let
+
+;;fncall
+local.get $var_n
+call $fun_fibo
+local.set $var_r
+
+;;dec
+local.get $var_n
+call $__dec
+
+;;ret
+local.get $var_r
+return
+)
+(func $fun_fibo20 (export "fibo20")(result i32)
 (local $var_n i32)
 (local $__intern_var i32)
 (local $var_r i32)
@@ -1040,7 +1079,7 @@ return
 ;;let
 
 ;;num
-i32.const 2
+i32.const 20
 call $__make_num
 local.set $var_n
 
