@@ -367,6 +367,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("(local $args_rest i32)", out);
     write_ln("(local $loc_arg_var i32)", out);
     write_ln("(local $loc_arg_pap i32)", out);
+    write_ln("(local $arg i32)", out);
     // make new pap
     pap_fn_id_loc(var, out);
     write_ln("i32.load", out);
@@ -397,6 +398,11 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("    i32.load", out);
     write_ln("    i32.store", out);
     
+    write_ln("    local.get $loc_arg_var", out);
+    write_ln("    i32.load", out);
+    write_ln("    local.set $arg", out);
+    compile_add_ref(&Var::Var(String::from("arg")), 1, out);
+
     write_ln("    (i32.add (local.get $loc_arg_pap) (i32.const 4))", out); 
     write_ln("    local.set $loc_arg_pap", out);
         
@@ -463,10 +469,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln(" (local $args_left i32)", out);
     write_ln(" (local $arg i32)", out);
     
-        get_ref_loc(var, out); // @ref
-    write_ln(" i32.load", out);   // #ref
-    
-    write_ln(" if", out);   // #ref
+        compile_var(var, out); // @var
+    write_ln(" if", out);   // @var != null AND #ref > 0
     
         compile_add_ref(var, -1, out);
         get_ref_loc(var, out); // @ref
@@ -498,7 +502,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
     write_ln("          local.set $arg", out);
     
     write_ln("          (i32.sub (local.get $args_left) (i32.const 1))", out);
-    write_ln("          local.tee $args_left", out); // #args--
+    write_ln("          local.set $args_left", out); // #args--
     
     write_ln("          br $dec_loop", out);
     write_ln("        )", out);
@@ -723,7 +727,9 @@ pub fn compile_papcall(var:&Var, arg:&Var, out : &mut File) {
     write_ln("i32.store", out);
     
     // nb_args ++
-    
+
+    compile_add_ref(arg, 1, out);
+
     pap_nb_args_fixed_loc(__intern_var, out);
     write_ln("i32.load", out);
     
@@ -806,11 +812,11 @@ pub  fn compile_case(var: &Var, bodys: &Vec<FnBodyRC>, fn_desc : &IndexMap<Const
 }
 
 fn compile_add_ref(var:&Var, n:i32, out:&mut File) {
-    compile_var(var, out);              // @var
+    compile_var(var, out);                      // @var
     get_ref_loc(var, out);                      // @var @ref
-    write_ln("i32.load", out);               // @ref #ref
-    write_ln(&format!("i32.const {n}"), out);// @ref #ref n
-    write_ln("i32.add", out);                // @ref #ref+n
+    write_ln("i32.load", out);               // @var #ref
+    write_ln(&format!("i32.const {n}"), out);// @var #ref n
+    write_ln("i32.add", out);                // @var #ref+n
     write_ln("call $__set_ref", out);
 }
 
@@ -889,7 +895,8 @@ pub fn compile_reuse(var: &Var, ctor: i32, args: &Either<i32, Vec<Var>>, out: &m
             },
         _ => compile_reuse_no_arg(var, ctor, out),
     }
-
+    compile_var(var, out);
+    write_ln("local.set $__intern_var", out);
     // sinon, si on doit reprendre un espace mémoire
     write_ln("else", out);
 
@@ -912,11 +919,10 @@ pub fn compile_reuse(var: &Var, ctor: i32, args: &Either<i32, Vec<Var>>, out: &m
         _ => panic!("impossible")
     }
     // on n'oublie pas de remettre l'adresse dans la variable
-    let v = string_of_var(var);
-    write_ln(&format!("local.set ${v}"), out);
+    write_ln("local.set $__intern_var", out);
     write_ln("end", out);
     // if ne doit rien laisser de plus sur la pile
-    compile_var(var, out);
+    write_ln("local.get $__intern_var", out);
 }
 
 

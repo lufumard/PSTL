@@ -141,7 +141,9 @@ max_a a =
 
 max_arbre =
     let a = arbre_test;
-    let r = max_a a;
+    let f = max;
+    let n = 0;
+    let r = fold_arbre f a n;
     ret r
 
 min_a a =
@@ -163,7 +165,9 @@ min_a a =
 
 min_arbre =
     let a = arbre_test;
-    let r = min_a a;
+    let f = min;
+    let n = 110;
+    let r = fold_arbre f a n;
     ret r
     
 hauteur_test = 
@@ -177,21 +181,36 @@ ephf =
     ret r
 
 somme a = 
-    let t = est_feuille a;
-    case t of
-        (
-            let v = valeur a;
-            let d = fils_droit a;
-            let vd = somme d;
-            let g = fils_gauche a;
-            let vg = somme g;
-            let vf = add vd vg;
-            let r = add v vf;
-            ret r            
-        )
-        (let n=0; ret n)
+    let f = add;
+    let a = arbre_test;
+    let n = 0;
+    let r = fold_arbre f a n;
+    ret r
 
 somme_test =
     let a = arbre_test;
     let r = somme a;
+    ret r
+
+nb_noeuds a = let est_f = est_feuille a;
+    case est_f of 
+        (
+            let g = fils_gauche a;
+            let vg = nb_noeuds g;
+
+            let d = fils_droit a;
+            let vd = nb_noeuds d;
+
+            let temp = add vd vg;
+            let v = valeur a;
+            let r = add temp v;
+            ret r
+        )
+        (
+            let r = 0; ret r
+        )
+
+nb_noeuds_test =
+    let a = arbre_test;
+    let r = nb_noeuds a;
     ret r

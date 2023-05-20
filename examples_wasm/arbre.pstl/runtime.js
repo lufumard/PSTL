@@ -106,23 +106,23 @@ WebAssembly.instantiate(wasmBuffer, {
         var obj_alive = 0;
         while(i<mem[0]/4){
             nb_alloc++;
+            if (mem[i+1] != 0){
+                if (mem[i+1] < 0){
+                    console.log(`refs neg @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
+                } else {
+                    console.log(`refs pos @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
+                }
+                alive+=mem[i+1];
+                obj_alive++;
+            } 
             if (mem[i] <= CONST_CONTRUCTEURS.nil){
-                if (mem[i+1] != 0){
-                    alive+=mem[i+1];
-                    obj_alive++;
-                } 
+ 
                 i+=2;
             }else if (mem[i] == CONST_CONTRUCTEURS.num){
-                if (mem[i+1] != 0){
-                    alive+=mem[i+1];
-                    obj_alive++;
-                } 
+
                 i+=3;
             }else if (mem[i] == CONST_CONTRUCTEURS.list){
-                if (mem[i+1] != 0){
-                    alive+=mem[i+1];
-                    obj_alive++;
-                } 
+                
                 i+= 4;
             }else{
                 var id = mem[i+2];
@@ -192,7 +192,7 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { hauteur_test, somme_test, ephf, max_arbre, min_arbre, add_arbre,arbre_test, __nb_args } = wasmModule.instance.exports;
+    const { hauteur_test, somme_test, ephf, max, max_arbre, min, min_arbre, add_arbre,arbre_test, nb_noeuds_test, __nb_args } = wasmModule.instance.exports;
 
     console.log("Somme = 13")
     var startTime = performance.now();
@@ -232,6 +232,30 @@ WebAssembly.instantiate(wasmBuffer, {
     console.log("Min = 1")
     var startTime = performance.now();
     var loc = min_arbre();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("Min")
+    var startTime = performance.now();
+    var loc = min(createNum(1, mem), createNum(2, mem));
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    
+    console.log("NB_noeuds = 7")
+    var startTime = performance.now();
+    var loc = nb_noeuds_test();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
