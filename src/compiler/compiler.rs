@@ -147,6 +147,7 @@ pub fn compile(program: Program, out : &mut File){
     let ProgramRC::Program(fun_dec) = &prog_inc;
     let fn_desc = make_fun_desc(fun_dec);
     write_runtime(&fn_desc, out);
+    dbg!(&prog_inc);
     compile_program(&prog_inc, &fn_desc, out);
     write_ln(")", out);
 

@@ -1353,9 +1353,9 @@ i32.add
  end
 )
 (func $fun_arbre (export "arbre")(param $var_v i32) (param $var_g i32) (param $var_d i32) (result i32)
+(local $__intern_var i32)
 (local $var_a i32)
 (local $var_fs i32)
-(local $__intern_var i32)
 
 ;;inc
 local.get $var_g
@@ -1415,11 +1415,11 @@ call $__make_no_arg
 return
 )
 (func $fun_est_feuille (export "est_feuille")(param $var_a i32) (result i32)
-(local $w2 i32)
-(local $w1 i32)
-(local $w3 i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $w2 i32)
+(local $var_r i32)
+(local $w3 i32)
+(local $w1 i32)
 
 ;;case
 (block $__case0
@@ -1607,8 +1607,8 @@ local.get $var_r
 return
 )
 (func $fun_fils (export "fils")(param $var_a i32) (result i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1635,8 +1635,8 @@ return
 )
 (func $fun_fils_gauche (export "fils_gauche")(param $var_a i32) (result i32)
 (local $__intern_var i32)
-(local $var_fs i32)
 (local $var_r i32)
+(local $var_fs i32)
 
 ;;let
 
@@ -1673,8 +1673,8 @@ local.get $var_r
 return
 )
 (func $fun_fils_droit (export "fils_droit")(param $var_a i32) (result i32)
-(local $__intern_var i32)
 (local $var_fs i32)
+(local $__intern_var i32)
 (local $var_r i32)
 
 ;;let
@@ -1712,15 +1712,15 @@ local.get $var_r
 return
 )
 (func $fun_fmap_arbre (export "fmap_arbre")(param $var_fun i32) (param $var_a i32) (result i32)
-(local $var_g i32)
-(local $var_est_f i32)
-(local $var_d i32)
-(local $var_na i32)
 (local $__intern_var i32)
-(local $var_nd i32)
-(local $var_nv i32)
+(local $var_d i32)
+(local $var_est_f i32)
+(local $var_na i32)
 (local $var_v i32)
+(local $var_nd i32)
+(local $var_g i32)
 (local $var_ng i32)
+(local $var_nv i32)
 
 ;;inc
 local.get $var_a
@@ -1897,6 +1897,10 @@ return
 local.get $var_est_f
 call $__dec
 
+;;dec
+local.get $var_fun
+call $__dec
+
 ;;ret
 local.get $var_a
 return
@@ -1957,6 +1961,10 @@ $__case1 $__case0 )
 local.get $var_t
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;ret
 local.get $var_b
 return
@@ -1964,6 +1972,10 @@ return
 
 ;;dec
 local.get $var_t
+call $__dec
+
+;;dec
+local.get $var_b
 call $__dec
 
 ;;ret
@@ -2026,6 +2038,10 @@ $__case1 $__case0 )
 local.get $var_t
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;ret
 local.get $var_b
 return
@@ -2035,21 +2051,25 @@ return
 local.get $var_t
 call $__dec
 
+;;dec
+local.get $var_b
+call $__dec
+
 ;;ret
 local.get $var_a
 return
 )
 (func $fun_etage_plus_haute_feuille (export "etage_plus_haute_feuille")(param $var_a i32) (result i32)
-(local $var_n1 i32)
-(local $var_hd i32)
-(local $var_hfs i32)
-(local $var_est_f i32)
-(local $__intern_var i32)
-(local $var_r i32)
 (local $var_d i32)
+(local $var_est_f i32)
+(local $var_hfs i32)
+(local $var_hd i32)
+(local $var_r i32)
 (local $var_hg i32)
 (local $var_g i32)
+(local $var_n1 i32)
 (local $var_h i32)
+(local $__intern_var i32)
 
 ;;inc
 local.get $var_a
@@ -2152,6 +2172,10 @@ return
 local.get $var_est_f
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;let
 
 ;;num
@@ -2160,16 +2184,16 @@ call $__make_num
 return
 )
 (func $fun_hauteur (export "hauteur")(param $var_a i32) (result i32)
-(local $var_g i32)
-(local $var_hg i32)
-(local $var_r i32)
-(local $__intern_var i32)
-(local $var_d i32)
-(local $var_est_f i32)
 (local $var_n1 i32)
-(local $var_hfs i32)
-(local $var_hd i32)
+(local $var_est_f i32)
+(local $var_hg i32)
+(local $__intern_var i32)
+(local $var_r i32)
 (local $var_h i32)
+(local $var_hd i32)
+(local $var_d i32)
+(local $var_hfs i32)
+(local $var_g i32)
 
 ;;inc
 local.get $var_a
@@ -2272,6 +2296,10 @@ return
 local.get $var_est_f
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;let
 
 ;;num
@@ -2280,15 +2308,15 @@ call $__make_num
 return
 )
 (func $fun_fold_arbre (export "fold_arbre")(param $var_fun i32) (param $var_a i32) (param $var_acc i32) (result i32)
-(local $var_nv i32)
-(local $__intern_var i32)
 (local $var_est_f i32)
-(local $var_nfv i32)
-(local $var_d i32)
-(local $var_vd i32)
-(local $var_g i32)
 (local $var_v i32)
+(local $var_g i32)
 (local $var_vg i32)
+(local $var_vd i32)
+(local $var_nfv i32)
+(local $__intern_var i32)
+(local $var_nv i32)
+(local $var_d i32)
 
 ;;inc
 local.get $var_a
@@ -2500,6 +2528,14 @@ return
 local.get $var_est_f
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
+;;dec
+local.get $var_fun
+call $__dec
+
 ;;inc
 local.get $var_acc
 local.get $var_acc
@@ -2515,17 +2551,17 @@ local.get $var_acc
 return
 )
 (func $fun_arbre_test (export "arbre_test")(result i32)
-(local $var_v1 i32)
-(local $var_a322 i32)
-(local $__intern_var i32)
-(local $var_v4 i32)
-(local $var_v2 i32)
-(local $var_a3224 i32)
 (local $var_nil i32)
 (local $var_a32 i32)
+(local $var_v1 i32)
 (local $var_a321 i32)
-(local $var_a3 i32)
+(local $var_a3224 i32)
 (local $var_v3 i32)
+(local $var_a3 i32)
+(local $__intern_var i32)
+(local $var_v2 i32)
+(local $var_v4 i32)
+(local $var_a322 i32)
 
 ;;let
 
@@ -2648,10 +2684,10 @@ return
 )
 (func $fun_add_arbre (export "add_arbre")(result i32)
 (local $var_f i32)
-(local $__intern_var i32)
-(local $var_r i32)
-(local $var_n i32)
 (local $var_a i32)
+(local $var_n i32)
+(local $var_r i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -2694,16 +2730,16 @@ call $fun_fmap_arbre
 return
 )
 (func $fun_max_a (export "max_a")(param $var_a i32) (result i32)
-(local $var_n i32)
-(local $__intern_var i32)
-(local $var_v i32)
-(local $var_r i32)
+(local $var_g i32)
+(local $var_temp i32)
 (local $var_vd i32)
 (local $var_d i32)
-(local $var_temp i32)
-(local $var_g i32)
-(local $var_t i32)
 (local $var_vg i32)
+(local $__intern_var i32)
+(local $var_r i32)
+(local $var_t i32)
+(local $var_v i32)
+(local $var_n i32)
 
 ;;inc
 local.get $var_a
@@ -2793,6 +2829,10 @@ return
 
 ;;dec
 local.get $var_t
+call $__dec
+
+;;dec
+local.get $var_a
 call $__dec
 
 ;;let
@@ -2803,11 +2843,9 @@ call $__make_num
 return
 )
 (func $fun_max_arbre (export "max_arbre")(result i32)
-(local $var_r i32)
-(local $var_a i32)
 (local $__intern_var i32)
-(local $var_n i32)
-(local $var_f i32)
+(local $var_a i32)
+(local $var_r i32)
 
 ;;let
 
@@ -2817,48 +2855,22 @@ local.set $var_a
 
 ;;let
 
-;;pap
-i32.const 20
-call $__make_pap
-local.set $__intern_var
-local.get $__intern_var
-local.set $var_f
-
-;;let
-
-;;num
-i32.const 0
-call $__make_num
-local.set $var_n
-
-;;let
-
 ;;fncall
-local.get $var_f
 local.get $var_a
-local.get $var_n
-call $fun_fold_arbre
-local.set $var_r
-
-;;dec
-local.get $var_n
-call $__dec
-
-;;ret
-local.get $var_r
+call $fun_max_a
 return
 )
 (func $fun_min_a (export "min_a")(param $var_a i32) (result i32)
-(local $__intern_var i32)
-(local $var_d i32)
-(local $var_v i32)
-(local $var_vg i32)
 (local $var_n i32)
-(local $var_r i32)
 (local $var_temp i32)
 (local $var_g i32)
+(local $var_vg i32)
+(local $var_d i32)
+(local $__intern_var i32)
+(local $var_v i32)
 (local $var_vd i32)
 (local $var_t i32)
+(local $var_r i32)
 
 ;;inc
 local.get $var_a
@@ -2950,6 +2962,10 @@ return
 local.get $var_t
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;let
 
 ;;num
@@ -2958,11 +2974,11 @@ call $__make_num
 return
 )
 (func $fun_min_arbre (export "min_arbre")(result i32)
-(local $var_a i32)
-(local $__intern_var i32)
-(local $var_n i32)
 (local $var_r i32)
 (local $var_f i32)
+(local $__intern_var i32)
+(local $var_n i32)
+(local $var_a i32)
 
 ;;let
 
@@ -3004,8 +3020,8 @@ local.get $var_r
 return
 )
 (func $fun_hauteur_test (export "hauteur_test")(result i32)
-(local $var_r i32)
 (local $var_a i32)
+(local $var_r i32)
 (local $__intern_var i32)
 
 ;;let
@@ -3023,8 +3039,8 @@ return
 )
 (func $fun_ephf (export "ephf")(result i32)
 (local $__intern_var i32)
-(local $var_a i32)
 (local $var_r i32)
+(local $var_a i32)
 
 ;;let
 
@@ -3040,10 +3056,10 @@ call $fun_etage_plus_haute_feuille
 return
 )
 (func $fun_somme (export "somme")(param $var_a i32) (result i32)
-(local $var_n i32)
-(local $var_r i32)
 (local $var_f i32)
+(local $var_r i32)
 (local $__intern_var i32)
+(local $var_n i32)
 
 ;;let
 
@@ -3121,15 +3137,15 @@ local.get $var_r
 return
 )
 (func $fun_nb_noeuds (export "nb_noeuds")(param $var_a i32) (result i32)
-(local $__intern_var i32)
-(local $var_v i32)
-(local $var_vg i32)
 (local $var_temp i32)
+(local $__intern_var i32)
 (local $var_g i32)
-(local $var_r i32)
-(local $var_d i32)
+(local $var_vg i32)
+(local $var_v i32)
 (local $var_vd i32)
+(local $var_r i32)
 (local $var_est_f i32)
+(local $var_d i32)
 
 ;;inc
 local.get $var_a
@@ -3243,6 +3259,10 @@ return
 local.get $var_est_f
 call $__dec
 
+;;dec
+local.get $var_a
+call $__dec
+
 ;;let
 
 ;;num
@@ -3251,9 +3271,9 @@ call $__make_num
 return
 )
 (func $fun_nb_noeuds_test (export "nb_noeuds_test")(result i32)
+(local $var_a i32)
 (local $__intern_var i32)
 (local $var_r i32)
-(local $var_a i32)
 
 ;;let
 

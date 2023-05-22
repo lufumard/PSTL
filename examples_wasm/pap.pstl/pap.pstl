@@ -1,6 +1,5 @@
 papcall n = 
-    let pa = sub;
-    let pa = pa n;
+    let pa = sub n;
     ret pa
 
 mainpapcall f =
@@ -10,7 +9,8 @@ mainpapcall f =
 
 main = let n = 5;
     let f = papcall n;
-    let r = mainpapcall f;
+    let m = 2;
+    let r = f m;
     ret r
 
 

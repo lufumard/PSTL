@@ -26,7 +26,7 @@ pub fn delta_rc(c: Const, f: FnRC,beta: HashMap<Const,Vec<char>>) -> FnRC {
     let beta_l : HashMap<Var,char> = beta_bis.get(&c).unwrap().into_iter()
     .zip(vars.clone().into_iter())
     .map(|(status,y)| (y,*status)).collect();
-
+    println!("{:?} {:?}", beta_l.clone(), temp_beta_l);
     FnRC::Fn(vars.clone(), o_moins(vars.clone(), C(fnbody, beta_l.clone(), &beta_bis), beta_l))
 }
 
@@ -149,6 +149,11 @@ pub fn C(fnbody : FnBodyRC, beta_l : HashMap<Var,char>, beta: &HashMap<Const,Vec
                 let mut fv : Vec<Var> = FV(f.clone()).into_iter().collect();
                 if !fv.contains(&x) {
                     fv.insert(0, x.clone())
+                }
+                for (v, s) in beta_l.clone() {
+                    if s.eq(&'O') && !fv.contains(&v) {
+                        fv.insert(0, v);
+                    }
                 }
                 o_moins(fv, C(f,beta_l.clone(), beta), beta_l.clone())
         })

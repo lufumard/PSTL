@@ -296,7 +296,7 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
 
     var startTime = performance.now();
     var res = fibo0();
-    var endTime = performance.now();
+    var endTime = performance.now();""
     var deltaTime = endTime - startTime;
     var loc = res/4;
     

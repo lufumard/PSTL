@@ -1,9 +1,9 @@
 arbre a =
     | arbre (a, (arbre a, arbre a))
-    | feuille a
+    | nil
 
        3
     2     1
   1   2  x x
  x x x 4
-         x x
+      x x

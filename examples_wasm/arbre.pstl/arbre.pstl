@@ -141,9 +141,7 @@ max_a a =
 
 max_arbre =
     let a = arbre_test;
-    let f = max;
-    let n = 0;
-    let r = fold_arbre f a n;
+    let r = max_a a;
     ret r
 
 min_a a =
