@@ -217,7 +217,7 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 
-    console.log("Max = 4")
+    console.log("\nMax = 4")
     var startTime = performance.now();
     var loc = max_arbre();
     var endTime = performance.now();
@@ -229,7 +229,7 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 
-    console.log("Min = 1")
+    console.log("\nMin = 1")
     var startTime = performance.now();
     var loc = min_arbre();
     var endTime = performance.now();
@@ -241,7 +241,7 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
 
-    console.log("Min")
+    console.log("\nMin")
     var startTime = performance.now();
     var loc = min(createNum(1, mem), createNum(2, mem));
     var endTime = performance.now();
@@ -253,9 +253,33 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
     
-    console.log("NB_noeuds = 7")
+    console.log("\n\nNB_noeuds = 7")
     var startTime = performance.now();
     var loc = nb_noeuds_test();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\n\nHauteur")
+    var startTime = performance.now();
+    var loc = hauteur_test();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    console.log("\n\nAdd 5")
+    var startTime = performance.now();
+    var loc = add_arbre();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 

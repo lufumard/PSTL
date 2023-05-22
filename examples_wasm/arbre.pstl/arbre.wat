@@ -366,12 +366,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -394,12 +410,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -422,12 +454,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -450,12 +498,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -478,12 +542,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -506,12 +586,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 local.get $p_1
@@ -530,12 +626,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 local.get $p_1
@@ -554,7 +666,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 i32.eqz
@@ -569,12 +689,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -597,12 +733,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -625,12 +777,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -653,12 +821,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -681,12 +865,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -709,14 +909,41 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 24
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 3
+i32.add
+call $__set_ref
 call $fun_arbre
 local.get $pap
 call $__dec
@@ -726,6 +953,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_est_feuille
 local.get $pap
 call $__dec
@@ -735,6 +971,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_valeur
 local.get $pap
 call $__dec
@@ -744,6 +989,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_fils
 local.get $pap
 call $__dec
@@ -753,6 +1007,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_fils_gauche
 local.get $pap
 call $__dec
@@ -762,6 +1025,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_fils_droit
 local.get $pap
 call $__dec
@@ -771,10 +1043,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 call $fun_fmap_arbre
 local.get $pap
 call $__dec
@@ -784,10 +1074,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 call $fun_max
 local.get $pap
 call $__dec
@@ -797,10 +1105,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 call $fun_min
 local.get $pap
 call $__dec
@@ -810,6 +1136,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_etage_plus_haute_feuille
 local.get $pap
 call $__dec
@@ -819,6 +1154,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_hauteur
 local.get $pap
 call $__dec
@@ -828,14 +1172,41 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 24
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 3
+i32.add
+call $__set_ref
 call $fun_fold_arbre
 local.get $pap
 call $__dec
@@ -845,6 +1216,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_max_a
 local.get $pap
 call $__dec
@@ -854,6 +1234,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_min_a
 local.get $pap
 call $__dec
@@ -863,6 +1252,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_somme
 local.get $pap
 call $__dec
@@ -872,6 +1270,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_nb_noeuds
 local.get $pap
 call $__dec
@@ -946,9 +1353,9 @@ i32.add
  end
 )
 (func $fun_arbre (export "arbre")(param $var_v i32) (param $var_g i32) (param $var_d i32) (result i32)
-(local $__intern_var i32)
 (local $var_a i32)
 (local $var_fs i32)
+(local $__intern_var i32)
 
 ;;inc
 local.get $var_g
@@ -997,8 +1404,8 @@ call $__make_list
 return
 )
 (func $fun_feuille (export "feuille")(result i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1008,9 +1415,9 @@ call $__make_no_arg
 return
 )
 (func $fun_est_feuille (export "est_feuille")(param $var_a i32) (result i32)
-(local $w3 i32)
-(local $w1 i32)
 (local $w2 i32)
+(local $w1 i32)
+(local $w3 i32)
 (local $var_r i32)
 (local $__intern_var i32)
 
@@ -1173,8 +1580,8 @@ call $__make_no_arg
 return
 )
 (func $fun_valeur (export "valeur")(param $var_a i32) (result i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1227,9 +1634,9 @@ local.get $var_r
 return
 )
 (func $fun_fils_gauche (export "fils_gauche")(param $var_a i32) (result i32)
-(local $var_r i32)
 (local $__intern_var i32)
 (local $var_fs i32)
+(local $var_r i32)
 
 ;;let
 
@@ -1266,9 +1673,9 @@ local.get $var_r
 return
 )
 (func $fun_fils_droit (export "fils_droit")(param $var_a i32) (result i32)
+(local $__intern_var i32)
 (local $var_fs i32)
 (local $var_r i32)
-(local $__intern_var i32)
 
 ;;let
 
@@ -1305,13 +1712,13 @@ local.get $var_r
 return
 )
 (func $fun_fmap_arbre (export "fmap_arbre")(param $var_fun i32) (param $var_a i32) (result i32)
-(local $var_est_f i32)
-(local $var_nd i32)
-(local $__intern_var i32)
-(local $var_d i32)
-(local $var_nv i32)
-(local $var_na i32)
 (local $var_g i32)
+(local $var_est_f i32)
+(local $var_d i32)
+(local $var_na i32)
+(local $__intern_var i32)
+(local $var_nd i32)
+(local $var_nv i32)
 (local $var_v i32)
 (local $var_ng i32)
 
@@ -1633,16 +2040,16 @@ local.get $var_a
 return
 )
 (func $fun_etage_plus_haute_feuille (export "etage_plus_haute_feuille")(param $var_a i32) (result i32)
-(local $__intern_var i32)
 (local $var_n1 i32)
-(local $var_hfs i32)
-(local $var_hg i32)
-(local $var_est_f i32)
-(local $var_d i32)
-(local $var_r i32)
-(local $var_h i32)
 (local $var_hd i32)
+(local $var_hfs i32)
+(local $var_est_f i32)
+(local $__intern_var i32)
+(local $var_r i32)
+(local $var_d i32)
+(local $var_hg i32)
 (local $var_g i32)
+(local $var_h i32)
 
 ;;inc
 local.get $var_a
@@ -1753,16 +2160,16 @@ call $__make_num
 return
 )
 (func $fun_hauteur (export "hauteur")(param $var_a i32) (result i32)
-(local $var_hg i32)
-(local $__intern_var i32)
 (local $var_g i32)
-(local $var_n1 i32)
+(local $var_hg i32)
 (local $var_r i32)
+(local $__intern_var i32)
+(local $var_d i32)
 (local $var_est_f i32)
-(local $var_h i32)
+(local $var_n1 i32)
 (local $var_hfs i32)
 (local $var_hd i32)
-(local $var_d i32)
+(local $var_h i32)
 
 ;;inc
 local.get $var_a
@@ -1873,15 +2280,15 @@ call $__make_num
 return
 )
 (func $fun_fold_arbre (export "fold_arbre")(param $var_fun i32) (param $var_a i32) (param $var_acc i32) (result i32)
-(local $__intern_var i32)
 (local $var_nv i32)
-(local $var_d i32)
-(local $var_vg i32)
-(local $var_v i32)
-(local $var_g i32)
+(local $__intern_var i32)
 (local $var_est_f i32)
 (local $var_nfv i32)
+(local $var_d i32)
 (local $var_vd i32)
+(local $var_g i32)
+(local $var_v i32)
+(local $var_vg i32)
 
 ;;inc
 local.get $var_a
@@ -2108,17 +2515,17 @@ local.get $var_acc
 return
 )
 (func $fun_arbre_test (export "arbre_test")(result i32)
-(local $__intern_var i32)
-(local $var_a32 i32)
-(local $var_v3 i32)
-(local $var_a3224 i32)
-(local $var_a322 i32)
-(local $var_v2 i32)
 (local $var_v1 i32)
-(local $var_a321 i32)
+(local $var_a322 i32)
+(local $__intern_var i32)
 (local $var_v4 i32)
+(local $var_v2 i32)
+(local $var_a3224 i32)
 (local $var_nil i32)
+(local $var_a32 i32)
+(local $var_a321 i32)
 (local $var_a3 i32)
+(local $var_v3 i32)
 
 ;;let
 
@@ -2240,11 +2647,11 @@ local.get $var_a3
 return
 )
 (func $fun_add_arbre (export "add_arbre")(result i32)
-(local $var_a i32)
 (local $var_f i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 (local $var_n i32)
+(local $var_a i32)
 
 ;;let
 
@@ -2287,16 +2694,16 @@ call $fun_fmap_arbre
 return
 )
 (func $fun_max_a (export "max_a")(param $var_a i32) (result i32)
-(local $var_vd i32)
-(local $var_t i32)
-(local $__intern_var i32)
-(local $var_r i32)
-(local $var_temp i32)
-(local $var_vg i32)
-(local $var_g i32)
-(local $var_v i32)
-(local $var_d i32)
 (local $var_n i32)
+(local $__intern_var i32)
+(local $var_v i32)
+(local $var_r i32)
+(local $var_vd i32)
+(local $var_d i32)
+(local $var_temp i32)
+(local $var_g i32)
+(local $var_t i32)
+(local $var_vg i32)
 
 ;;inc
 local.get $var_a
@@ -2396,11 +2803,11 @@ call $__make_num
 return
 )
 (func $fun_max_arbre (export "max_arbre")(result i32)
-(local $var_f i32)
-(local $__intern_var i32)
-(local $var_a i32)
 (local $var_r i32)
+(local $var_a i32)
+(local $__intern_var i32)
 (local $var_n i32)
+(local $var_f i32)
 
 ;;let
 
@@ -2442,16 +2849,16 @@ local.get $var_r
 return
 )
 (func $fun_min_a (export "min_a")(param $var_a i32) (result i32)
-(local $var_r i32)
-(local $var_t i32)
+(local $__intern_var i32)
+(local $var_d i32)
+(local $var_v i32)
+(local $var_vg i32)
 (local $var_n i32)
+(local $var_r i32)
 (local $var_temp i32)
 (local $var_g i32)
 (local $var_vd i32)
-(local $var_v i32)
-(local $var_d i32)
-(local $__intern_var i32)
-(local $var_vg i32)
+(local $var_t i32)
 
 ;;inc
 local.get $var_a
@@ -2552,10 +2959,10 @@ return
 )
 (func $fun_min_arbre (export "min_arbre")(result i32)
 (local $var_a i32)
-(local $var_r i32)
-(local $var_f i32)
 (local $__intern_var i32)
 (local $var_n i32)
+(local $var_r i32)
+(local $var_f i32)
 
 ;;let
 
@@ -2597,9 +3004,9 @@ local.get $var_r
 return
 )
 (func $fun_hauteur_test (export "hauteur_test")(result i32)
-(local $__intern_var i32)
-(local $var_a i32)
 (local $var_r i32)
+(local $var_a i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -2615,9 +3022,9 @@ call $fun_hauteur
 return
 )
 (func $fun_ephf (export "ephf")(result i32)
+(local $__intern_var i32)
 (local $var_a i32)
 (local $var_r i32)
-(local $__intern_var i32)
 
 ;;let
 
@@ -2633,10 +3040,10 @@ call $fun_etage_plus_haute_feuille
 return
 )
 (func $fun_somme (export "somme")(param $var_a i32) (result i32)
+(local $var_n i32)
 (local $var_r i32)
 (local $var_f i32)
 (local $__intern_var i32)
-(local $var_n i32)
 
 ;;let
 
@@ -2688,9 +3095,9 @@ local.get $var_r
 return
 )
 (func $fun_somme_test (export "somme_test")(result i32)
-(local $var_a i32)
 (local $__intern_var i32)
 (local $var_r i32)
+(local $var_a i32)
 
 ;;let
 
@@ -2714,15 +3121,15 @@ local.get $var_r
 return
 )
 (func $fun_nb_noeuds (export "nb_noeuds")(param $var_a i32) (result i32)
-(local $var_vd i32)
-(local $var_est_f i32)
-(local $var_vg i32)
 (local $__intern_var i32)
+(local $var_v i32)
+(local $var_vg i32)
+(local $var_temp i32)
 (local $var_g i32)
 (local $var_r i32)
 (local $var_d i32)
-(local $var_v i32)
-(local $var_temp i32)
+(local $var_vd i32)
+(local $var_est_f i32)
 
 ;;inc
 local.get $var_a
@@ -2844,8 +3251,8 @@ call $__make_num
 return
 )
 (func $fun_nb_noeuds_test (export "nb_noeuds_test")(result i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 (local $var_a i32)
 
 ;;let

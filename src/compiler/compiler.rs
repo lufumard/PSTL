@@ -445,7 +445,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 let n = (i+1).try_into().unwrap();
                 pap_arg_loc(pap, n, out);
                 write_ln("i32.load", out);
-                write_ln(&format!("local.set $p_{i}"), out);
+                write_ln(&format!("local.tee $p_{i}"), out);
+                compile_add_ref(&Var::Var(format!("p_{i}")), n, out);
             }
 
             let vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
@@ -455,6 +456,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 let n = (i + 1).try_into().unwrap();
                 pap_arg_loc(pap, n, out);
                 write_ln("i32.load", out);
+                write_ln(&format!("local.tee $p_0"), out);
+                compile_add_ref(&Var::Var(format!("p_0")), n, out);
             }
             let name = &desc.name;
             write_ln(&format!("call $fun_{name}"), out);
