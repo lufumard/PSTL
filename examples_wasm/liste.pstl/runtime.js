@@ -97,33 +97,40 @@ const log_mem = (mem) => {
  * mem : Uint32Array
  * return void
  */ 
-const interprete = (loc, mem, dt) => {
-    log_mem(mem)
+const interprete = (loc, mem, dt, __nb_args) => {
+    console.log("Mémoire :", mem)
     var nb_alloc = 0;
     var i=1;
     var alive = 0;
+    var obj_alive = 0;
     while(i<mem[0]/4){
         nb_alloc++;
+        if (mem[i+1] != 0){
+            if (mem[i+1] < 0){
+                console.log(`refs neg @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
+            } else {
+                console.log(`refs pos @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
+            }
+            alive+=mem[i+1];
+            obj_alive++;
+        } 
         if (mem[i] <= CONST_CONTRUCTEURS.nil){
-            if (mem[i+1] > 0) alive++;
+
             i+=2;
         }else if (mem[i] == CONST_CONTRUCTEURS.num){
-            if (mem[i+1] > 0) alive++;
+
             i+=3;
         }else if (mem[i] == CONST_CONTRUCTEURS.list){
-            if (mem[i+1] > 0) alive++;
-            i+=4;
-        } else if(mem[i] == CONST_CONTRUCTEURS.pap){
-            if (mem[i+1] > 0) alive++;
-            if (mem[i+2] == 8) i+=5
-            else i+=6
-        } else {
-            console.error(`type ${mem[i]}`)
-            i++
+            
+            i+= 4;
+        }else{
+            var id = mem[i+2];
+            nb_args = __nb_args(id);
+            i+= nb_args + 4;
         }
     }
     console.log("Nombre d'allocations : ", nb_alloc, `(${mem[0]/4} blocs alloués)`);
-    console.log("En vie : ", alive);
+    console.log(`Objets en vie : ${obj_alive} (${alive} refs)`)
     console.log(`Résultat en ${dt} ms`)
     const interprete_rec = (loc, mem) => {
         let type = mem[loc];
@@ -177,7 +184,7 @@ WebAssembly.instantiate(wasmBuffer, {
      */
 
 
-    const { liste, hl, liste1, head, tail, first, last, length, len_liste, len_liste1, papadd1, papbool } = wasmModule.instance.exports;
+    const { liste, hl, liste1, head, tail, first, last, length, len_liste, len_liste1, papadd1, papbool, __nb_args } = wasmModule.instance.exports;
 
     console.log("\nList [1,2,3,4,5]")
     //res : Loc
@@ -187,7 +194,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -201,7 +208,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -215,7 +222,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -229,7 +236,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -243,7 +250,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -257,7 +264,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
 
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -271,7 +278,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -285,7 +292,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -299,7 +306,7 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     var loc = res/4;
 
-    interprete(loc, mem, deltaTime)
+    interprete(loc, mem, deltaTime, __nb_args)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}

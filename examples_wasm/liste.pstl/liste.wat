@@ -220,6 +220,7 @@ $__case16 $__case15 $__case14 $__case13 $__case12 $__case11 $__case10 $__case9 $
 (local $args_rest i32)
 (local $loc_arg_var i32)
 (local $loc_arg_pap i32)
+(local $arg i32)
 local.get $var
 i32.const 8
 i32.add
@@ -250,6 +251,17 @@ if
     local.get $loc_arg_var
     i32.load
     i32.store
+    local.get $loc_arg_var
+    i32.load
+    local.set $arg
+local.get $arg
+local.get $arg
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
     (i32.add (local.get $loc_arg_pap) (i32.const 4))
     local.set $loc_arg_pap
     (i32.add (local.get $loc_arg_var) (i32.const 4))
@@ -294,12 +306,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -322,12 +350,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -350,12 +394,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -378,12 +438,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -406,12 +482,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -434,12 +526,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 local.get $p_1
@@ -458,12 +566,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 local.get $p_1
@@ -482,7 +606,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $p_0
 i32.load
 i32.eqz
@@ -497,12 +629,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -525,12 +673,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -553,12 +717,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -581,12 +761,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -609,12 +805,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
-local.set $p_0
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
-local.set $p_1
+local.tee $p_1
+local.get $p_1
+local.get $p_1
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 local.get $p_0
 i32.const 8
 i32.add
@@ -637,6 +849,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_head
 local.get $pap
 call $__dec
@@ -646,6 +867,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_tail
 local.get $pap
 call $__dec
@@ -655,6 +885,15 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 call $fun_length
 local.get $pap
 call $__dec
@@ -664,10 +903,28 @@ local.get $pap
 i32.const 16
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $pap
 i32.const 20
 i32.add
 i32.load
+local.tee $p_0
+local.get $p_0
+local.get $p_0
+i32.const 4
+i32.add
+i32.load
+i32.const 2
+i32.add
+call $__set_ref
 call $fun_fmap
 local.get $pap
 call $__dec
@@ -677,9 +934,6 @@ return
  (local $args_left i32)
  (local $arg i32)
 local.get $var
-i32.const 4
-i32.add
- i32.load
  if
 local.get $var
 local.get $var
@@ -720,7 +974,7 @@ i32.add
           (i32.add (local.get $arg) (i32.const 4))
           local.set $arg
           (i32.sub (local.get $args_left) (i32.const 1))
-          local.tee $args_left
+          local.set $args_left
           br $dec_loop
         )
       )
@@ -746,17 +1000,17 @@ i32.add
 )
 (func $fun_liste (export "liste")(result i32)
 (local $var_l1 i32)
-(local $var_nil i32)
-(local $var_n5 i32)
-(local $var_l4 i32)
-(local $var_n3 i32)
-(local $var_l3 i32)
-(local $var_l2 i32)
 (local $var_n2 i32)
-(local $var_n4 i32)
-(local $var_l5 i32)
+(local $var_l2 i32)
+(local $var_l4 i32)
+(local $var_n5 i32)
 (local $var_n1 i32)
 (local $__intern_var i32)
+(local $var_l3 i32)
+(local $var_n4 i32)
+(local $var_n3 i32)
+(local $var_l5 i32)
+(local $var_nil i32)
 
 ;;let
 
@@ -841,8 +1095,8 @@ call $__make_list
 return
 )
 (func $fun_head (export "head")(param $var_l i32) (result i32)
-(local $__intern_var i32)
 (local $var_h i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -868,8 +1122,8 @@ local.get $var_h
 return
 )
 (func $fun_tail (export "tail")(param $var_l i32) (result i32)
-(local $var_h i32)
 (local $__intern_var i32)
+(local $var_h i32)
 
 ;;let
 
@@ -895,8 +1149,8 @@ local.get $var_h
 return
 )
 (func $fun_nil (export "nil")(result i32)
-(local $var_r i32)
 (local $__intern_var i32)
+(local $var_r i32)
 
 ;;let
 
@@ -906,13 +1160,13 @@ call $__make_no_arg
 return
 )
 (func $fun_length (export "length")(param $var_l i32) (result i32)
-(local $w1 i32)
+(local $__intern_var i32)
+(local $var_len2 i32)
 (local $var_h i32)
 (local $var_r i32)
-(local $__intern_var i32)
 (local $var_len1 i32)
-(local $var_len2 i32)
 (local $var_t i32)
+(local $w1 i32)
 
 ;;case
 (block $__case0
@@ -1027,7 +1281,6 @@ local.set $w1
 local.get $w1
 local.get $w1
 i32.load
-local.tee $__intern_var
 i32.const 4
 i32.eq
 i32.and
@@ -1045,23 +1298,25 @@ i32.const 8
 i32.add
 i32.const 1
 i32.store
+local.get $w1
+local.set $__intern_var
 else
 
 ;;num
 i32.const 1
 call $__make_num
-local.set $w1
+local.set $__intern_var
 end
-local.get $w1
+local.get $__intern_var
 return
 )
 (func $fun_liste1 (export "liste1")(result i32)
-(local $var_l2 i32)
 (local $var_nil i32)
-(local $var_l0 i32)
 (local $var_l1 i32)
-(local $var_n1 i32)
 (local $__intern_var i32)
+(local $var_l2 i32)
+(local $var_l0 i32)
+(local $var_n1 i32)
 
 ;;let
 
@@ -1122,9 +1377,9 @@ call $__make_list
 return
 )
 (func $fun_len_liste1 (export "len_liste1")(result i32)
-(local $var_l i32)
-(local $__intern_var i32)
 (local $var_r i32)
+(local $__intern_var i32)
+(local $var_l i32)
 
 ;;let
 
@@ -1141,8 +1396,8 @@ return
 )
 (func $fun_len_liste (export "len_liste")(result i32)
 (local $var_l i32)
-(local $__intern_var i32)
 (local $var_r i32)
+(local $__intern_var i32)
 
 ;;let
 
@@ -1158,14 +1413,14 @@ call $fun_length
 return
 )
 (func $fun_fmap (export "fmap")(param $var_f i32) (param $var_l i32) (result i32)
-(local $var_fh i32)
-(local $var_rl i32)
-(local $var_h i32)
-(local $w1 i32)
+(local $var_r i32)
 (local $__intern_var i32)
 (local $var_ft i32)
+(local $w1 i32)
 (local $var_t i32)
-(local $var_r i32)
+(local $var_h i32)
+(local $var_rl i32)
+(local $var_fh i32)
 
 ;;case
 (block $__case0
@@ -1195,6 +1450,14 @@ i32.load
 i32.const 1
 i32.add
 i32.store
+local.get $var_l
+local.get $var_l
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $__intern_var
 i32.const 12
 i32.add
@@ -1242,6 +1505,14 @@ i32.load
 i32.const 1
 i32.add
 i32.store
+local.get $var_l
+local.get $var_l
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $__intern_var
 i32.const 12
 i32.add
@@ -1272,6 +1543,10 @@ end
 local.get $__intern_var
 return
 )
+
+;;dec
+local.get $var_f
+call $__dec
 
 ;;ret
 local.get $var_l
@@ -1331,10 +1606,10 @@ local.set $var_ft
 local.get $w1
 local.get $w1
 i32.load
-local.tee $__intern_var
 i32.const 3
 i32.eq
-local.get $__intern_var
+local.get $w1
+i32.load
 i32.const 3
 i32.le_s
 i32.or
@@ -1358,13 +1633,15 @@ i32.const 12
 i32.add
 local.get $var_ft
 i32.store
+local.get $w1
+local.set $__intern_var
 else
 local.get $var_fh
 local.get $var_ft
 call $__make_list
-local.set $w1
+local.set $__intern_var
 end
-local.get $w1
+local.get $__intern_var
 return
 )
 
@@ -1384,6 +1661,14 @@ i32.load
 i32.const 1
 i32.add
 i32.store
+local.get $var_l
+local.get $var_l
+i32.const 4
+i32.add
+i32.load
+i32.const 1
+i32.add
+call $__set_ref
 local.get $__intern_var
 i32.const 12
 i32.add
@@ -1415,11 +1700,11 @@ local.get $__intern_var
 return
 )
 (func $fun_papadd1 (export "papadd1")(result i32)
-(local $var_f i32)
+(local $var_r i32)
 (local $var_l i32)
 (local $var_n i32)
+(local $var_f i32)
 (local $__intern_var i32)
-(local $var_r i32)
 
 ;;let
 
@@ -1462,13 +1747,13 @@ call $fun_fmap
 return
 )
 (func $fun_papbool (export "papbool")(result i32)
-(local $var_fun i32)
-(local $var_l1 i32)
-(local $var_f i32)
-(local $var_t i32)
 (local $var_r i32)
-(local $var_l2 i32)
+(local $var_l1 i32)
+(local $var_t i32)
 (local $__intern_var i32)
+(local $var_fun i32)
+(local $var_l2 i32)
+(local $var_f i32)
 
 ;;let
 
