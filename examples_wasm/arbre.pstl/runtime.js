@@ -99,7 +99,7 @@ WebAssembly.instantiate(wasmBuffer, {
      * return void
      */ 
     const interprete = (loc, mem, dt) => {
-        console.log("Mémoire :", mem)
+        //console.log("Mémoire :", mem)
         var nb_alloc = 0;
         var i=1;
         var alive = 0;
@@ -232,18 +232,6 @@ WebAssembly.instantiate(wasmBuffer, {
     console.log("\nMin = 1")
     var startTime = performance.now();
     var loc = min_arbre();
-    var endTime = performance.now();
-    var deltaTime = endTime - startTime;
-
-    interprete(loc, mem, deltaTime)
-    
-    // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-
-    console.log("\nMin")
-    var startTime = performance.now();
-    var loc = min(createNum(1, mem), createNum(2, mem));
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
