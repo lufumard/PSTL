@@ -110,7 +110,7 @@ WebAssembly.instantiate(wasmBuffer, {
                 if (mem[i+1] < 0){
                     console.log(`refs neg @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
                 } else {
-                    console.log(`refs pos @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
+                    //console.log(`refs pos @mem[${i}], type ${mem[i]} (refs=${mem[i+1]})`)
                 }
                 alive+=mem[i+1];
                 obj_alive++;

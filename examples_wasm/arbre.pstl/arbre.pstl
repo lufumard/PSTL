@@ -180,7 +180,6 @@ ephf =
 
 somme a = 
     let f = add;
-    let a = arbre_test;
     let n = 0;
     let r = fold_arbre f a n;
     ret r
