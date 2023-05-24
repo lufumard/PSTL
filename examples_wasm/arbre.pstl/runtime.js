@@ -205,7 +205,7 @@ WebAssembly.instantiate(wasmBuffer, {
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-    console.log("Hauteur = 4")
+    console.log("\nHauteur = 4")
     var startTime = performance.now();
     var loc = hauteur_test();
     var endTime = performance.now();

@@ -12,6 +12,18 @@ main = let n = 5;
     let r = mainpapcall f;
     ret r
 
+mainpap = let n = 5;
+    let f = papcall n;
+    let m = 2;
+    let r = f m;
+    ret r
+
+mainpap2 = let n = 5;
+    let f = sub n;
+    let m = 2;
+    let r = f m;
+    ret r
+
 
 getpap =
     let n = 1;

@@ -175,10 +175,32 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { getpap, main, notpap, papcall } = wasmModule.instance.exports;
+    const { getpap, main, notpap, papcall, mainpap, mainpap2 } = wasmModule.instance.exports;
 
     var startTime = performance.now();
     var loc = main();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+
+    var startTime = performance.now();
+    var loc = mainpap();
+    var endTime = performance.now();
+    var deltaTime = endTime - startTime;
+
+    interprete(loc, mem, deltaTime)
+    
+    // Réinitialise la mémoire
+    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    mem[0] = 4;
+    
+    var startTime = performance.now();
+    var loc = mainpap2();
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
