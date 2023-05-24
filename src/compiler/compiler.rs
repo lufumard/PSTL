@@ -447,7 +447,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 pap_arg_loc(pap, n, out);
                 write_ln("i32.load", out);
                 write_ln(&format!("local.tee $p_{i}"), out);
-                compile_add_ref(&Var::Var(format!("p_{i}")), n, out);
+                compile_add_ref(&Var::Var(format!("p_{i}")), 1, out);
             }
 
             let vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
@@ -458,7 +458,7 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 pap_arg_loc(pap, n, out);
                 write_ln("i32.load", out);
                 write_ln(&format!("local.tee $p_0"), out);
-                compile_add_ref(&Var::Var(format!("p_0")), n, out);
+                compile_add_ref(&Var::Var(format!("p_0")), 1, out);
             }
             let name = &desc.name;
             write_ln(&format!("call $fun_{name}"), out);
@@ -638,24 +638,22 @@ pub fn compile_pap(ident_wrap: &ConstWrapper, vars:&Vec<Var>, fn_desc:&IndexMap<
             if vars.len() > desc.nb_args {
                 panic!("Trop d'arguments dans la construction d'une pap");
             }
-            
+
             let id = desc.id;
             write_ln(&format!("i32.const {id}"), out);
             write_ln("call $__make_pap", out);  
             write_ln("local.set $__intern_var", out); 
-            
+            let intern = Var::Var("__intern_var".to_string());
             if vars.len() > 0 {
                 for i in 0..vars.len() {
                     // charge l'emplacement de l'argument
                     let n = (i+1).try_into().unwrap();
-                    pap_arg_loc(&Var::Var("__intern_var".to_string()), n, out);
+                    pap_arg_loc(&intern, n, out);
                     compile_var(&vars[i], out);
                     write_ln("i32.store", out);
                 }
 
-                write_ln("local.get $__intern_var", out);
-                write_ln("i32.const 12", out);
-                write_ln("i32.add", out);
+                pap_nb_args_fixed_loc(&intern, out);
 
                 let nb = vars.len();
                 write_ln(&format!("i32.const {nb}"), out);
@@ -663,7 +661,7 @@ pub fn compile_pap(ident_wrap: &ConstWrapper, vars:&Vec<Var>, fn_desc:&IndexMap<
             }
             
 
-            write_ln("local.get $__intern_var", out);
+            compile_var(&intern, out);
         },
         None => {
             let nom = string_of_const(ident);
@@ -732,7 +730,7 @@ pub fn compile_papcall(var:&Var, arg:&Var, out : &mut File) {
     
     // nb_args ++
 
-    compile_add_ref(arg, 1, out);
+    //compile_add_ref(arg, 1, out);
 
     pap_nb_args_fixed_loc(__intern_var, out);
     write_ln("i32.load", out);
