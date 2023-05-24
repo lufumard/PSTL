@@ -167,7 +167,11 @@ compile_fnbody(fnbody)
           br_if $dec_end
 
           local.get $var
+          i32.load
           call $__dec
+
+          (i32.add (local.get $var) (i32.const 4)) ;; @arg ++;
+          local.set $var
 
           (i32.sub (local.get $args_left) (i32.const 1))
           local.set $args_left ;; #args--
