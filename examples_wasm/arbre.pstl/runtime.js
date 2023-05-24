@@ -253,7 +253,7 @@ WebAssembly.instantiate(wasmBuffer, {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
     
-    console.log("\n\nNB_noeuds = 7")
+    console.log("\n\nNB_noeuds = 6")
     var startTime = performance.now();
     var loc = nb_noeuds_test();
     var endTime = performance.now();

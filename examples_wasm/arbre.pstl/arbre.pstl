@@ -200,7 +200,7 @@ nb_noeuds a = let est_f = est_feuille a;
             let vd = nb_noeuds d;
 
             let temp = add vd vg;
-            let v = valeur a;
+            let v = 1;
             let r = add temp v;
             ret r
         )

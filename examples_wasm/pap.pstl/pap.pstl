@@ -9,8 +9,7 @@ mainpapcall f =
 
 main = let n = 5;
     let f = papcall n;
-    let m = 2;
-    let r = f m;
+    let r = mainpapcall f;
     ret r
 
 
