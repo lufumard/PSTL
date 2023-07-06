@@ -7,10 +7,10 @@ use chumsky::Parser;
 use crate::ast::{CONST_LIST, FnBody};
 
 use crate::interpreter::*;
+use crate::primitives::extract_int;
 use crate::reader;
 use crate::transform_var::transform_program;
 
-use primitives::extract_int;
 
 fn get_num(l:Loc, h:&Heap) -> i32 {
     return extract_int(l, h);

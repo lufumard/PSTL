@@ -11,12 +11,9 @@ pub use crate::ast::CONST_FALSE;
 pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
-use primitives::has_args;
-
-
-pub mod primitives;
-use primitives::is_primitive;
-use primitives::eval_fncall_primitive;
+use crate::primitives::eval_fncall_primitive;
+use crate::primitives::has_args;
+use crate::primitives::is_primitive;
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -106,6 +103,14 @@ pub  fn empty_ctxt() -> Ctxt {
 
 pub fn empty_heap() -> Heap {
     return Heap {map : HashMap::new(), loc : 1};
+}
+
+pub  fn make_bool(b : bool) -> Value {
+    if b {
+        make_true()
+    } else {
+        make_false()
+    }
 }
 
 
@@ -243,10 +248,10 @@ pub  fn eval_expr(expr: Expr, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, F
 pub fn eval_fncall(ident: Const, vars: Vec<Var>, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<String, Fn>) -> Loc {
     let Const::Const(nom) = ident.clone();
     if is_primitive(&nom) {
-        let r = has_args(&nom, vars.len() as i32);
+        let r = has_args(&nom, vars.len());
         if r == 0{
             let vars = vars.iter().map(|v| ct.get(v.to_owned())).collect();
-            return eval_fncall_primitive(nom, vars, ct, h, lfn);
+            return eval_fncall_primitive(nom, vars, h);
         } else if r < 0 {
             return eval_pap(ident, vars, ct, h, lfn);
         } else {
@@ -299,9 +304,9 @@ pub fn eval_pap_fncall(x: Var, y: Var, ct: &Ctxt, h:&mut Heap, lfn:&mut HashMap<
             let Const::Const(name) = &c;
             vars.push(l);
             if is_primitive(&name) {
-                let s = has_args(name, vars.len() as i32);
+                let s = has_args(name, vars.len());
                 if s == 0 {
-                    return eval_fncall_primitive(name.to_owned(), vars, ct, h, lfn);
+                    return eval_fncall_primitive(name.to_owned(), vars, h);
                 } else if s < 1 {
                     let v = Value::Pap(Const::Const(name.to_string()), vars);
                     return h.add(v);

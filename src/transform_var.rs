@@ -7,8 +7,8 @@ use crate::ast::Expr;
 use crate::ast::FnBody;
 use crate::ast::Fn;
 use crate::ast::Const;
-use crate::interpreter::primitives::has_args;
-use crate::interpreter::primitives::is_primitive;
+use crate::primitives::has_args;
+use crate::primitives::is_primitive;
 
 
 /*
@@ -100,17 +100,19 @@ fn transform_fncall(ident: Const, vars: Vec<Var>, ctxt_vars:Vec<String>, lfn:&In
         },
         None => {
             let Const::Const(name) = ident.clone();
-            let diff = has_args(&name, vars.len() as i32);
             let new_vars = vars.iter()
                             .map(|v| transform_var(v.to_owned()))
                             .collect();
             if is_primitive(&name){
+                let diff = has_args(&name, vars.len());
                 if diff == 0 {
                     return Expr::FnCall(ident, new_vars);
                 } else if diff < 0 {
                     return Expr::Pap(ident, new_vars);
                 } else {
-                    panic!("Trop d'arguments pour la fonction")
+                    let Const::Const(name) = ident;
+                    let l = vars.len();
+                    panic!("Trop d'arguments pour la fonction {name} ({l})")
                 }
             } else {
                 match lfn.get(&ident) {

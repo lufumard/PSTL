@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs::File;
 use std::vec;
-use crate::compiler::primitives::get_num;
+
 
 use crate::ast::CONST_NUM;
 use crate::ast::Program;
@@ -28,6 +28,7 @@ pub use crate::ast::CONST_TRUE;
 pub use crate::ast::CONST_NIL;
 pub use crate::ast::CONST_LIST;
 use crate::compiler::ast_rc::CONST_PAP;
+use crate::primitives::get_primitive_names;
 use self::ast_rc::ConstWrapper;
 use self::ast_rc::Either;
 use self::ast_rc::ExprRC;
@@ -36,17 +37,23 @@ use self::ast_rc::FnRC;
 use self::ast_rc::ProgramRC;
 use self::inc::insert_inc;
 use self::inferring::inferring_program;
-use self::primitives::nb_args;
+use crate::primitives::nb_args;
 use self::reuse::insert_reuse;
 
 
-pub mod primitives;
 use indexmap::IndexMap;
-use primitives::is_primitive;
-use primitives::compile_fncall_primitive;
+use crate::primitives::is_primitive;
+use crate::primitives::compile_fncall_primitive;
 
-use self::primitives::write_ln;
-use self::primitives::write_out;
+
+use std::io::Write;
+pub fn write_out(s : &str, out : &mut File){
+    write!(out, "{}", s).err();
+}
+
+pub fn write_ln(s : &str, out : &mut File){
+    write_out(&format!("{s}\n"), out);
+}
 
 
 pub fn make_bool(out:&mut File) {
@@ -77,12 +84,25 @@ pub  fn make_num(out:&mut File) {
     write_ln("call $__make_num", out);
 }
 
-fn string_of_var(Var::Var(s):&Var) -> &String {
+pub fn string_of_var(Var::Var(s):&Var) -> &String {
     return s;
 }
 
-fn string_of_const(Const::Const(c):&Const) -> &String {
+pub fn string_of_const(Const::Const(c):&Const) -> &String {
     return c;
+}
+
+pub fn get_num(var:&Var, out : &mut File) {
+    let s = string_of_var(var);
+    write_ln(&format!("local.get ${s}"), out);
+    write_ln("i32.const 8", out);
+    write_ln("i32.add", out);
+    write_ln("i32.load", out);
+}
+
+pub fn get_bool(var:&Var, out : &mut File) {
+    compile_var(var, out);
+    write_ln("i32.load", out);
 }
 
 /**
@@ -147,7 +167,7 @@ pub fn compile(program: Program, out : &mut File){
     let ProgramRC::Program(fun_dec) = &prog_inc;
     let fn_desc = make_fun_desc(fun_dec);
     write_runtime(&fn_desc, out);
-    dbg!(&prog_inc);
+    //dbg!(&prog_inc);
     compile_program(&prog_inc, &fn_desc, out);
     write_ln(")", out);
 
@@ -161,18 +181,17 @@ pub struct FnDesc {
     nb_args : usize,
 } 
 
-use primitives::PRIMITIVES;
 
 fn make_fun_desc (map : &IndexMap<Const, FnRC>) -> IndexMap<Const, FnDesc> {
     let mut res = IndexMap::new();
     
-    let index = PRIMITIVES
+    let index = get_primitive_names()
         .iter()
-        .fold(0, |index, &name| {
-            res.insert(Const::Const(name.to_string()), FnDesc{
+        .fold(0, |index, name| {
+            res.insert(Const::Const(name.clone()), FnDesc{
                 id : index,
                 name: name.to_string(),
-                nb_args: nb_args(name),
+                nb_args: nb_args(name.as_str()),
             });
             return index+1;
         });

@@ -1,4 +1,5 @@
 mod ast;
+mod primitives;
 use chumsky::Parser;
 use transform_var::transform_program;
 use std::env;
