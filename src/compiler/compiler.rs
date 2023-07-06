@@ -469,7 +469,8 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
                 compile_add_ref(&Var::Var(format!("p_{i}")), 1, out);
             }
 
-            let vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
+            let mut vars = vec![Var::Var("p_0".to_string()), Var::Var("p_1".to_string())];
+            vars.truncate(desc.nb_args);
             compile_fncall_primitive(&desc.name, &vars, out);
         } else {
             for i in 0..desc.nb_args {
