@@ -19,6 +19,8 @@ WebAssembly.instantiate(wasmBuffer, {
 
     var mem = initMem(memory);
 
+    console.log(mem);
+
     console.log("Somme = 13")
     var startTime = performance.now();
     var loc = somme_test();

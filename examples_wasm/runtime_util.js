@@ -8,12 +8,21 @@ const CONST_CONTRUCTEURS = {
     pap   : 5
 }
 
+const CONFIGURATION_TYPES = {
+    i32 : "i32",
+    i16 : "i16"
+}
+
+const ONLY_ONE_NO_ARG = true;
+
+const getConfigurationTypes = () => CONFIGURATION_TYPES
+
 /**
  * IMPORTANT : CONFIGURATION DES REFS
 */
 const POSSIBLE_CONFIGURATION = {
     i16 : {
-        getSize : () => "i16",
+        getSize : () => CONFIGURATION_TYPES.i16,
         getType : (mem, loc) => (mem[loc] >> 16 ) & 0xFFFF,
         setType : (mem, loc, type) => mem[loc] = (type & 0xFFFF) << 16 + i16.getRefs(mem, loc),
         getRefs : (mem, loc) => mem[loc] & 0xFFFF,
@@ -21,7 +30,7 @@ const POSSIBLE_CONFIGURATION = {
         getTypeRefsOffset : () => 1,
     },
     i32 : {
-        getSize : () => "i32",
+        getSize : () => CONFIGURATION_TYPES.i32,
         getType : (mem, loc) => (mem[loc]),
         setType : (mem, loc, type) => (mem[loc] = type),
         getRefs : (mem, loc) => (mem[loc+1]),
@@ -42,10 +51,10 @@ const getTypeRefsOffset = CONFIGURATION.getTypeRefsOffset
 // conf : string
 const setConfiguration = (conf) => {
     switch (conf) {
-        case "i16":
+        case CONFIGURATION_TYPES.i16:
             CONFIGURATION = POSSIBLE_CONFIGURATION.i16;    
             break;
-        case "i32":
+        case CONFIGURATION_TYPES.i32:
             CONFIGURATION = POSSIBLE_CONFIGURATION.i32;    
             break;
         default:
@@ -214,9 +223,11 @@ const initMem = (memory) => {
 const resetMem = (mem) => {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
     mem[0] = 4;
-    //newNoArg(mem, CONST_CONTRUCTEURS.false);
-    //newNoArg(mem, CONST_CONTRUCTEURS.true);
-    //newNoArg(mem, CONST_CONTRUCTEURS.nil);
+    if (ONLY_ONE_NO_ARG){
+      newNoArg(mem, CONST_CONTRUCTEURS.false);
+      newNoArg(mem, CONST_CONTRUCTEURS.true);
+      newNoArg(mem, CONST_CONTRUCTEURS.nil);
+    }
 }
 
-module.exports = {getConfiguration, setConfiguration, createFalse, createTrue, createNil, createList, createNum, initMem, resetMem, interprete};
+module.exports = {getConfiguration, getConfigurationTypes, setConfiguration, createFalse, createTrue, createNil, createList, createNum, initMem, resetMem, interprete};
