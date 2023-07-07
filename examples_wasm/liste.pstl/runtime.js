@@ -1,5 +1,5 @@
 const imports = require('../runtime_util')
-const {initMem, resetMem, interprete} = imports;
+const {setupFramework} = imports;
 const fs = require('fs');
 const { performance } = require('perf_hooks');
 
@@ -15,11 +15,10 @@ WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
 
-    // Initialisation de la mémoire
-    const mem = initMem(memory);
 
 
-    const { liste, hl, liste1, head, tail, first, last, length, len_liste, len_liste1, papadd1, papbool, __nb_args } = wasmModule.instance.exports;
+    const { liste, hl, liste1, head, tail, first, last, length, len_liste, len_liste1, papadd1, papbool, __nb_args, __init_memory } = wasmModule.instance.exports;
+    const {resetMem, interprete, mem} = setupFramework(__init_memory, __nb_args, memory)
 
     console.log("\nList [1,2,3,4,5]")
     //res : Loc
@@ -28,10 +27,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\nList of 1")
     //res : Loc
@@ -40,10 +39,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\nhead of List")
     //res : Loc
@@ -53,10 +52,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\ntail of List")
     //res : Loc
@@ -66,10 +65,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\nlength of List")
     //res : Loc
@@ -79,10 +78,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\nlength of List1")
     //res : Loc
@@ -92,10 +91,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
 
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\npapadd1 of List1 = [2, 2, 2, 2, 2, 2]")
     //res : Loc
@@ -105,10 +104,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
     
     console.log("\n papbool of [True, True, False] = [False, False, True]")
     //res : Loc
@@ -118,10 +117,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 
     console.log("\n head of [1, 2, 3, ...] = 1")
     //res : Loc
@@ -131,8 +130,8 @@ WebAssembly.instantiate(wasmBuffer, {
     var deltaTime = endTime - startTime;
     
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 });

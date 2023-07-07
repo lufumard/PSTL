@@ -1,5 +1,5 @@
 const imports = require('../runtime_util')
-const {createNum, initMem, resetMem, interprete} = imports;
+const {createNum, setupFramework} = imports;
 const fs = require('fs');
 const { performance } = require('perf_hooks');
 
@@ -13,10 +13,9 @@ WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
 
-    // Initialisation de la mémoire
-    const mem = initMem(memory);
 
-    const { fibo, main5, main10, main15, main20, main25, main30, main35, __nb_args } = wasmModule.instance.exports;
+    const { fibo, main5, main10, main15, main20, main25, main30, main35, __nb_args, __init_memory } = wasmModule.instance.exports;
+    const {resetMem, interprete, mem} = setupFramework(__init_memory, __nb_args, memory)
     
     console.log(`\n\n\nfibo_main.wasm fibo of 5`)
 
@@ -28,10 +27,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log(`\n\n\nfibo_main.wasm fibo of 10`)
 
@@ -43,10 +42,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_main.wasm fibo of 15`)
 
     var startTime = performance.now();
@@ -57,10 +56,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_main.wasm fibo of 20`)
 
     var startTime = performance.now();
@@ -71,10 +70,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_main.wasm fibo of 25`)
 
     var startTime = performance.now();
@@ -86,7 +85,7 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
@@ -103,10 +102,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log(`\n\n\nfibo_main.wasm fibo of 2`)
     var startTime = performance.now();
@@ -118,10 +117,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
     console.log("Mémoire :", mem);
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    for(i=1; i<= mem[0]/4; i++){mem[i]=0}
+    resetMem()
 });
 
 
@@ -152,9 +151,9 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
     var deltaTime = endTime - startTime;
     var loc = res/4;
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
 
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_liste.wasm fibo of 1`)
 
     var startTime = performance.now();
@@ -163,9 +162,9 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
     var deltaTime = endTime - startTime;
     var loc = res/4;
     
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
 
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_liste.wasm fibo of 2`)
 
     var startTime = performance.now();
@@ -174,9 +173,9 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
     var deltaTime = endTime - startTime;
     var loc = res/4;
     
-    interprete(__nb_args, loc, mem, deltaTime);
+    interprete(loc, deltaTime);
 
-    resetMem(mem);
+    resetMem();
     console.log(`\n\n\nfibo_liste.wasm fibo of 20`)
 
     var startTime = performance.now();
@@ -185,5 +184,5 @@ WebAssembly.instantiate(fs.readFileSync("fibo_liste.wasm"), {
     var deltaTime = endTime - startTime;
     var loc = res/4;
     
-    interprete(__nb_args, loc, mem, deltaTime);
+    interprete(loc, deltaTime);
 });

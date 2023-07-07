@@ -1,5 +1,5 @@
 const imports = require('../runtime_util')
-const {initMem, resetMem, interprete} = imports;
+const {setupFramework} = imports;
 
 const fs = require('fs');
 const { performance } = require('perf_hooks');
@@ -15,9 +15,9 @@ WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {   
 
-    const { hauteur_test, somme_test, ephf, max, max_arbre, min, min_arbre, add_arbre,arbre_test, nb_noeuds_test, __nb_args } = wasmModule.instance.exports;
+    const { hauteur_test, somme_test, ephf, max, max_arbre, min, min_arbre, add_arbre,arbre_test, nb_noeuds_test, __nb_args, __init_memory } = wasmModule.instance.exports;
 
-    var mem = initMem(memory);
+    const {resetMem, interprete, mem} = setupFramework(__init_memory, __nb_args, memory);
 
     console.log(mem);
 
@@ -27,10 +27,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log("\nHauteur = 4")
     var startTime = performance.now();
@@ -38,10 +38,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log("\nMax = 4")
     var startTime = performance.now();
@@ -49,10 +49,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log("\nMin = 1")
     var startTime = performance.now();
@@ -60,10 +60,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
     
     console.log("\n\nNB_noeuds = 6")
     var startTime = performance.now();
@@ -71,10 +71,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 
     console.log("\n\nHauteur")
     var startTime = performance.now();
@@ -82,10 +82,10 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
     
     console.log("\n\nAdd 5")
     var startTime = performance.now();
@@ -93,8 +93,8 @@ WebAssembly.instantiate(wasmBuffer, {
     var endTime = performance.now();
     var deltaTime = endTime - startTime;
 
-    interprete(__nb_args, loc, mem, deltaTime)
+    interprete(loc, deltaTime)
     
     // Réinitialise la mémoire
-    resetMem(mem);
+    resetMem();
 });

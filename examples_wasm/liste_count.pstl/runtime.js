@@ -1,5 +1,5 @@
 const imports = require('../runtime_util')
-const {createFalse, createTrue, createNil, createList, createNum, initMem, resetMem, interprete} = imports;
+const {createFalse, createTrue, createNil, createList, createNum, setupFramework} = imports;
 const fs = require('fs');
 const { performance } = require('perf_hooks');
 
@@ -15,13 +15,13 @@ WebAssembly.instantiate(wasmBuffer, {
     js: { mem: memory },
 }).then((wasmModule) => {
 
-    // Initialisation de la mémoire
-    const mem = initMem(memory);
-
 
     /**
      * Init memory
      */
+    
+    const { count, __nb_args, __init_memory } = wasmModule.instance.exports;
+    const {resetMem, interprete, mem} = setupFramework(__init_memory, __nb_args, memory)
 
     const objs = [
         createFalse(mem),
@@ -37,7 +37,7 @@ WebAssembly.instantiate(wasmBuffer, {
 
     
 
-    const { count, __nb_args } = wasmModule.instance.exports;
+    
     for (ia=0; ia<objs.length; ia++){
         for (ib=0; ib<objs.length; ib++){
             let a = objs[ia];
@@ -47,10 +47,10 @@ WebAssembly.instantiate(wasmBuffer, {
             var loc = count(a, b);
             var endTime = performance.now();
             var deltaTime = endTime - startTime;
-            interprete(__nb_args, loc, mem, deltaTime)
+            interprete(loc, deltaTime)
         }
     }
     
     // Réinitialise la mémoire
-    resetMem(mem)
+    resetMem()
 });
