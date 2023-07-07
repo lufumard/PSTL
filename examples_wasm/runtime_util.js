@@ -214,20 +214,25 @@ const interprete = (__nb_args, loc, mem, delta_time, log_memory=false) => {
     return interprete_rec(loc, mem);
 }
 
-const initMem = (memory) => {
-    const mem = new Int32Array(memory.buffer);
-    resetMem(mem);
-    return mem;
+const initMem = (__init_memory, memory) => {
+    const nmem = new Int32Array(memory.buffer);
+    resetMem(__init_memory, nmem);
+    return nmem
 }
 
-const resetMem = (mem) => {
+const resetMem = (__init_memory, mem) => {
     for(i=1; i<= mem[0]/4; i++){mem[i]=0}
-    mem[0] = 4;
-    if (ONLY_ONE_NO_ARG){
-      newNoArg(mem, CONST_CONTRUCTEURS.false);
-      newNoArg(mem, CONST_CONTRUCTEURS.true);
-      newNoArg(mem, CONST_CONTRUCTEURS.nil);
+    //mem[0] = 4;
+    __init_memory()
+}
+
+const setupFramework = (__init_memory, __nb_args, memory) => {
+    const nmem = initMem(__init_memory, memory)
+    return {
+        resetMem : () => resetMem(__init_memory, nmem),
+        interprete : (loc, delta_time, log_memory=false) => interprete(__nb_args, loc, nmem, delta_time, log_memory),
+        mem : nmem
     }
 }
 
-module.exports = {getConfiguration, getConfigurationTypes, setConfiguration, createFalse, createTrue, createNil, createList, createNum, initMem, resetMem, interprete};
+module.exports = {getConfiguration, getConfigurationTypes, setConfiguration, createFalse, createTrue, createNil, createList, createNum, setupFramework};

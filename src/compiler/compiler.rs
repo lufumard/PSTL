@@ -46,6 +46,8 @@ use crate::primitives::is_primitive;
 use crate::primitives::compile_fncall_primitive;
 
 
+const OPTIMIZE_NO_ARG : bool = true;
+
 use std::io::Write;
 pub fn write_out(s : &str, out : &mut File){
     write!(out, "{}", s).err();
@@ -164,6 +166,9 @@ pub fn compile(program: Program, out : &mut File){
     let prog_inc = insert_inc(prog_reuse, beta);
     write_ln("(module", out);
     write_ln("(memory (import \"js\" \"mem\") 1)", out);
+    write_ln("(global $__FALSE_LOC (mut i32) (i32.const 4))", out);
+    write_ln("(global $__TRUE_LOC (mut i32) (i32.const 12))", out);
+    write_ln("(global $__NIL_LOC (mut i32) (i32.const 20))", out);
     let ProgramRC::Program(fun_dec) = &prog_inc;
     let fn_desc = make_fun_desc(fun_dec);
     write_runtime(&fn_desc, out);
@@ -240,17 +245,100 @@ pub fn write_runtime(fn_desc : &IndexMap<Const, FnDesc>, out :&mut File) {
         write_ln("    i32.const 0 ;; 0", out);
         write_ln("    i32.load    ;; x", out);
     }
-        
+
+    // init memory
+    write_ln("(func $__init_memory (export \"__init_memory\") ", out);
+
+    if OPTIMIZE_NO_ARG {
+
+        // init false, true et nil si optimisé
+
+        // init false
+        write_ln("    i32.const 4", out);
+        write_ln("    global.set $__FALSE_LOC", out);
+
+        // init true
+        write_ln("    i32.const 12", out);
+        write_ln("    global.set $__TRUE_LOC", out);
+        write_ln("    global.get $__TRUE_LOC", out);
+        write_ln("    i32.const 1", out);
+        write_ln("    i32.store", out);
+
+        // init true
+        write_ln("    i32.const 20", out);
+        write_ln("    global.set $__NIL_LOC", out);
+        write_ln("    global.get $__NIL_LOC", out);
+        write_ln("    i32.const 2", out);
+        write_ln("    i32.store", out);
+
+        // init case mémoire
+        write_ln("    i32.const 0", out);
+        write_ln("    i32.const 28", out);
+        write_ln("    i32.store", out);
+
+    } else {
+
+        // init case mémoire
+        write_ln("    i32.const 0", out);
+        write_ln("    i32.const 4", out);
+        write_ln("    i32.store", out);
+
+    }
+
+    write_ln(")", out);
+
+
     //crée un constructeur sans argument en wat
     write_ln("(func $__make_no_arg (param $b i32) (result i32)", out);
-    write_ln("    ;; true ou false ou nil", out);
-    write_ln("    local.get $b", out);
-    write_ln("    call $__init_type", out);
-        wr(out);
-        wpr(out);
-    write_ln("    ;; mise à jour de memory[0]", out);
-    write_ln("    i32.const 8         ;; x 8", out);
-    write_ln("    call $__offset_next ;; x", out);
+    write_ln("    (local $result i32)", out);
+
+    let result = Var::Var("result".to_string());
+
+    if OPTIMIZE_NO_ARG {
+
+        write_ln("    ;; true ou false ou nil", out);
+
+        write_ln("    (block $case_nil ", out);
+        write_ln("    (block $case_true ", out);        
+        write_ln("    (block $case_false ", out);
+
+        write_ln("    local.get $b", out);
+        write_ln(&format!("    (br_table $case_false $case_true $case_nil)"), out);
+        write_ln("    )", out);
+        
+        // case false
+        write_ln("    global.get $__FALSE_LOC", out);
+        write_ln("    local.tee $result", out);
+            compile_add_ref(&result, 1, out);
+        write_ln("    return", out);
+        write_ln("    )", out);
+        
+        // case true
+        write_ln("    global.get $__TRUE_LOC", out);
+        write_ln("    local.tee $result", out);
+            compile_add_ref(&result, 1, out);
+        write_ln("    return", out);
+        write_ln("    )", out);
+        
+        // case nil
+        write_ln("    global.get $__NIL_LOC", out);
+        write_ln("    local.tee $result", out);
+            compile_add_ref(&result, 1, out);
+        write_ln("    return", out);
+
+    } else {
+
+        write_ln("    ;; true ou false ou nil", out);
+        write_ln("    local.get $b", out);
+        write_ln("    call $__init_type", out);
+            wr(out);
+            wpr(out);
+        write_ln("    ;; mise à jour de memory[0]", out);
+        write_ln("    i32.const 8         ;; x 8", out);
+        write_ln("    call $__offset_next ;; x", out);
+
+    }
+
     write_ln(")", out);
 
     write_ln("(func $__init_type (param $t i32)", out);
