@@ -1,3 +1,9 @@
+# Context
+
+Project for the first year of the STL master at Sorbonne Université.
+The goal of the project was to create a compiler from a functionnal toy language to WebAssembly, written in Rust.
+
+
 # PSTL
 
 Lancer l'interprète : 
